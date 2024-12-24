@@ -580,8 +580,10 @@ function initializeSocket() {
   //   ? 'http://localhost:3000'
   //   : window.location.origin;
 
-  const socketUrl = window.location.origin; // Render上でも自動的に正しいURLが選択される
+  console.log(window.location.origin);  // このログで URL を確認
+  const socketUrl = window.location.origin;
   socket = io(socketUrl);
+
   // ここまで
 
   // socket = io();
