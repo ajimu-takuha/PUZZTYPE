@@ -580,7 +580,7 @@ function initializeSocket() {
   //   ? 'http://localhost:3000'
   //   : window.location.origin;
 
-  console.log(window.location.origin);  // このログで URL を確認
+  console.log('接続先は' + window.location.origin);  // このログで URL を確認
   const socketUrl = window.location.origin;
   socket = io(socketUrl);
 
