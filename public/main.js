@@ -121,7 +121,7 @@ function drawField(ctx, field) {
         ctx.fillText(
           cell.word,
           x * CELL_SIZE + CELL_SIZE / 2,
-          y * CELL_SIZE + CELL_SIZE / 1.95
+          y * CELL_SIZE + CELL_SIZE / 1.65
         );
       }
     }
@@ -304,17 +304,31 @@ loadWordList().then(() => {
   startGameLoop();
 });
 
+let interval = 5000; // 初期の間隔（ミリ秒）
+const minInterval = 500; // 最小の間隔（ミリ秒）
+
 function startGameLoop() {
   if (!gameStarted) return;
 
-  setInterval(() => {
-    if (gameStarted) {
-      moveWordToField(playerWordPool, playerFieldWords);
-      updateFieldFromWordPool(playerField, playerFieldWords);
-      drawField(ctxPlayer, playerField);
-    }
-  }, 2000);
+  function gameStep() {
+    if (!gameStarted) return; // ゲームが終了したらループを停止
+
+    // ゲームのメイン処理
+    moveWordToField(playerWordPool, playerFieldWords);
+    updateFieldFromWordPool(playerField, playerFieldWords);
+    drawField(ctxPlayer, playerField);
+
+    // 次回の間隔を減少（10ミリ秒ずつ短縮）
+    interval = Math.max(minInterval, interval - 10);
+
+    // 次のゲームステップをスケジュール
+    setTimeout(gameStep, interval);
+  }
+
+  gameStep(); // 初回実行
 }
+
+
 
 // フィールドを更新して描画するループを開始する関数
 // function startGameLoop() {
@@ -370,9 +384,13 @@ window.addEventListener("keydown", (e) => {
     if (key.length === 1) {
       // 文字を追加
       playerInput += key;
+      if (key === ' ') {
 
+        console.log("スペースキーが押されたよ");
+        moveWordToField(playerWordPool, playerFieldWords);
+        updateFieldFromWordPool(playerField, playerFieldWords);
 
-      if (key === "n") {
+      } else if (key === "n") {
         // 押下キーが「n」の場合、それ以外を日本語に変換
         convertedInput = wanakana.toHiragana(playerInput.slice(0, -1));
 
@@ -400,6 +418,7 @@ window.addEventListener("keydown", (e) => {
       convertedInput = playerInput.slice(0, -1); // バックスペースで最後の文字を削除
 
     }
+
     playerInput = convertedInput;
   }
 
@@ -442,8 +461,8 @@ function checkAndRemoveWord(field, fieldWords, playerInput) {
 
     updateFieldFromWordPool(field, fieldWords);
 
-    console.log(`単語「${matchedWord}」が一致しました！ 文字数: ${wordLength}`);
-    return 0; // 単語の文字数を返す
+    // console.log(`単語「${matchedWord}」が一致しました！ 文字数: ${wordLength}`);
+    return; // 単語の文字数を返す
   }
 
   const highLightWordIndex = fieldWords.findIndex((word) => word.startsWith(extractLeadingJapanese(playerInput)));
@@ -459,6 +478,8 @@ function checkAndRemoveWord(field, fieldWords, playerInput) {
 
     return 0; // 一致しない場合は 0 を返す
   }
+
+  resetHighlight(field);
 
   // 部分一致、完全一致しなかった場合、攻撃を弱体化
   nerfAttack();
@@ -525,7 +546,7 @@ function drawInputField(ctx, inputText, inputField) {
 function calcAttackValue(removeWord, field) {
   if (field === playerField) {
     playerAttackValue = removeWord.length;
-    console.log(playerAttackValue);
+    // console.log(playerAttackValue);
 
     if (playerLastAttackValue + 1 == removeWord.length) {
       playerAttackValue = playerAttackValue + 1
@@ -550,10 +571,27 @@ function calcAttackValue(removeWord, field) {
 
 
 function attack(receiveField, receiveFieldWords, attackValue) {
+  // 攻撃用の新しい単語を生成
+  const attackWord = getRandomWordForAttack(attackValue);
 
-  receiveFieldWords.push(getRandomWordForAttack(attackValue));
-  updateFieldByAttack(receiveField, receiveFieldWords);
+  if (gameStarted) {
+    if (receiveField === opponentField) {
+      // プレイヤーが攻撃を実行する場合
+      socket.emit('attack', {
+        attackWord: attackWord,
+        attackValue: attackValue
+      });
 
+      // 相手フィールドの表示用配列を更新（画面表示用）
+      opponentFieldWords.push(attackWord);
+      updateFieldByAttack(opponentField, opponentFieldWords);
+      drawField(ctxOpponent, opponentField);
+    }
+  } else {
+    // ゲームが開始されていない場合やローカルテスト用
+    receiveFieldWords.push(attackWord);
+    updateFieldByAttack(receiveField, receiveFieldWords);
+  }
 }
 
 function upStockAttackValue() {
@@ -574,7 +612,7 @@ function nerfAttack() {
 
 // main.jsに追加
 function initializeSocket() {
-  
+
   // ここからRender用追記
   // const socketUrl = window.location.hostname === 'localhost'
   //   ? 'http://localhost:3000'
@@ -582,11 +620,9 @@ function initializeSocket() {
 
   console.log('接続先は' + window.location.origin);  // このログで URL を確認
   const socketUrl = window.location.origin;
-  socket = io(socketUrl);
 
   // ここまで
-
-  // socket = io();
+  socket = io(socketUrl);
 
   socket.on('waitingForPlayer', () => {
     console.log('対戦相手を待っています...');
@@ -613,5 +649,21 @@ function initializeSocket() {
   socket.on('opponentDisconnected', () => {
     console.log('対戦相手が切断しました');
     gameStarted = false;
+  });
+
+  socket.on('receiveAttack', (data) => {
+    // 自分のフィールドに攻撃単語を追加
+    playerFieldWords.push(data.attackWord);
+
+    // フィールドを更新
+    updateFieldByAttack(playerField, playerFieldWords);
+    drawField(ctxPlayer, playerField);
+
+    // 相手の画面上でも同期を取る
+    socket.emit('fieldUpdate', {
+      field: playerField,
+      wordPool: playerWordPool,
+      fieldWords: playerFieldWords
+    });
   });
 }

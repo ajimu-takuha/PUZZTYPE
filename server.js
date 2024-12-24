@@ -38,6 +38,23 @@ io.on('connection', (socket) => {
     });
 
     waitingPlayer = null;
+
+
+    // 攻撃イベントの処理を追加
+    socket.on('attack', (data) => {
+      const room = Array.from(socket.rooms)[1];
+      if (room) {
+        const gameRoom = rooms.get(room);
+        if (gameRoom) {
+          // 攻撃を受けるプレイヤーにイベントを送信
+          const targetSocket = socket.id === gameRoom.player1.id ? gameRoom.player2 : gameRoom.player1;
+          targetSocket.emit('receiveAttack', {
+            attackWord: data.attackWord,
+            attackValue: data.attackValue
+          });
+        }
+      }
+    });
   }
 
   // フィールド状態の同期
@@ -76,6 +93,7 @@ io.on('connection', (socket) => {
 const PORT = Number(!!process.env.PORT) || 3000;
 server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
+  console.log(process.env.PORT);
 });
 
 // server.listen(3000, () => {
