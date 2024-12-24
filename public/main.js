@@ -576,10 +576,11 @@ function nerfAttack() {
 function initializeSocket() {
   
   // ここからRender用追記
-  const socketUrl = window.location.hostname === 'localhost'
-    ? 'http://localhost:3000'
-    : window.location.origin;
+  // const socketUrl = window.location.hostname === 'localhost'
+  //   ? 'http://localhost:3000'
+  //   : window.location.origin;
 
+  const socketUrl = window.location.origin; // Render上でも自動的に正しいURLが選択される
   socket = io(socketUrl);
   // ここまで
 
