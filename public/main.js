@@ -421,17 +421,24 @@ window.addEventListener("keydown", (e) => {
 
     playerInput = convertedInput;
   }
+  
+  // 入力状態を同期
+  if (gameStarted) {
+    socket.emit('inputUpdate', {
+      input: playerInput
+    });
+  }
 
   // 単語のチェックと削除
   checkAndRemoveWord(playerField, playerFieldWords, playerInput);
-  checkAndRemoveWord(opponentField, opponentFieldWords, opponentInput);
+  // checkAndRemoveWord(opponentField, opponentFieldWords, opponentInput);
 
   // フィールドと入力内容を再描画
   drawField(ctxPlayer, playerField);
-  drawField(ctxOpponent, opponentField);
+  // drawField(ctxOpponent, opponentField);
 
   drawInputField(ctxPlayerInput, playerInput, playerInputField);
-  drawInputField(ctxOpponentInput, opponentInput, opponentInputField);
+  // drawInputField(ctxOpponentInput, opponentInput, opponentInputField);
 
 
 });
@@ -486,10 +493,35 @@ function checkAndRemoveWord(field, fieldWords, playerInput) {
   return 0; // 一致しない場合は 0 を返す
 }
 
+// highlightMatchWords関数を修正
 function highlightMatchWords(field, highLightWordIndex, matchedLength) {
   resetHighlight(field);
   for (let x = 0; x < matchedLength; x++) {
     field[field.length - 1 - highLightWordIndex][x].isHighlighted = true;
+  }
+
+  // ハイライト状態の同期
+  if (gameStarted && field === playerField) {
+    socket.emit('highlightUpdate', {
+      highlightIndex: highLightWordIndex,
+      length: matchedLength
+    });
+  }
+}
+
+// resetHighlight関数を修正
+function resetHighlight(field) {
+  for (let y = 0; y < FIELD_HEIGHT; y++) {
+    for (let x = 0; x < FIELD_WIDTH; x++) {
+      if (field[y][x]) {
+        field[y][x].isHighlighted = false;
+      }
+    }
+  }
+
+  // ハイライトリセット状態の同期
+  if (gameStarted && field === playerField) {
+    socket.emit('highlightReset', {});
   }
 }
 
@@ -515,16 +547,6 @@ function clearField(field) {
   for (let y = 0; y < FIELD_HEIGHT; y++) {
     for (let x = 0; x < FIELD_WIDTH; x++) {
       field[y][x] = null;
-    }
-  }
-}
-
-function resetHighlight(field) {
-  for (let y = 0; y < FIELD_HEIGHT; y++) {
-    for (let x = 0; x < FIELD_WIDTH; x++) {
-      if (field[y][x]) {
-        field[y][x].isHighlighted = false; // ハイライト状態をリセット
-      }
     }
   }
 }
@@ -637,6 +659,23 @@ function initializeSocket() {
     initializeWordPool(1000);
     startGameLoop();
     console.log(`ゲーム開始: ${isPlayer1 ? 'プレイヤー1' : 'プレイヤー2'}`);
+  });
+
+  socket.on('highlightSync', (data) => {
+    // 受信したハイライト情報で相手フィールドを更新
+    resetHighlight(opponentField);
+    for (let x = 0; x < data.length; x++) {
+      const row = opponentField.length - 1 - data.highlightIndex;
+      if (opponentField[row] && opponentField[row][x]) {
+        opponentField[row][x].isHighlighted = true;
+      }
+    }
+    drawField(ctxOpponent, opponentField);
+  });
+  
+  socket.on('highlightResetSync', () => {
+    resetHighlight(opponentField);
+    drawField(ctxOpponent, opponentField);
   });
 
   socket.on('fieldSync', (data) => {

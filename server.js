@@ -39,7 +39,6 @@ io.on('connection', (socket) => {
 
     waitingPlayer = null;
 
-
     // 攻撃イベントの処理を追加
     socket.on('attack', (data) => {
       const room = Array.from(socket.rooms)[1];
@@ -55,6 +54,26 @@ io.on('connection', (socket) => {
         }
       }
     });
+
+    // ハイライト状態の同期
+    socket.on('highlightUpdate', (data) => {
+      const room = Array.from(socket.rooms)[1];
+      if (room) {
+        socket.to(room).emit('highlightSync', {
+          highlightIndex: data.highlightIndex,
+          length: data.length
+        });
+      }
+    });
+
+    // ハイライトリセットの同期
+    socket.on('highlightReset', () => {
+      const room = Array.from(socket.rooms)[1];
+      if (room) {
+        socket.to(room).emit('highlightResetSync');
+      }
+    });
+
   }
 
   // フィールド状態の同期
