@@ -242,7 +242,7 @@ drawInputField(ctxOpponentInput, "", opponentInputField);
 // 単語リストの読み込み
 let wordList = null;
 async function loadWordList() {
-  const response = await fetch('./JS/words.json');
+  const response = await fetch('./words.json');
   wordList = await response.json();
 
   initializeWordPool(1000);
