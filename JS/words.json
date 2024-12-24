@@ -1,0 +1,30 @@
+{
+    "hiragana": {
+      "two": ["あい", "いえ", "うえ", "おい", "かい", "さけ", "たま", "なみ", "はな", "まめ"],
+      "three": ["あけび"],
+      "four": ["あかはな"],
+      "five": ["あさひがお"],
+      "six": ["あさひがおか"],
+      "seven": ["ななもじことば"],
+      "eight": ["あまのがわのいし"],
+      "nine": ["つきよのなかのかわ"],
+      "ten": ["じゅうもじのにほんご"]
+    },
+    "kanji": {
+          "two": ["山川", "東京", "自然", "未来", "友情", "幸福", "自由", "文化", "希望", "才能"],
+          "three": ["青空夢", "山道橋", "時雨川", "森田山", "未来風", "花火道", "文化祭", "星座絵", "日月山", "友情光"],
+          "four": ["一期一会", "温故知新", "四季折々", "十人十色", "百花繚乱", "自業自得", "起死回生", "花鳥風月", "以心伝心", "試行錯誤"]
+    },      
+    "english": {
+      "two": ["an", "by", "do", "go", "he", "if", "it", "me", "on", "us"],
+      "three": ["and", "boy", "cat", "dog", "egg", "fan", "hat", "ice", "jar", "key"],
+      "four": ["book", "cake", "desk", "flag", "gold", "home", "iron", "king", "lady", "mark"],
+      "five": ["apple", "bread", "cloud", "dance", "event", "field", "grape", "heart", "image", "joker"],
+      "six": ["animal", "beacon", "couple", "dollar", "effort", "future", "garden", "helmet", "island", "jungle"],
+      "seven": ["believe", "captain", "diamond", "economy", "festival", "gallery", "holiday", "inspire", "journey", "kingdom"],
+      "eight": ["adventure", "boundary", "complete", "delivery", "electric", "fountain", "guardian", "hospital", "industry", "journeyman"],
+      "nine": ["admiration", "collection", "discovery", "education", "foundation", "generation", "happiness", "important", "judgement", "knowledge"],
+      "ten": ["adversities", "beneficiary", "coincidence", "determinate", "efficiency", "foundations", "government", "hypothesis", "instruments", "journalists"]
+    }
+  }
+  

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://unpkg.com/wanakana"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <title>タイピングバトル</title>
+  <link rel="stylesheet" href="CSS/style.css">
+
+</head>
+
+<body>
+  <div class="game-container">
+    <div class="field-container">
+      <canvas id="playerField" class="field"></canvas>
+      <canvas id="playerInputField" class="inputField"></canvas>
+    </div>
+    <div class="field-container">
+      <canvas id="opponentField" class="field"></canvas>
+      <canvas id="opponentInputField" class="inputField"></canvas>
+    </div>
+  </div>
+
+  <script>
+    window.GameConfig = {
+      FIELD_WIDTH: 10,
+      FIELD_HEIGHT: 20,
+      CELL_SIZE: 30,
+    };
+  </script>
+
+  <script src="./JS/globals.js"></script>
+  <script src="./JS/main.js"></script>
+
+</body>
+
+</html>
