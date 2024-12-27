@@ -16,21 +16,9 @@ function calculateCellSize() {
   return Math.min(cellWidth, cellHeight);
 }
 
-function moveWordToField(wordPool, fieldWords) {
+function moveWordToField(fieldWords) {
 
-  // TODO WordPoolが少なくなったら非同期的に単語を補充する
-  if (wordPool.length < 500) {
-    addWordPool(500, wordPool);
-  } else if (wordPool.length === 0) {
-    console.warn("プレイヤーの単語プールが空です！");
-    return;
-  }
-
-  // 先頭の単語を切り取る
-  const word = wordPool.shift();
-
-  // FieldWords に追加
-  fieldWords.push(word);
+  fieldWords.push(getRandomWordForField(playerUsedLengths));
 
   // FieldWords を文字数昇順で並び替え
   fieldWords.sort((a, b) => b.length - a.length);
@@ -39,7 +27,7 @@ function moveWordToField(wordPool, fieldWords) {
 
 
 // 配列の単語をフィールドに反映する関数
-function updateFieldFromWordPool(field, fieldWords) {
+function updateField(field, fieldWords) {
 
   clearField(field);
 
@@ -63,19 +51,32 @@ function updateFieldFromWordPool(field, fieldWords) {
   }
 
   checkAndRemoveWord(playerField, playerFieldWords, playerInput);
-  checkAndRemoveWord(opponentField, opponentFieldWords, opponentInput);
+  // checkAndRemoveWord(opponentField, opponentFieldWords, opponentInput);
 
-  if (gameStarted && field === playerField) {
+  syncFieldUpdate(field);
+}
+
+function syncFieldUpdate() {
+  if (gameStarted) {
     socket.emit('fieldUpdate', {
-      field: field,
-      wordPool: playerWordPool,
+      field: playerField,
       fieldWords: playerFieldWords
     });
   }
-
 }
 
-function updateFieldByAttack(field, fieldWords) {
+function updateFieldAfterReceiveOffset(field, fieldWords) {
+  console.log("与えた攻撃:" + playerAttackValueToOffset);
+  console.log("受けた攻撃:" + playerReceiveValueToOffset);
+
+  calcReceiveOffset();
+  console.log("相殺後は:" + playerReceiveValueToOffset);
+
+  for (let x = 0; x < playerReceiveValueToOffset.length; x++) {
+    let addFieldWord = getRandomWordForAttack(playerReceiveValueToOffset[x]);
+    fieldWords.push(addFieldWord);
+    console.log("addFieldWordは:" + addFieldWord);
+  }
   // FieldWords を文字数昇順で並び替え
   fieldWords.sort((a, b) => b.length - a.length);
 
@@ -99,8 +100,43 @@ function updateFieldByAttack(field, fieldWords) {
     }
     row--; // 次の単語を下の行に配置
   }
-
+  syncFieldUpdate();
 }
+
+
+function calcReceiveOffset() {
+  // 共通する値を削除
+  for (let i = playerAttackValueToOffset.length - 1; i >= 0; i--) {
+    const value = playerAttackValueToOffset[i];
+    if (playerReceiveValueToOffset.includes(value)) {
+      // playerAttackValueToOffset から削除
+      playerAttackValueToOffset.splice(i, 1);
+      // playerReceiveValueToOffset から削除
+      playerReceiveValueToOffset.splice(playerReceiveValueToOffset.indexOf(value), 1);
+    }
+  }
+
+  // 合算する
+  let attackSum = playerAttackValueToOffset.reduce((sum, value) => sum + value, 0);
+
+  // playerReceiveValueToOffset の最も大きい値から順に引いていく
+  while (attackSum > 0 && playerReceiveValueToOffset.length > 0) {
+    // 最大値を探す
+    let maxIndex = playerReceiveValueToOffset.indexOf(Math.max(...playerReceiveValueToOffset));
+    let maxValue = playerReceiveValueToOffset[maxIndex];
+
+    if (attackSum >= maxValue) {
+      // 合算値が最大値を超える場合、最大値を削除
+      attackSum -= maxValue;
+      playerReceiveValueToOffset.splice(maxIndex, 1);
+    } else {
+      // 合算値が最大値未満の場合、最大値を減らす
+      playerReceiveValueToOffset[maxIndex] -= attackSum;
+      attackSum = 0; // 合算値を使い切る
+    }
+  }
+}
+
 
 function drawField(ctx, field) {
   ctx.fillStyle = "#333";
@@ -194,7 +230,7 @@ function resizeAllCanvases() {
 
   // 入力フィールドを再描画
   drawInputField(ctxPlayerInput, playerInput, playerInputField);
-  drawInputField(ctxOpponentInput, playerInput, opponentInputField);
+  drawInputField(ctxOpponentInput, opponentInput, opponentInputField);
 }
 
 
@@ -245,42 +281,6 @@ async function loadWordList() {
   const response = await fetch('./words.json');
   wordList = await response.json();
 
-  initializeWordPool(1000);
-}
-
-// 単語を取得して配列に格納する関数
-function initializeWordPool(count) {
-
-  playerWordPool = [];
-  opponentWordPool = [];
-
-  for (let i = 0; i < count; i++) {
-    const word = getRandomWordForField(playerUsedLengths);
-    playerWordPool.push(word); // プレイヤー配列に追加
-  }
-
-  // for (let i = 0; i < count; i++) {
-  //   const word = getRandomWordForField(playerUsedLengths);
-  //   playerAttackWordPool.push(word); // プレイヤー配列に追加
-  // }
-
-  for (let i = 0; i < count; i++) {
-    const word = getRandomWordForField(opponentUsedLengths);
-    opponentWordPool.push(word); // 対戦相手配列に追加
-  }
-
-  // for (let i = 0; i < count; i++) {
-  //   const word = getRandomWordForField(opponentUsedLengths);
-  //   opponentAttackWordPool.push(word); // 対戦相手配列に追加
-  // }
-
-}
-
-function addWordPool(count, wordPool) {
-  for (let i = 0; i < count; i++) {
-    const word = getRandomWordForField(playerUsedLengths);
-    wordPool.push(word); // プレイヤー配列に追加
-  }
 }
 
 // ゲーム開始
@@ -314,12 +314,12 @@ function startGameLoop() {
     if (!gameStarted) return; // ゲームが終了したらループを停止
 
     // ゲームのメイン処理
-    moveWordToField(playerWordPool, playerFieldWords);
-    updateFieldFromWordPool(playerField, playerFieldWords);
+    moveWordToField(playerFieldWords);
+    updateField(playerField, playerFieldWords);
     drawField(ctxPlayer, playerField);
 
     // 次回の間隔を減少（10ミリ秒ずつ短縮）
-    interval = Math.max(minInterval, interval - 10);
+    interval = Math.max(minInterval, interval - 50);
 
     // 次のゲームステップをスケジュール
     setTimeout(gameStep, interval);
@@ -327,25 +327,6 @@ function startGameLoop() {
 
   gameStep(); // 初回実行
 }
-
-
-
-// フィールドを更新して描画するループを開始する関数
-// function startGameLoop() {
-//   setInterval(() => {
-//     moveWordToField(playerWordPool, playerFieldWords);
-//     moveWordToField(opponentWordPool, opponentFieldWords);
-
-//     // フィールドを更新
-//     updateFieldFromWordPool(playerField, playerFieldWords);
-//     updateFieldFromWordPool(opponentField, opponentFieldWords);
-
-//     // 再描画
-//     drawField(ctxPlayer, playerField);
-//     drawField(ctxOpponent, opponentField);
-
-//   }, 2000);
-// }
 
 
 // ランダムな単語を取得
@@ -385,10 +366,10 @@ window.addEventListener("keydown", (e) => {
       // 文字を追加
       playerInput += key;
       if (key === ' ') {
+        // moveWordToField(playerFieldWords);
+        // updateField(playerField, playerFieldWords);
+        updateFieldAfterReceiveOffset(playerField, playerFieldWords);
 
-        console.log("スペースキーが押されたよ");
-        moveWordToField(playerWordPool, playerFieldWords);
-        updateFieldFromWordPool(playerField, playerFieldWords);
 
       } else if (key === "n") {
         // 押下キーが「n」の場合、それ以外を日本語に変換
@@ -414,24 +395,27 @@ window.addEventListener("keydown", (e) => {
         convertedInput = wanakana.toHiragana(playerInput);
       }
     } else if (key === "Backspace") {
-
       convertedInput = playerInput.slice(0, -1); // バックスペースで最後の文字を削除
-
+    } else if (key === "Delete") {
+      convertedInput = ""
     }
+    // else if (key === "Enter") {
+    //   if (isDownChain === true) {
+    //     for (let x = 0; x < playerChainAttackValue.length; x++) {
+    //       attack(playerChainAttackValue[0]);
+    //     }
+    //   }
+    // }
 
     playerInput = convertedInput;
-  }
-  
-  // 入力状態を同期
-  if (gameStarted) {
-    socket.emit('inputUpdate', {
-      input: playerInput
-    });
   }
 
   // 単語のチェックと削除
   checkAndRemoveWord(playerField, playerFieldWords, playerInput);
   // checkAndRemoveWord(opponentField, opponentFieldWords, opponentInput);
+
+  // 入力状態を同期
+  syncInputUpdate();
 
   // フィールドと入力内容を再描画
   drawField(ctxPlayer, playerField);
@@ -443,57 +427,72 @@ window.addEventListener("keydown", (e) => {
 
 });
 
+function syncInputUpdate() {
+  // 入力状態を同期
+  if (gameStarted) {
+    socket.emit('inputUpdate', {
+      input: playerInput
+    });
+  }
+}
+
 function extractLeadingJapanese(input) {
   // 先頭から連続する日本語（ひらがな、カタカナ、漢字）を抽出する正規表現
   const match = input.match(/^[\u3040-\u30FF\u4E00-\u9FFF]+/);
   return match ? match[0] : ""; // 一致した部分を返す。なければ空文字を返す
 }
 
-function checkAndRemoveWord(field, fieldWords, playerInput) {
+function checkAndRemoveWord(field, fieldWords, input) {
+  // console.log("checkAndRemoveWord実行")
+
   // 入力された単語が fieldWords に存在するか確認
+  if (input.length !== 0) {
 
-  // 入力文字の先頭から続く日本語部分を抽出して、フィールド内の単語と一致しているか確認
-  const wordIndex = fieldWords.findIndex((word) => word === extractLeadingJapanese(playerInput));
+    // 入力文字の先頭から続く日本語部分を抽出して、フィールド内の単語と一致しているか確認
+    const wordIndex = fieldWords.findIndex((word) => word === extractLeadingJapanese(input));
 
-  if (wordIndex !== -1) {
-    // 一致する単語を取得
-    const matchedWord = fieldWords[wordIndex];
-    const wordLength = matchedWord.length; // 単語の文字数を取得
-    fieldWords.splice(wordIndex, 1); // 単語リストから削除
+    if (wordIndex !== -1) {
+      // 一致する単語を取得
+      const matchedWord = fieldWords[wordIndex];
+      // const wordLength = matchedWord.length; // 単語の文字数を取得
+      fieldWords.splice(wordIndex, 1); // 単語リストから削除
 
-    // フィールドから単語を削除して再描画
-    removeWordFromField(field, matchedWord);
+      // フィールドから単語を削除して再描画
+      removeWordFromField(field, matchedWord);
 
-    calcAttackValue(matchedWord, field);
+      calcAttackValue(matchedWord);
 
-    updateFieldFromWordPool(field, fieldWords);
+      updateField(field, fieldWords);
 
-    // console.log(`単語「${matchedWord}」が一致しました！ 文字数: ${wordLength}`);
-    return; // 単語の文字数を返す
-  }
+      // console.log(`単語「${matchedWord}」が一致しました！ 文字数: ${wordLength}`);
+      return; // 単語の文字数を返す
+    }
 
-  const highLightWordIndex = fieldWords.findIndex((word) => word.startsWith(extractLeadingJapanese(playerInput)));
+    const highLightWordIndex = fieldWords.findIndex((word) => word.startsWith(extractLeadingJapanese(input)));
 
-  if (highLightWordIndex !== -1) {
+    console.log("highLightWordIndexは" + highLightWordIndex);
 
-    // 一致する単語を取得
-    // const matchedWord = fieldWords[highLightWordIndex];
+    if (highLightWordIndex !== -1) {
 
-    const matchedLength = extractLeadingJapanese(playerInput).length; // 単語の文字数を取得
+      const matchedLength = extractLeadingJapanese(input).length; // 単語の文字数を取得
 
-    highlightMatchWords(field, highLightWordIndex, matchedLength);
+      highlightMatchWords(field, highLightWordIndex, matchedLength);
 
+      return 0; // 一致しない場合は 0 を返す
+    }
+
+    resetHighlight(field);
+
+    // プレイヤー入力時、部分一致、完全一致しなかった場合、攻撃を弱体化
+    if (playerInput.length !== 0) {
+      console.log("playerInput" + playerInput);
+      nerfAttackValue();
+    }
     return 0; // 一致しない場合は 0 を返す
   }
 
-  resetHighlight(field);
-
-  // 部分一致、完全一致しなかった場合、攻撃を弱体化
-  nerfAttack();
-  return 0; // 一致しない場合は 0 を返す
 }
 
-// highlightMatchWords関数を修正
 function highlightMatchWords(field, highLightWordIndex, matchedLength) {
   resetHighlight(field);
   for (let x = 0; x < matchedLength; x++) {
@@ -501,12 +500,12 @@ function highlightMatchWords(field, highLightWordIndex, matchedLength) {
   }
 
   // ハイライト状態の同期
-  if (gameStarted && field === playerField) {
-    socket.emit('highlightUpdate', {
-      highlightIndex: highLightWordIndex,
-      length: matchedLength
-    });
-  }
+  // if (gameStarted && field === playerField) {
+  //   socket.emit('highlightUpdate', {
+  //     highlightIndex: highLightWordIndex,
+  //     length: matchedLength
+  //   });
+  // }
 }
 
 // resetHighlight関数を修正
@@ -520,9 +519,9 @@ function resetHighlight(field) {
   }
 
   // ハイライトリセット状態の同期
-  if (gameStarted && field === playerField) {
-    socket.emit('highlightReset', {});
-  }
+  // if (gameStarted && field === playerField) {
+  //   socket.emit('highlightReset', {});
+  // }
 }
 
 function removeWordFromField(field, word) {
@@ -542,6 +541,14 @@ function removeWordFromField(field, word) {
   resetHighlight(field);
 }
 
+function syncInputEmpty() {
+  if (gameStarted) {
+    socket.emit('inputEmptyUpdate', {
+      input: playerInput,
+    });
+  }
+}
+
 // 画面フィールドをクリア
 function clearField(field) {
   for (let y = 0; y < FIELD_HEIGHT; y++) {
@@ -556,7 +563,7 @@ function drawInputField(ctx, inputText, inputField) {
   const textY = CELL_SIZE; // キャンバス内に少し余裕を持たせた高さに描画
   ctx.clearRect(0, 0, inputField.getBoundingClientRect().width, inputField.getBoundingClientRect().height);
   ctx.fillStyle = '#fff'; // 白文字
-  ctx.font = `${CELL_SIZE * 1.5}px Arial`; // フォントサイズを調整
+  ctx.font = `${CELL_SIZE * 1}px Arial`; // フォントサイズを調整
   ctx.textBaseline = 'middle';
   ctx.textAlign = 'center';
 
@@ -565,83 +572,145 @@ function drawInputField(ctx, inputText, inputField) {
 
 }
 
-function calcAttackValue(removeWord, field) {
-  if (field === playerField) {
-    playerAttackValue = removeWord.length;
-    // console.log(playerAttackValue);
+function calcAttackValue(removeWord) {
 
-    if (playerLastAttackValue + 1 == removeWord.length) {
-      playerAttackValue = playerAttackValue + 1
-      upStockAttackValue();
+  playerAttackValue = removeWord.length;
+  let memorizeLastAttackValue = playerAttackValue;
 
-    } else if (playerLastAttackValue - 1 == removeWord.length) {
-      downStockAttackValue();
+  // console.log("playerLastAttackValueは" + playerLastAttackValue);
+  // console.log("playerAttackValueは" + playerAttackValue);
 
-    } else if (playerLastAttackValue == removeWord.length) {
-      sameCharAttack();
+  if (playerLastAttackValue + 1 == removeWord.length) {
+    isUpChain = true;
+    upChainAttack();
 
-    } else {
-      attack(opponentField, opponentFieldWords, playerAttackValue);
-    }
-    playerLastAttackValue = playerAttackValue;
+  } else if (playerLastAttackValue - 1 == removeWord.length) {
+    isdownChain = true;
+    downChainAttack();
+
+  } else if (playerLastAttackValue == removeWord.length) {
+    cancelChain();
+    sameCharAttack();
 
   } else {
-    opponentAttackValue = removeWord.length;
+    cancelChain();
+    attack(playerAttackValue);
   }
+  playerLastAttackValue = memorizeLastAttackValue;
+}
 
+function cancelChain() {
+  isUpChain = false;
+  isdownChain = false;
+  chainBonus = 0;
 }
 
 
-function attack(receiveField, receiveFieldWords, attackValue) {
-  // 攻撃用の新しい単語を生成
-  const attackWord = getRandomWordForAttack(attackValue);
-
+function attack(attackValue) {
   if (gameStarted) {
-    if (receiveField === opponentField) {
-      // プレイヤーが攻撃を実行する場合
+    if (nerfValue !== 0) {
+      let nerfAttackValue = attackValue - nerfValue;
+      nerfValue = 0;
+      if (nerfAttackValue < 2) {
+        console.log("ナーフで攻撃無効 nerfAttackValue:" + nerfAttackValue);
+        return;
+      } else {
+        console.log("ナーフ攻撃 nerfAttackValue:" + nerfAttackValue);
+        playerAttackValueToOffset.push(nerfAttackValue);
+
+        socket.emit('attack', {
+          attackValue: nerfAttackValue
+        });
+      }
+    } else {
+      playerAttackValueToOffset.push(attackValue);
+      
       socket.emit('attack', {
-        attackWord: attackWord,
         attackValue: attackValue
       });
-
-      // 相手フィールドの表示用配列を更新（画面表示用）
-      opponentFieldWords.push(attackWord);
-      updateFieldByAttack(opponentField, opponentFieldWords);
-      drawField(ctxOpponent, opponentField);
     }
-  } else {
-    // ゲームが開始されていない場合やローカルテスト用
-    receiveFieldWords.push(attackWord);
-    updateFieldByAttack(receiveField, receiveFieldWords);
+
+    // 相手フィールドの表示用配列を更新（画面表示用）
+    // opponentFieldWords.push(attackWord);
+    // updateFieldByAttack(opponentField, opponentFieldWords);
+    // drawField(ctxOpponent, opponentField);
   }
 }
 
-function upStockAttackValue() {
-
+function upChainAttack() {
+  if (isdownChain === true) {
+    isdownChain = false;
+    chainBonus = 0;
+    console.log("upChainAttackに切り替わったのでボーナスは0");
+    console.log("isdownChainは" + isdownChain);
+    console.log("isUpChainは" + isUpChain);
+  }
+  attack(playerAttackValue);
+  if (chainBonus === 0) {
+    chainBonus = 2;
+    attack(chainBonus);
+    console.log("初めてのchainBonusは" + chainBonus);
+    chainBonus++;
+  } else {
+    attack(chainBonus);
+    console.log("連続chainBonusは" + chainBonus);
+    chainBonus++;
+  }
 }
 
-function downStockAttackValue() {
-
+function downChainAttack() {
+  if (isUpChain === true) {
+    isUpChain = false;
+    chainBonus = 0;
+    console.log("downChainAttackに切り替わったのでボーナスは0");
+    console.log("isdownChainは" + isdownChain);
+    console.log("isUpChainは" + isUpChain);
+  }
+  attack(playerAttackValue);
+  if (chainBonus === 0) {
+    chainBonus = 2;
+    console.log("初めてのchainBonusは" + chainBonus);
+    attack(chainBonus);
+    chainBonus = chainBonus + 2;
+  } else {
+    if (chainBonus >= 10) {
+      attack(10);
+      attack(chainBonus % 10);
+      console.log("chainBonusによる追加攻撃");
+      console.log("連続chainBonusは" + chainBonus);
+    } else {
+      attack(chainBonus);
+      console.log("連続chainBonusは" + chainBonus);
+    }
+    chainBonus = chainBonus + 2;
+  }
 }
 
 function sameCharAttack() {
-
+  playerAttackValue = playerAttackValue * 2
+  if (playerAttackValue > 10) {
+    attack(10);
+    attack(playerAttackValue % 10);
+  } else {
+    attack(playerAttackValue);
+  }
+  console.log("sameCharAttack 攻撃力は:" + playerAttackValue);
 }
 
-function nerfAttack() {
-
+function nerfAttackValue() {
+  nerfValue = nerfValue + 1;
+  console.log(nerfValue + "文字ナーフされます");
 }
 
 // main.jsに追加
 function initializeSocket() {
 
   // ここからRender用追記
-  // const socketUrl = window.location.hostname === 'localhost'
-  //   ? 'http://localhost:3000'
-  //   : window.location.origin;
+  const socketUrl = window.location.hostname === 'localhost'
+    ? 'http://localhost:3000'
+    : window.location.origin
 
   console.log('接続先は' + window.location.origin);  // このログで URL を確認
-  const socketUrl = window.location.origin;
 
   // ここまで
   socket = io(socketUrl);
@@ -656,32 +725,66 @@ function initializeSocket() {
     opponentId = isPlayer1 ? data.player2Id : data.player1Id;
     gameStarted = true;
 
-    initializeWordPool(1000);
     startGameLoop();
     console.log(`ゲーム開始: ${isPlayer1 ? 'プレイヤー1' : 'プレイヤー2'}`);
   });
 
   socket.on('highlightSync', (data) => {
-    // 受信したハイライト情報で相手フィールドを更新
+    console.log('HighlightSync received:', data);
+
     resetHighlight(opponentField);
+    const row = opponentField.length - 1 - data.highlightIndex;
     for (let x = 0; x < data.length; x++) {
-      const row = opponentField.length - 1 - data.highlightIndex;
       if (opponentField[row] && opponentField[row][x]) {
         opponentField[row][x].isHighlighted = true;
       }
     }
     drawField(ctxOpponent, opponentField);
   });
-  
+
   socket.on('highlightResetSync', () => {
     resetHighlight(opponentField);
     drawField(ctxOpponent, opponentField);
   });
 
+  socket.on('inputSync', (data) => {
+    opponentInput = data.input;
+    checkAndRemoveWord(opponentField, opponentFieldWords, opponentInput);
+    drawField(ctxOpponent, opponentField);
+    drawInputField(ctxOpponentInput, opponentInput, opponentInputField);
+  });
+
+  // socket.on('syncInputEmpty', (data) => {
+  //   opponentInput = data.input;
+  //   console.log(opponentInput);
+  //   drawInputField(ctxOpponentInput, opponentInput, opponentInputField);
+  // });
+
   socket.on('fieldSync', (data) => {
     opponentFieldWords = data.fieldWords;
-    opponentWordPool = data.wordPool;
-    updateFieldFromWordPool(opponentField, opponentFieldWords);
+    opponentField = data.field;
+    clearField(opponentField);
+
+    // 単語をフィールドに左詰めで配置
+    let row = FIELD_HEIGHT - 1; // 下から配置
+    for (const word of opponentFieldWords) {
+      let col = 0; // 左端から配置
+      for (const char of word) {
+        if (col >= FIELD_WIDTH) {
+          row--; // 次の行に移動
+          col = 0;
+        }
+        if (row < 0) {
+          console.warn('フィールドの容量を超えています');
+          return;
+        }
+        opponentField[row][col] = { word: char, isHighlighted: false };
+        col++;
+      }
+      row--; // 次の単語を下の行に配置
+    }
+    checkAndRemoveWord(opponentField, opponentFieldWords, opponentInput);
+
     drawField(ctxOpponent, opponentField);
   });
 
@@ -691,18 +794,13 @@ function initializeSocket() {
   });
 
   socket.on('receiveAttack', (data) => {
+    console.log(`Received attack:`, data);
+
     // 自分のフィールドに攻撃単語を追加
-    playerFieldWords.push(data.attackWord);
+    playerReceiveValueToOffset.push(data.attackValue);
+    console.log("playerAttackValueToOffset:" + playerAttackValueToOffset);
+    console.log("playerReceiveValueToOffset:" + playerReceiveValueToOffset);
 
-    // フィールドを更新
-    updateFieldByAttack(playerField, playerFieldWords);
-    drawField(ctxPlayer, playerField);
-
-    // 相手の画面上でも同期を取る
-    socket.emit('fieldUpdate', {
-      field: playerField,
-      wordPool: playerWordPool,
-      fieldWords: playerFieldWords
-    });
+    console.log("攻撃を受けました:" + playerReceiveValueToOffset);
   });
 }

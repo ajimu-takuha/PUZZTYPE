@@ -31,25 +31,22 @@ let opponentUsedLengths = [];
 let playerInput = "";
 let opponentInput = "";
 
-// 単語プール
-let playerWordPool = [];
-let opponentWordPool = [];
-
-// 攻撃用単語プール
-// let playerAttackWordPool = [];
-// let opponentAttackWordPool = [];
-
 // プレイヤー攻撃スコア
 let playerAttackValue = 0;
 let opponentAttackValue = 0;
+let nerfValue = 0;
 
 // 攻撃スコア算出のため、最後に消去した文字数
 let playerLastAttackValue = 0;
 let opponentLastAttackValue = 0;
 
-// チェイン攻撃用
-let playerStockAttackValue = []
-let opponentStockAttackValue = []
+// 攻撃清算用
+let playerAttackValueToOffset = [];
+let playerReceiveValueToOffset = [];
+
+let isUpChain = false;
+let isDownChain = false;
+let chainBonus = 0;
 
 // キャンバス関連
 const playerFieldElement = document.getElementById("playerField");
@@ -74,16 +71,16 @@ window.GameConfig = {
   opponentFieldWords,
   playerInput,
   opponentInput,
-  playerWordPool,
-//   playerAttackWordPool,
-//   opponentAttackWordPool,
-  opponentWordPool,
   playerAttackValue,
   opponentAttackValue,
+  nerfValue,
   playerLastAttackValue,
   opponentLastAttackValue,
-  playerStockAttackValue,
-  opponentStockAttackValue,
+  playerAttackValueToOffset,
+  playerReceiveValueToOffset,
+  isUpChain,
+  isDownChain,
+  chainBonus,
   ctxPlayer,
   ctxOpponent,
   ctxPlayerInput,

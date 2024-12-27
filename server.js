@@ -41,14 +41,19 @@ io.on('connection', (socket) => {
 
     // 攻撃イベントの処理を追加
     socket.on('attack', (data) => {
+
+        console.log(`Attack received from ${socket.id} with value:`, data);
+   
       const room = Array.from(socket.rooms)[1];
       if (room) {
         const gameRoom = rooms.get(room);
         if (gameRoom) {
           // 攻撃を受けるプレイヤーにイベントを送信
           const targetSocket = socket.id === gameRoom.player1.id ? gameRoom.player2 : gameRoom.player1;
+          
+          console.log(`Target for attack is ${targetSocket.id}`);
+          
           targetSocket.emit('receiveAttack', {
-            attackWord: data.attackWord,
             attackValue: data.attackValue
           });
         }
@@ -56,15 +61,23 @@ io.on('connection', (socket) => {
     });
 
     // ハイライト状態の同期
-    socket.on('highlightUpdate', (data) => {
-      const room = Array.from(socket.rooms)[1];
-      if (room) {
-        socket.to(room).emit('highlightSync', {
-          highlightIndex: data.highlightIndex,
-          length: data.length
-        });
-      }
-    });
+    // socket.on('highlightUpdate', (data) => {
+    //   console.log('Server received highlightUpdate:', {
+    //     socketId: socket.id,
+    //     data
+    //   });
+    
+    //   const gameRoom = rooms.get(room);
+    //   if (gameRoom) {
+    //     console.log('Emitting highlightSync to room:', room);
+    //     const targetSocket = socket.id === gameRoom.player1.id ? gameRoom.player2 : gameRoom.player1;
+    //     targetSocket.emit('highlightSync', {
+    //       highlightIndex: data.highlightIndex,
+    //       length: data.length
+    //     });
+    //   }
+    // });
+    
 
     // ハイライトリセットの同期
     socket.on('highlightReset', () => {
@@ -89,12 +102,33 @@ io.on('connection', (socket) => {
         }
         socket.to(room).emit('fieldSync', {
           field: data.field,
-          wordPool: data.wordPool,
           fieldWords: data.fieldWords
         });
       }
     }
   });
+
+  socket.on('inputUpdate', (data) => {
+    const room = Array.from(socket.rooms)[1];
+    if (room) {
+      const gameRoom = rooms.get(room);
+      const targetSocket = socket.id === gameRoom.player1.id ? gameRoom.player2 : gameRoom.player1;
+      targetSocket.emit('inputSync', {
+        input: data.input
+      });
+    }
+  });
+
+  // socket.on('inputEmptyUpdate', (data) => {
+  //   const room = Array.from(socket.rooms)[1];
+  //   if (room) {
+  //     const gameRoom = rooms.get(room);
+  //     const targetSocket = socket.id === gameRoom.player1.id ? gameRoom.player2 : gameRoom.player1;
+  //     targetSocket.emit('syncInputEmpty', {
+  //       input: data.input
+  //     });
+  //   }
+  // });
 
   socket.on('disconnect', () => {
     if (waitingPlayer === socket) {
@@ -112,7 +146,7 @@ io.on('connection', (socket) => {
 const PORT = Number(!!process.env.PORT) || 3000;
 server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
-  console.log(process.env.PORT);
+  console.log("process.env.PORT" + process.env.PORT);
 });
 
 // server.listen(3000, () => {
