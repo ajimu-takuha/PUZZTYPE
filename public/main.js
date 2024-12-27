@@ -77,6 +77,9 @@ function updateFieldAfterReceiveOffset(field, fieldWords) {
     fieldWords.push(addFieldWord);
     console.log("addFieldWordは:" + addFieldWord);
   }
+  playerAttackValueToOffset = [];
+  playerReceiveValueToOffset = [];
+
   // FieldWords を文字数昇順で並び替え
   fieldWords.sort((a, b) => b.length - a.length);
 
@@ -133,9 +136,15 @@ function calcReceiveOffset() {
       // 合算値が最大値未満の場合、最大値を減らす
       playerReceiveValueToOffset[maxIndex] -= attackSum;
       attackSum = 0; // 合算値を使い切る
+
+      // 残った値が2未満なら削除
+      if (playerReceiveValueToOffset[maxIndex] < 2) {
+        playerReceiveValueToOffset.splice(maxIndex, 1);
+      }
     }
   }
 }
+
 
 
 function drawField(ctx, field) {
@@ -470,8 +479,6 @@ function checkAndRemoveWord(field, fieldWords, input) {
 
     const highLightWordIndex = fieldWords.findIndex((word) => word.startsWith(extractLeadingJapanese(input)));
 
-    console.log("highLightWordIndexは" + highLightWordIndex);
-
     if (highLightWordIndex !== -1) {
 
       const matchedLength = extractLeadingJapanese(input).length; // 単語の文字数を取得
@@ -485,7 +492,7 @@ function checkAndRemoveWord(field, fieldWords, input) {
 
     // プレイヤー入力時、部分一致、完全一致しなかった場合、攻撃を弱体化
     if (playerInput.length !== 0) {
-      console.log("playerInput" + playerInput);
+      // console.log("playerInput" + playerInput);
       nerfAttackValue();
     }
     return 0; // 一致しない場合は 0 を返す
@@ -573,7 +580,7 @@ function drawInputField(ctx, inputText, inputField) {
 }
 
 function calcAttackValue(removeWord) {
-
+  console.log("攻撃力を計算 playerAttackValue:" + playerAttackValue);
   playerAttackValue = removeWord.length;
   let memorizeLastAttackValue = playerAttackValue;
 
@@ -623,8 +630,10 @@ function attack(attackValue) {
         });
       }
     } else {
+      console.log("通常攻撃！")
       playerAttackValueToOffset.push(attackValue);
       
+      console.log(playerAttackValueToOffset);
       socket.emit('attack', {
         attackValue: attackValue
       });
@@ -699,7 +708,7 @@ function sameCharAttack() {
 
 function nerfAttackValue() {
   nerfValue = nerfValue + 1;
-  console.log(nerfValue + "文字ナーフされます");
+  // console.log(nerfValue + "文字ナーフされます");
 }
 
 // main.jsに追加

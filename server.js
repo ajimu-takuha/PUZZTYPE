@@ -39,55 +39,57 @@ io.on('connection', (socket) => {
 
     waitingPlayer = null;
 
-    // 攻撃イベントの処理を追加
-    socket.on('attack', (data) => {
-
-        console.log(`Attack received from ${socket.id} with value:`, data);
-   
-      const room = Array.from(socket.rooms)[1];
-      if (room) {
-        const gameRoom = rooms.get(room);
-        if (gameRoom) {
-          // 攻撃を受けるプレイヤーにイベントを送信
-          const targetSocket = socket.id === gameRoom.player1.id ? gameRoom.player2 : gameRoom.player1;
-          
-          console.log(`Target for attack is ${targetSocket.id}`);
-          
-          targetSocket.emit('receiveAttack', {
-            attackValue: data.attackValue
-          });
-        }
-      }
-    });
-
-    // ハイライト状態の同期
-    // socket.on('highlightUpdate', (data) => {
-    //   console.log('Server received highlightUpdate:', {
-    //     socketId: socket.id,
-    //     data
-    //   });
-    
-    //   const gameRoom = rooms.get(room);
-    //   if (gameRoom) {
-    //     console.log('Emitting highlightSync to room:', room);
-    //     const targetSocket = socket.id === gameRoom.player1.id ? gameRoom.player2 : gameRoom.player1;
-    //     targetSocket.emit('highlightSync', {
-    //       highlightIndex: data.highlightIndex,
-    //       length: data.length
-    //     });
-    //   }
-    // });
-    
-
-    // ハイライトリセットの同期
-    socket.on('highlightReset', () => {
-      const room = Array.from(socket.rooms)[1];
-      if (room) {
-        socket.to(room).emit('highlightResetSync');
-      }
-    });
-
   }
+
+
+  // ハイライト状態の同期
+  // socket.on('highlightUpdate', (data) => {
+  //   console.log('Server received highlightUpdate:', {
+  //     socketId: socket.id,
+  //     data
+  //   });
+
+  //   const gameRoom = rooms.get(room);
+  //   if (gameRoom) {
+  //     console.log('Emitting highlightSync to room:', room);
+  //     const targetSocket = socket.id === gameRoom.player1.id ? gameRoom.player2 : gameRoom.player1;
+  //     targetSocket.emit('highlightSync', {
+  //       highlightIndex: data.highlightIndex,
+  //       length: data.length
+  //     });
+  //   }
+  // });
+
+
+  // ハイライトリセットの同期
+  // socket.on('highlightReset', () => {
+  //   const room = Array.from(socket.rooms)[1];
+  //   if (room) {
+  //     socket.to(room).emit('highlightResetSync');
+  //   }
+  // });
+
+
+  // 攻撃イベントの処理を追加
+  socket.on('attack', (data) => {
+
+    console.log(`Attack received from ${socket.id} with value:`, data);
+
+    const room = Array.from(socket.rooms)[1];
+    if (room) {
+      const gameRoom = rooms.get(room);
+      if (gameRoom) {
+        // 攻撃を受けるプレイヤーにイベントを送信
+        const targetSocket = socket.id === gameRoom.player1.id ? gameRoom.player2 : gameRoom.player1;
+
+        console.log(`Target for attack is ${targetSocket.id}`);
+
+        targetSocket.emit('receiveAttack', {
+          attackValue: data.attackValue
+        });
+      }
+    }
+  });
 
   // フィールド状態の同期
   socket.on('fieldUpdate', (data) => {
