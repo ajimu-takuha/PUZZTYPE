@@ -5,8 +5,8 @@ let CELL_SIZE = 30;
 
 // セルサイズを計算する関数
 function calculateCellSize() {
-  const maxFieldWidth = window.innerWidth * 0.4; // 画面幅の40%をフィールドの最大幅に設定
-  const maxFieldHeight = window.innerHeight * 0.6; // 画面高さの80%をフィールドの最大高さに設定
+  const maxFieldWidth = window.innerWidth * 0.5; // 画面幅の40%をフィールドの最大幅に設定
+  const maxFieldHeight = window.innerHeight * 0.7; // 画面高さの80%をフィールドの最大高さに設定
 
   // 各セルのサイズを決定（横方向と縦方向の比率を保つ）
   const cellWidth = maxFieldWidth / FIELD_WIDTH;
@@ -25,47 +25,30 @@ function moveWordToField(fieldWords) {
 
 }
 
-
-// 配列の単語をフィールドに反映する関数
+// checkAndRemoveWordからのみ呼び出され、単語を削除後、再描画する
 function updateField(field, fieldWords) {
-
+  console.log("updateField実行");
+  if (gameState !== 'playing') return;
   clearField(field);
 
-  // 単語をフィールドに左詰めで配置
-  let row = FIELD_HEIGHT - 1; // 下から配置
+  let row = FIELD_HEIGHT - 1;
   for (const word of fieldWords) {
-    let col = 0; // 左端から配置
+    let col = 0;
     for (const char of word) {
       if (col >= FIELD_WIDTH) {
-        row--; // 次の行に移動
+        row--;
         col = 0;
-      }
-      if (row < 0) {
-        console.warn('フィールドの容量を超えています');
-        return;
       }
       field[row][col] = { word: char, isHighlighted: false };
       col++;
     }
-    row--; // 次の単語を下の行に配置
+    row--;
   }
-
-  checkAndRemoveWord(playerField, playerFieldWords, playerInput);
-  // checkAndRemoveWord(opponentField, opponentFieldWords, opponentInput);
-
   syncFieldUpdate(field);
 }
 
-function syncFieldUpdate() {
-  if (gameStarted) {
-    socket.emit('fieldUpdate', {
-      field: playerField,
-      fieldWords: playerFieldWords
-    });
-  }
-}
-
 function updateFieldAfterReceiveOffset(field, fieldWords) {
+  console.log("updateFieldAfterReceiveOffset実行");
   console.log("与えた攻撃:" + playerAttackValueToOffset);
   console.log("受けた攻撃:" + playerReceiveValueToOffset);
 
@@ -94,18 +77,84 @@ function updateFieldAfterReceiveOffset(field, fieldWords) {
         row--; // 次の行に移動
         col = 0;
       }
-      if (row < 0) {
-        console.warn('フィールドの容量を超えています');
+      if (row === 0) {
+        field[row][col] = { word: char, isHighlighted: false };
+        col++;
+        console.log("描画おわり");
+      } else if (row < 0) {
+        drawField(ctxPlayer, playerField);
+
+        console.log("描写する行が上限を突破したためdrawField");
+
+        syncFieldUpdate();
+        handleGameOver(true);
+
+        console.log("syncFieldUpdateして・handleGameOver処理");
+        socket.emit('gameOver', { loserId: playerId });
+
         return;
+
+      } else {
+        console.log(word + "描画");
+        field[row][col] = { word: char, isHighlighted: false };
+        col++;
       }
-      field[row][col] = { word: char, isHighlighted: false };
-      col++;
     }
     row--; // 次の単語を下の行に配置
   }
   syncFieldUpdate();
 }
 
+// ゲームオーバー処理
+function handleGameOver(isLoser) {
+  if (gameState === 'ended') return; // 既にゲーム終了処理が行われている場合は何もしない
+  console.log("handleGameOver実行");
+  gameState = 'ended';
+  isGameOver = true;
+
+  // 結果表示
+  drawGameOverUI(ctxPlayer, isLoser ? 'Lose' : 'Win'); // プレイヤー側
+  drawGameOverUI(ctxOpponent, isLoser ? 'Win' : 'Lose'); // 対戦相手側
+
+  // 少し待ってからリトライダイアログを表示
+  setTimeout(() => {
+    showRetryDialog();
+  }, 1000);
+}
+
+// リトライレスポンス処理
+function handleRetryResponse(response) {
+  const buttons = retryDialog.querySelectorAll('button');
+  buttons.forEach(button => button.disabled = true); // ボタンを無効化
+  socket.emit('retryResponse', { response });
+}
+
+function drawGameOverUI(ctx, text) {
+  const width = ctx.canvas.getBoundingClientRect().width;
+  const height = ctx.canvas.getBoundingClientRect().height;
+  ctx.save();
+  // 半透明の背景
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+  ctx.fillRect(0, 0, width, height);
+
+  // 結果テキスト
+  ctx.fillStyle = '#fff';
+  ctx.font = `${CELL_SIZE * 2}px Arial`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(text, width / 2, height / 2);
+
+  ctx.restore();
+}
+
+function syncFieldUpdate() {
+  if (gameStarted) {
+    socket.emit('fieldUpdate', {
+      field: playerField,
+      fieldWords: playerFieldWords
+    });
+  }
+}
 
 function calcReceiveOffset() {
   // 共通する値を削除
@@ -148,33 +197,66 @@ function calcReceiveOffset() {
 
 
 function drawField(ctx, field) {
-  ctx.fillStyle = "#333";
-  // ctx.fillRect(0, 0, parseInt(playerFieldElement.style.width), parseInt(playerFieldElement.style.height, 10));
+  console.log("drawField実行");
+  // gameStepによってupdateFieldAfterReceiveOffsetにより
+  // handleGameOverが実行されるが、そのあとにこれが実行されるのを防ぐ
+  if (gameState === 'ended') {
+    return;
+  }
+  console.log("drawField実行");
+
+  ctx.fillStyle = "#000000";
   ctx.fillRect(0, 0, ctx.canvas.getBoundingClientRect().width, ctx.canvas.getBoundingClientRect().height);
-  drawGrid(ctx)
-  // フィールドデータを描画
   for (let y = 0; y < FIELD_HEIGHT; y++) {
     for (let x = 0; x < FIELD_WIDTH; x++) {
       const cell = field[y][x];
       if (cell) {
-        // セル内の文字を描画
-        ctx.fillStyle = '#fff'; // 文字色
-        ctx.font = (CELL_SIZE * 0.7) + "px Arial"; // フォント
+        const gradient = ctx.createRadialGradient(
+          x * CELL_SIZE + CELL_SIZE / 2,
+          y * CELL_SIZE + CELL_SIZE / 2,
+          CELL_SIZE * 3,
+          x * CELL_SIZE + CELL_SIZE / 2,
+          y * CELL_SIZE + CELL_SIZE / 2,
+          0
+        );
+
+        if (cell.isHighlighted) {
+          gradient.addColorStop(0, 'rgb(0, 0, 0)');
+          gradient.addColorStop(1, 'rgba(255, 255, 255, 0.25)');
+        }
+
+        ctx.fillStyle = gradient;
+        ctx.fillRect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+
+        // フォント設定
+        ctx.font = `${CELL_SIZE * 0.7}px 'M PLUS Rounded 1c'`;
         ctx.textBaseline = 'middle';
         ctx.textAlign = 'center';
-        ctx.fillStyle = cell.isHighlighted ? '#ffa500' : 'f222';
-        ctx.fillText(
-          cell.word,
-          x * CELL_SIZE + CELL_SIZE / 2,
-          y * CELL_SIZE + CELL_SIZE / 1.65
-        );
+
+        const centerX = x * CELL_SIZE + CELL_SIZE / 2;
+        const centerY = y * CELL_SIZE + CELL_SIZE / 2;
+
+        if (cell.isHighlighted) {
+          // ハイライト時は白い輪郭線と黒い文字
+          ctx.strokeStyle = 'black';
+          ctx.lineWidth = 2;  // 輪郭線の太さ
+          ctx.strokeText(cell.word, centerX, centerY);
+
+          ctx.fillStyle = 'white';
+          ctx.fillText(cell.word, centerX, centerY);
+        } else {
+          // 通常時は白い文字
+          ctx.fillStyle = 'white';
+          ctx.fillText(cell.word, centerX, centerY);
+        }
       }
     }
   }
+  drawGrid(ctx);
 }
 
 function drawGrid(ctx) {
-  ctx.strokeStyle = '#333'; // グリッド線の色
+  ctx.strokeStyle = 'rgba(51, 51, 51)'; // グリッド線の色
   for (let x = 0; x <= FIELD_WIDTH; x++) {
     ctx.beginPath();
     ctx.moveTo(x * CELL_SIZE, 0);
@@ -310,31 +392,27 @@ loadWordList().then(() => {
   drawGrid(ctxOpponent);
 
   // ゲームループ開始
-  startGameLoop();
+  // startGame();
 });
 
 let interval = 5000; // 初期の間隔（ミリ秒）
-const minInterval = 500; // 最小の間隔（ミリ秒）
+const minInterval = 1000; // 最小の間隔（ミリ秒）
 
-function startGameLoop() {
-  if (!gameStarted) return;
+// startGameLoop関数を修正
+function startGame() {
+  if (gameState !== 'playing') return;
 
   function gameStep() {
-    if (!gameStarted) return; // ゲームが終了したらループを停止
-
-    // ゲームのメイン処理
+    if (gameState !== 'playing') return;
     moveWordToField(playerFieldWords);
-    updateField(playerField, playerFieldWords);
+    updateFieldAfterReceiveOffset(playerField, playerFieldWords);
     drawField(ctxPlayer, playerField);
 
-    // 次回の間隔を減少（10ミリ秒ずつ短縮）
     interval = Math.max(minInterval, interval - 50);
-
-    // 次のゲームステップをスケジュール
     setTimeout(gameStep, interval);
   }
 
-  gameStep(); // 初回実行
+  gameStep();
 }
 
 
@@ -375,10 +453,10 @@ window.addEventListener("keydown", (e) => {
       // 文字を追加
       playerInput += key;
       if (key === ' ') {
-        // moveWordToField(playerFieldWords);
-        // updateField(playerField, playerFieldWords);
+        moveWordToField(playerFieldWords);
         updateFieldAfterReceiveOffset(playerField, playerFieldWords);
-
+        playerInput = playerInput.trim();
+        convertedInput = wanakana.toHiragana(playerInput);
 
       } else if (key === "n") {
         // 押下キーが「n」の場合、それ以外を日本語に変換
@@ -473,7 +551,7 @@ function checkAndRemoveWord(field, fieldWords, input) {
 
       updateField(field, fieldWords);
 
-      // console.log(`単語「${matchedWord}」が一致しました！ 文字数: ${wordLength}`);
+      console.log(`単語「${matchedWord}」を消去`);
       return; // 単語の文字数を返す
     }
 
@@ -493,6 +571,7 @@ function checkAndRemoveWord(field, fieldWords, input) {
     // プレイヤー入力時、部分一致、完全一致しなかった場合、攻撃を弱体化
     if (playerInput.length !== 0) {
       // console.log("playerInput" + playerInput);
+      cancelChain();
       nerfAttackValue();
     }
     return 0; // 一致しない場合は 0 を返す
@@ -570,7 +649,7 @@ function drawInputField(ctx, inputText, inputField) {
   const textY = CELL_SIZE; // キャンバス内に少し余裕を持たせた高さに描画
   ctx.clearRect(0, 0, inputField.getBoundingClientRect().width, inputField.getBoundingClientRect().height);
   ctx.fillStyle = '#fff'; // 白文字
-  ctx.font = `${CELL_SIZE * 1}px Arial`; // フォントサイズを調整
+  ctx.font = `${CELL_SIZE * 1}px 'M PLUS Rounded 1c'`;
   ctx.textBaseline = 'middle';
   ctx.textAlign = 'center';
 
@@ -580,9 +659,9 @@ function drawInputField(ctx, inputText, inputField) {
 }
 
 function calcAttackValue(removeWord) {
-  console.log("攻撃力を計算 playerAttackValue:" + playerAttackValue);
   playerAttackValue = removeWord.length;
   let memorizeLastAttackValue = playerAttackValue;
+  console.log("攻撃力を計算 playerAttackValue:" + playerAttackValue);
 
   // console.log("playerLastAttackValueは" + playerLastAttackValue);
   // console.log("playerAttackValueは" + playerAttackValue);
@@ -632,17 +711,12 @@ function attack(attackValue) {
     } else {
       console.log("通常攻撃！")
       playerAttackValueToOffset.push(attackValue);
-      
+
       console.log(playerAttackValueToOffset);
       socket.emit('attack', {
         attackValue: attackValue
       });
     }
-
-    // 相手フィールドの表示用配列を更新（画面表示用）
-    // opponentFieldWords.push(attackWord);
-    // updateFieldByAttack(opponentField, opponentFieldWords);
-    // drawField(ctxOpponent, opponentField);
   }
 }
 
@@ -697,7 +771,13 @@ function downChainAttack() {
 
 function sameCharAttack() {
   playerAttackValue = playerAttackValue * 2
-  if (playerAttackValue > 10) {
+  if (playerAttackValue = 20) {
+    attack(10);
+    const array = [2, 3, 4, 5, 6, 7, 8];
+    const randomValue = array[Math.floor(Math.random() * array.length)];
+    attack(randomValue);
+    attack(10 - randomValue);
+  } else if (playerAttackValue > 10) {
     attack(10);
     attack(playerAttackValue % 10);
   } else {
@@ -708,8 +788,141 @@ function sameCharAttack() {
 
 function nerfAttackValue() {
   nerfValue = nerfValue + 1;
-  // console.log(nerfValue + "文字ナーフされます");
+  console.log(nerfValue + "文字ナーフされます");
 }
+
+
+
+// ゲームリセット関数
+function resetGame() {
+  // ゲーム状態のリセット
+  gameState = 'waiting';
+  isGameOver = false;
+  interval = 5000; // 初期インターバルに戻す
+
+  // プレイヤーデータのリセット
+  playerField = Array(FIELD_HEIGHT).fill().map(() => Array(FIELD_WIDTH).fill(null));
+  playerFieldWords = [];
+  playerInput = '';
+  playerUsedLengths = [];
+  playerAttackValue = 0;
+  playerLastAttackValue = 0;
+  playerAttackValueToOffset = [];
+  playerReceiveValueToOffset = [];
+  nerfValue = 0;
+  chainBonus = 0;
+  isUpChain = false;
+  isdownChain = false;
+
+  // 相手のデータもリセット
+  opponentField = Array(FIELD_HEIGHT).fill().map(() => Array(FIELD_WIDTH).fill(null));
+  opponentFieldWords = [];
+  opponentInput = '';
+
+  // キャンバスをクリア
+  clearField(playerField);
+  clearField(opponentField);
+  drawField(ctxPlayer, playerField);
+  drawField(ctxOpponent, opponentField);
+  drawInputField(ctxPlayerInput, '', playerInputField);
+  drawInputField(ctxOpponentInput, '', opponentInputField);
+}
+
+// マッチング成功UI表示
+function showMatchingSuccess() {
+  const overlay = document.createElement('div');
+  overlay.style.cssText = `
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 20px 40px;
+    border-radius: 10px;
+    font-size: 24px;
+    z-index: 1000;
+  `;
+  overlay.textContent = 'マッチングに成功しました';
+  document.body.appendChild(overlay);
+
+  setTimeout(() => {
+    document.body.removeChild(overlay);
+    startCountdown();
+  }, 2000);
+}
+
+// カウントダウン表示
+function showCountdown(count) {
+  const overlay = document.createElement('div');
+  overlay.style.cssText = `
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font: Arial;
+    font-size: 88px;
+    z-index: 1000;
+  `;
+  overlay.textContent = count;
+  document.body.appendChild(overlay);
+
+  setTimeout(() => document.body.removeChild(overlay), 900);
+}
+
+// カウントダウン処理
+function startCountdown() {
+  gameState = 'countdown';
+  let count = 3;
+
+  const countInterval = setInterval(() => {
+    if (count >= 1) {
+      showCountdown(count);
+    }
+
+    if (count < 1) {
+      clearInterval(countInterval);
+      gameState = 'playing';
+      startGame();
+    }
+    count--;
+  }, 1000);
+}
+
+// リトライダイアログ表示
+function showRetryDialog() {
+  if (retryDialog) return; // 既に表示されている場合は何もしない
+
+  retryDialog = document.createElement('div');
+  retryDialog.style.cssText = `
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.9);
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    z-index: 1000;
+  `;
+
+  retryDialog.innerHTML = `
+    <div style="margin-bottom: 20px;">もう一度プレイしますか？</div>
+    <button onclick="handleRetryResponse(true)" 
+      style="margin: 0 10px; padding: 10px 20px; background: #4CAF50; border: none; border-radius: 5px; color: white; cursor: pointer;">
+      Yes
+    </button>
+    <button onclick="handleRetryResponse(false)"
+      style="margin: 0 10px; padding: 10px 20px; background: #f44336; border: none; border-radius: 5px; color: white; cursor: pointer;">
+      No
+    </button>
+  `;
+
+  document.body.appendChild(retryDialog);
+}
+
 
 // main.jsに追加
 function initializeSocket() {
@@ -728,14 +941,46 @@ function initializeSocket() {
     console.log('対戦相手を待っています...');
   });
 
+  // socket.on('gameStart', (data) => {
+  //   playerId = socket.id;
+  //   isPlayer1 = playerId === data.player1Id;
+  //   opponentId = isPlayer1 ? data.player2Id : data.player1Id;
+  //   gameStarted = true;
+
+  //   startGame();
+  //   console.log(`ゲーム開始: ${isPlayer1 ? 'プレイヤー1' : 'プレイヤー2'}`);
+  // });
+
+  // main.jsのsocket.on('gameStart')を修正
   socket.on('gameStart', (data) => {
     playerId = socket.id;
     isPlayer1 = playerId === data.player1Id;
     opponentId = isPlayer1 ? data.player2Id : data.player1Id;
     gameStarted = true;
-
-    startGameLoop();
+    showMatchingSuccess();
     console.log(`ゲーム開始: ${isPlayer1 ? 'プレイヤー1' : 'プレイヤー2'}`);
+  });
+
+  // socket.on イベントハンドラを追加・修正
+  socket.on('gameOver', (data) => {
+    handleGameOver(data.loserId === socket.id);
+  });
+
+  socket.on('retryResponse', (data) => {
+    if (data.bothPlayersAgreed) {
+      if (retryDialog) {
+        document.body.removeChild(retryDialog);
+        retryDialog = null;
+      }
+      resetGame();
+      showMatchingSuccess(); // カウントダウンから再開
+    } else if (!data.canRetry) {
+      if (retryDialog) {
+        document.body.removeChild(retryDialog);
+        retryDialog = null;
+      }
+      // ゲーム終了、必要に応じて追加の終了処理
+    }
   });
 
   socket.on('highlightSync', (data) => {
@@ -770,6 +1015,7 @@ function initializeSocket() {
   // });
 
   socket.on('fieldSync', (data) => {
+    console.log("fieldSync実行");
     opponentFieldWords = data.fieldWords;
     opponentField = data.field;
     clearField(opponentField);
@@ -783,17 +1029,25 @@ function initializeSocket() {
           row--; // 次の行に移動
           col = 0;
         }
-        if (row < 0) {
-          console.warn('フィールドの容量を超えています');
+        if (row === 0) {
+          opponentField[row][col] = { word: char, isHighlighted: false };
+          col++;
+          console.log("相手のフィールド描画おわり");
+        } else if (row < 0) {
+          drawField(ctxOpponent, opponentField);
+
+          console.log("drawFieldして処理終了");
           return;
+
+        } else {
+          console.log(word + "描画");
+          opponentField[row][col] = { word: char, isHighlighted: false };
+          col++;
         }
-        opponentField[row][col] = { word: char, isHighlighted: false };
-        col++;
       }
       row--; // 次の単語を下の行に配置
     }
     checkAndRemoveWord(opponentField, opponentFieldWords, opponentInput);
-
     drawField(ctxOpponent, opponentField);
   });
 
@@ -803,7 +1057,6 @@ function initializeSocket() {
   });
 
   socket.on('receiveAttack', (data) => {
-    console.log(`Received attack:`, data);
 
     // 自分のフィールドに攻撃単語を追加
     playerReceiveValueToOffset.push(data.attackValue);

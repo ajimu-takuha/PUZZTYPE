@@ -5,6 +5,11 @@ let gameStarted = false;
 let playerId = null;
 let opponentId = null;
 
+// main.js に追加・修正
+let gameState = 'waiting';
+let isGameOver = false;
+let retryDialog = null;
+
 const FIELD_WIDTH = 10;
 const FIELD_HEIGHT = 20;
 

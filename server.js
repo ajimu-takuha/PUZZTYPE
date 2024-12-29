@@ -73,17 +73,12 @@ io.on('connection', (socket) => {
   // 攻撃イベントの処理を追加
   socket.on('attack', (data) => {
 
-    console.log(`Attack received from ${socket.id} with value:`, data);
-
     const room = Array.from(socket.rooms)[1];
     if (room) {
       const gameRoom = rooms.get(room);
       if (gameRoom) {
         // 攻撃を受けるプレイヤーにイベントを送信
         const targetSocket = socket.id === gameRoom.player1.id ? gameRoom.player2 : gameRoom.player1;
-
-        console.log(`Target for attack is ${targetSocket.id}`);
-
         targetSocket.emit('receiveAttack', {
           attackValue: data.attackValue
         });
@@ -131,6 +126,57 @@ io.on('connection', (socket) => {
   //     });
   //   }
   // });
+
+  
+  // ゲームオーバー処理
+  socket.on('gameOver', (data) => {
+    const room = Array.from(socket.rooms)[1];
+    if (room) {
+      const gameRoom = rooms.get(room);
+      if (gameRoom) {
+        // 両プレイヤーにゲームオーバーを通知
+        io.to(room).emit('gameOver', { 
+          loserId: data.loserId
+        });
+      }
+    }
+  });
+
+  // リトライレスポンス処理
+  socket.on('retryResponse', (data) => {
+    const room = Array.from(socket.rooms)[1];
+    if (room) {
+      const gameRoom = rooms.get(room);
+      if (gameRoom) {
+        if (!gameRoom.retryResponses) {
+          gameRoom.retryResponses = new Map();
+        }
+        
+        gameRoom.retryResponses.set(socket.id, data.response);
+        
+        if (gameRoom.retryResponses.size === 2) {
+          const bothAgreed = Array.from(gameRoom.retryResponses.values()).every(response => response);
+          
+          io.to(room).emit('retryResponse', {
+            bothPlayersAgreed: bothAgreed,
+            canRetry: bothAgreed
+          });
+          
+          if (bothAgreed) {
+            // ゲーム状態をリセット
+            gameRoom.gameState = {
+              player1Field: [],
+              player2Field: []
+            };
+            gameRoom.retryResponses.clear();
+          } else {
+            // プレイヤーが合意しなかった場合、ルームを削除
+            rooms.delete(room);
+          }
+        }
+      }
+    }
+  });
 
   socket.on('disconnect', () => {
     if (waitingPlayer === socket) {

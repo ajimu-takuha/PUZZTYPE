@@ -4,6 +4,7 @@ body {
 
 /* フィールド全体の配置 */
 .game-container {
+  margin-top: 5vw;
   display: flex;
   justify-content: space-around;
 }
@@ -22,15 +23,17 @@ canvas {
 
 /* フィールドキャンバス */
 .field {
-  background-color: #333;
+  background-color: #000000;
+  /* background-color: #333; */
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* キャンバスの影 */
-  border: 1px solid #444;
+  border: 2px solid rgba(255, 255, 255, 0.5);
 }
 
 /* 入力領域キャンバス */
 .inputField {
  margin-top: 4vh;
- background-color: #222; /* 入力領域の背景色を少し明るいダークグレーに設定 */
+ /* background-color: #222; 入力領域の背景色を少し明るいダークグレーに設定 */
+ background-color: #000000;
  border-top: 2px solid #444; /* 境界線 */
  border-bottom: 2px solid #444;/
 }
