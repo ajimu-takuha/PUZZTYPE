@@ -17,11 +17,17 @@
 <body>
   <div class="game-container">
     <div class="field-container">
-      <canvas id="playerField" class="field"></canvas>
+      <div class="field-wrapper" style="display: flex;">
+        <canvas id="playerStatusField" class="statusField"></canvas>
+        <canvas id="playerField" class="field"></canvas>
+      </div>
       <canvas id="playerInputField" class="inputField"></canvas>
     </div>
     <div class="field-container">
-      <canvas id="opponentField" class="field"></canvas>
+      <div class="field-wrapper" style="display: flex;">
+        <canvas id="opponentStatusField" class="statusField"></canvas>
+        <canvas id="opponentField" class="field"></canvas>
+      </div>
       <canvas id="opponentInputField" class="inputField"></canvas>
     </div>
   </div>

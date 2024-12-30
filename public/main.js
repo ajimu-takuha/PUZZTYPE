@@ -62,6 +62,8 @@ function updateFieldAfterReceiveOffset(field, fieldWords) {
   }
   playerAttackValueToOffset = [];
   playerReceiveValueToOffset = [];
+  calcReceiveOffsetToDisplay();
+  drawStatusField(ctxPlayerStatus, true);
 
   // FieldWords を文字数昇順で並び替え
   fieldWords.sort((a, b) => b.length - a.length);
@@ -193,7 +195,52 @@ function calcReceiveOffset() {
   }
 }
 
+let playerAttackValueToDisplay = [];
+let playerReceiveValueToDisplay = [];
 
+function calcReceiveOffsetToDisplay() {
+  
+  playerAttackValueToDisplay = [...playerAttackValueToOffset];
+  playerReceiveValueToDisplay = [...playerReceiveValueToOffset];
+
+  // 共通する値を削除
+  for (let i = playerAttackValueToDisplay.length - 1; i >= 0; i--) {
+    const value = playerAttackValueToDisplay[i];
+    if (playerReceiveValueToDisplay.includes(value)) {
+      // playerAttackValueToDisplay から削除
+      playerAttackValueToDisplay.splice(i, 1);
+      // playerReceiveValueToDisplay から削除
+      playerReceiveValueToDisplay.splice(playerReceiveValueToDisplay.indexOf(value), 1);
+    }
+  }
+
+  // 合算する
+  let attackSum = playerAttackValueToDisplay.reduce((sum, value) => sum + value, 0);
+
+  // playerReceiveValueToDisplay の最も大きい値から順に引いていく
+  while (attackSum > 0 && playerReceiveValueToDisplay.length > 0) {
+    // 最大値を探す
+    let maxIndex = playerReceiveValueToDisplay.indexOf(Math.max(...playerReceiveValueToDisplay));
+    let maxValue = playerReceiveValueToDisplay[maxIndex];
+
+    if (attackSum >= maxValue) {
+      // 合算値が最大値を超える場合、最大値を削除
+      attackSum -= maxValue;
+      playerReceiveValueToDisplay.splice(maxIndex, 1);
+    } else {
+      // 合算値が最大値未満の場合、最大値を減らす
+      playerReceiveValueToDisplay[maxIndex] -= attackSum;
+      attackSum = 0; // 合算値を使い切る
+
+      // 残った値が2未満なら削除
+      if (playerReceiveValueToDisplay[maxIndex] < 2) {
+        playerReceiveValueToDisplay.splice(maxIndex, 1);
+      }
+    }
+  }
+  console.log("playerReceiveValueToOffset:" + playerReceiveValueToOffset);
+  console.log("playerReceiveValueToDisplay:" + playerReceiveValueToDisplay);
+}
 
 function drawField(ctx, field) {
   if (gameState === 'ended') {
@@ -301,22 +348,25 @@ function resizeInputField(canvas) {
   ctx.scale(dpr, dpr); // 高解像度スケーリング
 }
 
+// 既存のresizeAllCanvases関数に追加
 function resizeAllCanvases() {
-  // フィールドキャンバスをリサイズ
+  // 既存のリサイズ処理
   resizeField(playerFieldElement);
   resizeField(opponentFieldElement);
-
-  // // 入力フィールドキャンバスをリサイズ
   resizeInputField(playerInputField);
   resizeInputField(opponentInputField);
 
-  // フィールドを再描画
+  // ステータスフィールドのリサイズ
+  resizeStatusField(playerStatusElement);
+  resizeStatusField(opponentStatusElement);
+
+  // 全フィールドの再描画
   drawField(ctxPlayer, playerField);
   drawField(ctxOpponent, opponentField);
-
-  // 入力フィールドを再描画
   drawInputField(ctxPlayerInput, playerInput, playerInputField);
   drawInputField(ctxOpponentInput, opponentInput, opponentInputField);
+  drawStatusField(ctxPlayerStatus, true);
+  drawStatusField(ctxOpponentStatus, false);
 }
 
 
@@ -370,24 +420,22 @@ async function loadWordList() {
 }
 
 // ゲーム開始
+// 初期化時の処理に追加
 loadWordList().then(() => {
-
   initializeSocket();
 
   resizeField(playerFieldElement);
   resizeField(opponentFieldElement);
+  resizeStatusField(playerStatusElement);
+  resizeStatusField(opponentStatusElement);
 
-  // 初期状態は空
   drawInputField(ctxPlayerInput, "", playerInputField);
-  // 初期状態は空
   drawInputField(ctxOpponentInput, "", opponentInputField);
+  drawStatusField(ctxPlayerStatus, true);
+  drawStatusField(ctxOpponentStatus, false);
 
-  // グリッドを描画
   drawGrid(ctxPlayer);
   drawGrid(ctxOpponent);
-
-  // ゲームループ開始
-  // startGame();
 });
 
 let interval = 5000; // 初期の間隔（ミリ秒）
@@ -438,9 +486,9 @@ function getRandomWordForAttack(characterCount) {
 
 // キー入力リスナー
 window.addEventListener("keydown", (e) => {
-  if (gameState !== 'playing') {
-    return;
-  }
+  // if (gameState !== 'playing') {
+  //   return;
+  // }
   const key = e.key;
 
   // selectedCategoryがhiraganaの場合、ローマ字をひらがなに変換
@@ -718,6 +766,8 @@ function attack(attackValue) {
         attackValue: attackValue
       });
     }
+    calcReceiveOffsetToDisplay();
+    drawStatusField(ctxPlayerStatus, true);
   }
 }
 
@@ -925,6 +975,44 @@ function showRetryDialog() {
   document.body.appendChild(retryDialog);
 }
 
+// 追加のJavaScript
+const playerStatusElement = document.getElementById('playerStatusField');
+const opponentStatusElement = document.getElementById('opponentStatusField');
+const ctxPlayerStatus = playerStatusElement.getContext('2d');
+const ctxOpponentStatus = opponentStatusElement.getContext('2d');
+
+// ステータスフィールドのサイズ設定関数
+function resizeStatusField(canvas) {
+  const dpr = window.devicePixelRatio || 1;
+  CELL_SIZE = calculateCellSize();
+
+  const width = CELL_SIZE / 2; // 幅はセルの半分
+  const height = CELL_SIZE * FIELD_HEIGHT;
+
+  canvas.width = width * dpr;
+  canvas.height = height * dpr;
+
+  canvas.style.width = `${width}px`;
+  canvas.style.height = `${height}px`;
+
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+}
+
+// ステータス描画関数
+function drawStatusField(ctx, isPlayer = true) {
+  console.log("drawStatusField実行" + playerReceiveValueToDisplay);
+  ctx.fillStyle = "rgb(0, 0, 0)";
+  ctx.fillRect(0, 0, CELL_SIZE / 2, CELL_SIZE * FIELD_HEIGHT);
+
+  if (isPlayer && playerReceiveValueToDisplay.length > 0) {
+    const startY = FIELD_HEIGHT - playerReceiveValueToDisplay.length;
+    for (let i = 0; i < playerReceiveValueToDisplay.length; i++) {
+      ctx.fillStyle = "rgb(135, 0, 0)";
+      ctx.fillRect(0, (startY + i) * CELL_SIZE, CELL_SIZE / 2, CELL_SIZE);
+    }
+  }
+}
 
 // main.jsに追加
 function initializeSocket() {
@@ -1058,13 +1146,16 @@ function initializeSocket() {
     gameStarted = false;
   });
 
+  // socket.on('receiveAttack')を修正
   socket.on('receiveAttack', (data) => {
-
-    // 自分のフィールドに攻撃単語を追加
     playerReceiveValueToOffset.push(data.attackValue);
     console.log("playerAttackValueToOffset:" + playerAttackValueToOffset);
     console.log("playerReceiveValueToOffset:" + playerReceiveValueToOffset);
 
+    calcReceiveOffsetToDisplay();
+    drawStatusField(ctxPlayerStatus, true);
+
     console.log("攻撃を受けました:" + playerReceiveValueToOffset);
   });
+
 }
