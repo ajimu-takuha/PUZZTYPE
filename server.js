@@ -172,6 +172,7 @@ io.on('connection', (socket) => {
           } else {
             // プレイヤーが合意しなかった場合、ルームを削除
             rooms.delete(room);
+            console.log("ルーム削除");
           }
         }
       }

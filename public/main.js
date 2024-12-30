@@ -80,22 +80,21 @@ function updateFieldAfterReceiveOffset(field, fieldWords) {
       if (row === 0) {
         field[row][col] = { word: char, isHighlighted: false };
         col++;
-        console.log("描画おわり");
       } else if (row < 0) {
         drawField(ctxPlayer, playerField);
 
         console.log("描写する行が上限を突破したためdrawField");
 
+        console.log("syncFieldUpdateして・handleGameOver処理");
         syncFieldUpdate();
         handleGameOver(true);
 
-        console.log("syncFieldUpdateして・handleGameOver処理");
         socket.emit('gameOver', { loserId: playerId });
 
         return;
 
       } else {
-        console.log(word + "描画");
+        // console.log(word + "描画");
         field[row][col] = { word: char, isHighlighted: false };
         col++;
       }
@@ -197,13 +196,9 @@ function calcReceiveOffset() {
 
 
 function drawField(ctx, field) {
-  console.log("drawField実行");
-  // gameStepによってupdateFieldAfterReceiveOffsetにより
-  // handleGameOverが実行されるが、そのあとにこれが実行されるのを防ぐ
   if (gameState === 'ended') {
     return;
   }
-  console.log("drawField実行");
 
   ctx.fillStyle = "#000000";
   ctx.fillRect(0, 0, ctx.canvas.getBoundingClientRect().width, ctx.canvas.getBoundingClientRect().height);
@@ -443,6 +438,9 @@ function getRandomWordForAttack(characterCount) {
 
 // キー入力リスナー
 window.addEventListener("keydown", (e) => {
+  if (gameState !== 'playing') {
+    return;
+  }
   const key = e.key;
 
   // selectedCategoryがhiraganaの場合、ローマ字をひらがなに変換
@@ -551,7 +549,6 @@ function checkAndRemoveWord(field, fieldWords, input) {
 
       updateField(field, fieldWords);
 
-      console.log(`単語「${matchedWord}」を消去`);
       return; // 単語の文字数を返す
     }
 
@@ -611,6 +608,7 @@ function resetHighlight(field) {
 }
 
 function removeWordFromField(field, word) {
+  console.log(`単語「${word}」を消去`);
   let remainingWord = word;
   for (let y = FIELD_HEIGHT - 1; y >= 0; y--) { // 下から上へスキャン
     for (let x = 0; x < FIELD_WIDTH; x++) { // 左から右へスキャン
@@ -661,24 +659,27 @@ function drawInputField(ctx, inputText, inputField) {
 function calcAttackValue(removeWord) {
   playerAttackValue = removeWord.length;
   let memorizeLastAttackValue = playerAttackValue;
-  console.log("攻撃力を計算 playerAttackValue:" + playerAttackValue);
-
+  console.log("removeWordの攻撃力は:" + playerAttackValue);
   // console.log("playerLastAttackValueは" + playerLastAttackValue);
   // console.log("playerAttackValueは" + playerAttackValue);
 
   if (playerLastAttackValue + 1 == removeWord.length) {
+    // console.log("upChain攻撃！ もとになる攻撃力は:" + playerAttackValue);
     isUpChain = true;
     upChainAttack();
 
   } else if (playerLastAttackValue - 1 == removeWord.length) {
+    // console.log("downChain攻撃！ もとになる攻撃力は:" + playerAttackValue);
     isdownChain = true;
     downChainAttack();
 
   } else if (playerLastAttackValue == removeWord.length) {
+    // console.log("sameChar攻撃！ もとになる攻撃力は:" + playerAttackValue);
     cancelChain();
     sameCharAttack();
 
   } else {
+    // console.log("通常攻撃！ 攻撃力は:" + playerAttackValue);
     cancelChain();
     attack(playerAttackValue);
   }
@@ -709,7 +710,7 @@ function attack(attackValue) {
         });
       }
     } else {
-      console.log("通常攻撃！")
+      console.log("攻撃します攻撃力は:" + attackValue);
       playerAttackValueToOffset.push(attackValue);
 
       console.log(playerAttackValueToOffset);
@@ -771,7 +772,8 @@ function downChainAttack() {
 
 function sameCharAttack() {
   playerAttackValue = playerAttackValue * 2
-  if (playerAttackValue = 20) {
+  console.log("sameCharAttack 攻撃力は:" + playerAttackValue + "に上昇");
+  if (playerAttackValue === 20) {
     attack(10);
     const array = [2, 3, 4, 5, 6, 7, 8];
     const randomValue = array[Math.floor(Math.random() * array.length)];
@@ -1040,7 +1042,7 @@ function initializeSocket() {
           return;
 
         } else {
-          console.log(word + "描画");
+          // console.log(word + "描画");
           opponentField[row][col] = { word: char, isHighlighted: false };
           col++;
         }
