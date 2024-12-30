@@ -199,7 +199,7 @@ let playerAttackValueToDisplay = [];
 let playerReceiveValueToDisplay = [];
 
 function calcReceiveOffsetToDisplay() {
-  
+
   playerAttackValueToDisplay = [...playerAttackValueToOffset];
   playerReceiveValueToDisplay = [...playerReceiveValueToOffset];
 
@@ -861,6 +861,8 @@ function resetGame() {
   playerLastAttackValue = 0;
   playerAttackValueToOffset = [];
   playerReceiveValueToOffset = [];
+  playerAttackValueToDisplay = [];
+  playerReceiveValueToDisplay = [];
   nerfValue = 0;
   chainBonus = 0;
   isUpChain = false;
@@ -878,6 +880,7 @@ function resetGame() {
   drawField(ctxOpponent, opponentField);
   drawInputField(ctxPlayerInput, '', playerInputField);
   drawInputField(ctxOpponentInput, '', opponentInputField);
+  drawStatusField(ctxPlayerStatus, true);
 }
 
 // マッチング成功UI表示
@@ -986,7 +989,7 @@ function resizeStatusField(canvas) {
   const dpr = window.devicePixelRatio || 1;
   CELL_SIZE = calculateCellSize();
 
-  const width = CELL_SIZE / 2; // 幅はセルの半分
+  const width = CELL_SIZE / 3; // 幅はセルの半分
   const height = CELL_SIZE * FIELD_HEIGHT;
 
   canvas.width = width * dpr;
@@ -1003,13 +1006,13 @@ function resizeStatusField(canvas) {
 function drawStatusField(ctx, isPlayer = true) {
   console.log("drawStatusField実行" + playerReceiveValueToDisplay);
   ctx.fillStyle = "rgb(0, 0, 0)";
-  ctx.fillRect(0, 0, CELL_SIZE / 2, CELL_SIZE * FIELD_HEIGHT);
+  ctx.fillRect(0, 0, CELL_SIZE / 3, CELL_SIZE * FIELD_HEIGHT);
 
   if (isPlayer && playerReceiveValueToDisplay.length > 0) {
     const startY = FIELD_HEIGHT - playerReceiveValueToDisplay.length;
     for (let i = 0; i < playerReceiveValueToDisplay.length; i++) {
       ctx.fillStyle = "rgb(135, 0, 0)";
-      ctx.fillRect(0, (startY + i) * CELL_SIZE, CELL_SIZE / 2, CELL_SIZE);
+      ctx.fillRect(0, (startY + i) * CELL_SIZE, CELL_SIZE / 3, CELL_SIZE);
     }
   }
 }
