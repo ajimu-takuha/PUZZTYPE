@@ -486,9 +486,9 @@ function getRandomWordForAttack(characterCount) {
 
 // キー入力リスナー
 window.addEventListener("keydown", (e) => {
-  // if (gameState !== 'playing') {
-  //   return;
-  // }
+  if (gameState !== 'playing') {
+    return;
+  }
   const key = e.key;
 
   // selectedCategoryがhiraganaの場合、ローマ字をひらがなに変換
