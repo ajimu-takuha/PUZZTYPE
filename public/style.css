@@ -2,6 +2,9 @@ body {
   background-color: black;
 }
 
+.gameArea {
+  display: flex;
+}
 /* フィールド全体の配置 */
 .game-container {
   margin-top: 5vw;
@@ -13,29 +16,30 @@ body {
 .field-container {
   display: flex;
   flex-direction: column;
-  align-items: center; /* 中央揃え */
+  align-items: center;
+  /* 中央揃え */
 }
 
 /* フィールドと入力領域のキャンバススタイル */
-canvas {
-
-}
+canvas {}
 
 /* フィールドキャンバス */
 .field {
   background-color: #000000;
   /* background-color: #333; */
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* キャンバスの影 */
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  /* キャンバスの影 */
   border: 2px solid rgba(255, 255, 255, 0.5);
 }
 
 /* 入力領域キャンバス */
 .inputField {
- margin-top: 4vh;
- /* background-color: #222; 入力領域の背景色を少し明るいダークグレーに設定 */
- background-color: #000000;
- border-top: 2px solid #444; /* 境界線 */
- border-bottom: 2px solid #444;/
+  margin-top: 4vh;
+  /* background-color: #222; 入力領域の背景色を少し明るいダークグレーに設定 */
+  background-color: #000000;
+  border-top: 2px solid #444;
+  /* 境界線 */
+  border-bottom: 2px solid #444;/
 }
 
 .statusField {
@@ -43,4 +47,131 @@ canvas {
   border-top: 2px solid rgba(255, 255, 255, 0.5);
   border-bottom: 2px solid rgba(255, 255, 255, 0.5);
   /* margin-right: 1px; */
+}
+
+/* 既存のCSSはそのままで、以下を追加 */
+
+/* プログレスバーのコンテナ */
+#intervalProgressBar {
+  position: absolute;
+  bottom: -30px;
+  /* 入力フィールドの下に配置 */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  /* game-containerの80%の幅 */
+  height: 3px;
+  /* バーの高さを少し太めに */
+  background-color: rgba(255, 255, 255, 0.1);
+  /* 薄い背景 */
+  border-radius: 1.5px;
+  /* 少し角を丸く */
+  overflow: hidden;
+  /* はみ出した部分を隠す */
+}
+
+/* プログレスライン */
+#progressLine {
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.8);
+  /* やや透明な白 */
+  transition: width 0.1s linear;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+  /* 光っているような効果 */
+}
+
+/* game-containerのposition調整 */
+.game-container {
+  position: relative;
+  /* プログレスバーの配置の基準点 */
+  padding-bottom: 40px;
+  /* プログレスバー用の余白 */
+}
+
+/* プログレスバーのコンテナ */
+#intervalProgressBar {
+  position: absolute;
+  bottom: -30px;
+  left: 55vw;
+  transform: translateX(-50%);
+  width: 70vw;
+  height: 3px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 1.5px;
+  overflow: hidden;
+}
+
+/* 左側のプログレスライン */
+#progressLineLeft {
+  position: absolute;
+  left: 0;
+  width: 50%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+  transform-origin: right center;
+  transform: scaleX(1);
+}
+
+/* 右側のプログレスライン */
+#progressLineRight {
+  position: absolute;
+  right: 0;
+  width: 50%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+  transform-origin: left center;
+  transform: scaleX(1);
+}
+
+/* アニメーション用クラス */
+.animating {
+  transition: transform 0.1s linear;
+}
+
+:root {
+  --base-size: 5vh; /* 基準サイズ */
+}
+
+.infoField-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: flex-end;
+  height: auto;
+  width: auto;
+  margin-bottom: calc(var(--base-size) + 4vh); ;
+}
+
+.infoField {
+  background-color: #000000;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  color: rgba(255, 255, 255, 0.5);
+  height: 3vh;
+  width: 10vw;
+  margin-right: 0.5vw;
+  font-family: 'M PLUS Rounded 1c';
+  font-size: 2.5vh;
+  text-align: right;
+}
+
+.smallText {
+  font-size: 1.5vh;
+}
+
+.infoFieldName {
+  display: flex;
+  flex-direction: column; /* 垂直方向に並べる */
+  justify-content: flex-end; /* 内部のコンテンツを下揃え */
+  height: 2.5vh;
+  /* padding-top: 2.5vh; */
+  margin-top: 1vh;
+  margin-right: 0.5vw;
+  font-family: 'M PLUS Rounded 1c';
+  font-size: 1.5vh;
+  color: rgba(255, 255, 255, 0.5);
+  position: relative; /* 親要素に対して相対位置を指定 */
+  transform: translateY(0.8vh); /* 下方向に20px移動 */
 }

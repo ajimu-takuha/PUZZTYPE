@@ -53,6 +53,16 @@ let isUpChain = false;
 let isDownChain = false;
 let chainBonus = 0;
 
+let playerKeyValueToKPM = 0;
+let playerAtteckValueToAPM = 0;
+let playerWordValueToWPM = 0;
+let playerKPMValue = 0;
+let playerAPMValue = 0;
+let playerWPMValue = 0;
+let time = "0:00.0";
+let totalTime = 0;
+
+
 // キャンバス関連
 const playerFieldElement = document.getElementById("playerField");
 const opponentFieldElement = document.getElementById("opponentField");
@@ -65,6 +75,18 @@ const opponentInputField = document.getElementById("opponentInputField");
 
 const ctxPlayerInput = playerInputField.getContext("2d");
 const ctxOpponentInput = opponentInputField.getContext("2d");
+
+
+// 各info要素の取得
+const kpmDiv = document.getElementById("kpmplayerInfo");
+const apmDiv = document.getElementById("apmplayerInfo");
+const wpmDiv = document.getElementById("wpmplayerInfo");
+const timeDivs = document.getElementsByClassName("time");
+
+// 相手の情報を表示するための要素を取得
+const opponentKpmDiv = document.getElementById('kpmOpponentInfo');
+const opponentApmDiv = document.getElementById('apmOpponentInfo');
+const opponentWpmDiv = document.getElementById('wpmOpponentInfo');
 
 // グローバル変数を登録
 window.GameConfig = {
@@ -83,13 +105,27 @@ window.GameConfig = {
   opponentLastAttackValue,
   playerAttackValueToOffset,
   playerReceiveValueToOffset,
+  playerKeyValueToKPM,
+  playerAtteckValueToAPM,
+  playerWordValueToWPM,
+  playerKPMValue,
+  playerAPMValue,
+  playerWPMValue,
+  time,
+  totalTime,
   isUpChain,
   isDownChain,
   chainBonus,
   ctxPlayer,
   ctxOpponent,
   ctxPlayerInput,
-  ctxOpponentInput
+  ctxOpponentInput,
+  kpmDiv,
+  apmDiv,
+  wpmDiv,
+  opponentKpmDiv,
+  opponentApmDiv,
+  opponentWpmDiv
 };
 
 

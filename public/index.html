@@ -16,19 +16,47 @@
 
 <body>
   <div class="game-container">
-    <div class="field-container">
-      <div class="field-wrapper" style="display: flex;">
-        <canvas id="playerStatusField" class="statusField"></canvas>
-        <canvas id="playerField" class="field"></canvas>
+    <div class="gameArea">
+      <div class="infoField-wrapper">
+        <div class="infoFieldName">KPM</div>
+        <div id="kpmplayerInfo" class="infoField"></div>
+        <div class="infoFieldName">APM</div>
+        <div id="apmplayerInfo" class="infoField"></div>
+        <div class="infoFieldName">WPM</div>
+        <div id="wpmplayerInfo" class="infoField"></div>
+        <div class="infoFieldName">Time</div>
+        <div class="time infoField"></div>
       </div>
-      <canvas id="playerInputField" class="inputField"></canvas>
+      <div class="field-container">
+        <div class="field-wrapper" style="display: flex;">
+          <canvas id="playerStatusField" class="statusField"></canvas>
+          <canvas id="playerField" class="field"></canvas>
+        </div>
+        <canvas id="playerInputField" class="inputField"></canvas>
+      </div>
     </div>
-    <div class="field-container">
-      <div class="field-wrapper" style="display: flex;">
-        <canvas id="opponentStatusField" class="statusField"></canvas>
-        <canvas id="opponentField" class="field"></canvas>
+    <div class="gameArea">
+      <div class="infoField-wrapper">
+        <div class="infoFieldName">KPM</div>
+        <div id="kpmOpponentInfo" class="infoField"></div>
+        <div class="infoFieldName">APM</div>
+        <div id="apmOpponentInfo" class="infoField"></div>
+        <div class="infoFieldName">WPM</div>
+        <div id="wpmOpponentInfo" class="infoField"></div>
+        <div class="infoFieldName">Time</div>
+        <div class="time infoField"></div>
       </div>
-      <canvas id="opponentInputField" class="inputField"></canvas>
+      <div class="field-container">
+        <div class="field-wrapper" style="display: flex;">
+          <canvas id="opponentStatusField" class="statusField"></canvas>
+          <canvas id="opponentField" class="field"></canvas>
+        </div>
+        <canvas id="opponentInputField" class="inputField"></canvas>
+      </div>
+    </div>
+    <div id="intervalProgressBar">
+      <div id="progressLineLeft"></div>
+      <div id="progressLineRight"></div>
     </div>
   </div>
 

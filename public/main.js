@@ -238,7 +238,11 @@ function calcReceiveOffsetToDisplay() {
       }
     }
   }
-  console.log("playerReceiveValueToOffset:" + playerReceiveValueToOffset);
+
+  // 降順にソート
+  playerAttackValueToDisplay.sort((a, b) => a - b);
+  playerReceiveValueToDisplay.sort((a, b) => a - b);
+
   console.log("playerReceiveValueToDisplay:" + playerReceiveValueToDisplay);
 }
 
@@ -441,23 +445,95 @@ loadWordList().then(() => {
 let interval = 5000; // 初期の間隔（ミリ秒）
 const minInterval = 1000; // 最小の間隔（ミリ秒）
 
-// startGameLoop関数を修正
+// startGame関数を修正
 function startGame() {
   if (gameState !== 'playing') return;
+
+  drawInfo();
 
   function gameStep() {
     if (gameState !== 'playing') return;
     moveWordToField(playerFieldWords);
     updateFieldAfterReceiveOffset(playerField, playerFieldWords);
+    checkAndRemoveWord(playerField, playerFieldWords, playerInput);
     drawField(ctxPlayer, playerField);
 
+    // インターバルを更新し、プログレスバーを開始
     interval = Math.max(minInterval, interval - 50);
+    updateProgressBar(interval);
     setTimeout(gameStep, interval);
   }
 
   gameStep();
 }
 
+
+// プログレスバーの制御用の変数とエレメント
+const progressLineLeft = document.getElementById('progressLineLeft');
+const progressLineRight = document.getElementById('progressLineRight');
+let progressTimer = null;
+let startTime = 0;
+
+// プログレスバーのアニメーション制御関数
+function updateProgressBar(currentInterval) {
+  if (progressTimer) {
+    clearInterval(progressTimer);
+  }
+
+  // アニメーションクラスを削除した状態でリセット
+  progressLineLeft.classList.remove('animating');
+  progressLineRight.classList.remove('animating');
+  progressLineLeft.style.transform = 'scaleX(1)';
+  progressLineRight.style.transform = 'scaleX(1)';
+
+  // 少し遅延を入れてアニメーションクラスを追加
+  setTimeout(() => {
+    progressLineLeft.classList.add('animating');
+    progressLineRight.classList.add('animating');
+  }, 10);
+
+  progressLineLeft.style.backgroundColor = 'rgba(255, 255, 255, 0.8)';
+  progressLineRight.style.backgroundColor = 'rgba(255, 255, 255, 0.8)';
+  progressLineLeft.style.boxShadow = '0 0 10px rgba(255, 255, 255, 0.5)';
+  progressLineRight.style.boxShadow = '0 0 10px rgba(255, 255, 255, 0.5)';
+
+  startTime = Date.now();
+
+  progressTimer = setInterval(() => {
+    const elapsed = Date.now() - startTime;
+    const remaining = currentInterval - elapsed;
+    const progress = remaining / currentInterval;
+
+    if (remaining <= currentInterval / 3) {
+      const redColor = 'rgba(255, 50, 50, 0.8)';
+      const redShadow = '0 0 10px rgba(255, 50, 50, 0.5)';
+      progressLineLeft.style.backgroundColor = redColor;
+      progressLineRight.style.backgroundColor = redColor;
+      progressLineLeft.style.boxShadow = redShadow;
+      progressLineRight.style.boxShadow = redShadow;
+    }
+
+    if (progress <= 0) {
+      progressLineLeft.style.transform = 'scaleX(0)';
+      progressLineRight.style.transform = 'scaleX(0)';
+      clearInterval(progressTimer);
+    } else {
+      progressLineLeft.style.transform = `scaleX(${progress})`;
+      progressLineRight.style.transform = `scaleX(${progress})`;
+    }
+  }, 16);
+}
+
+// プログレスバーをクリアする関数
+function clearProgressBar() {
+  if (progressTimer) {
+    clearInterval(progressTimer);
+  }
+  progressLineLeft.classList.remove('animating');
+  progressLineRight.classList.remove('animating');
+  progressLineLeft.style.transform = 'scaleX(0)';
+  progressLineRight.style.transform = 'scaleX(0)';
+}
 
 // ランダムな単語を取得
 function getRandomWordForField(usedLengths) {
@@ -496,6 +572,7 @@ window.addEventListener("keydown", (e) => {
     let convertedInput = "";
     // 入力内容を更新
     if (key.length === 1) {
+      playerKeyValueToKPM++;
       // 文字を追加
       playerInput += key;
       if (key === ' ') {
@@ -532,13 +609,9 @@ window.addEventListener("keydown", (e) => {
     } else if (key === "Delete") {
       convertedInput = ""
     }
-    // else if (key === "Enter") {
-    //   if (isDownChain === true) {
-    //     for (let x = 0; x < playerChainAttackValue.length; x++) {
-    //       attack(playerChainAttackValue[0]);
-    //     }
-    //   }
-    // }
+    else if (key === "Enter") {
+      drawInfo();
+    }
 
     playerInput = convertedInput;
   }
@@ -597,7 +670,7 @@ function checkAndRemoveWord(field, fieldWords, input) {
 
       updateField(field, fieldWords);
 
-      return; // 単語の文字数を返す
+      return;
     }
 
     const highLightWordIndex = fieldWords.findIndex((word) => word.startsWith(extractLeadingJapanese(input)));
@@ -656,6 +729,7 @@ function resetHighlight(field) {
 }
 
 function removeWordFromField(field, word) {
+  playerWordValueToWPM++;
   console.log(`単語「${word}」を消去`);
   let remainingWord = word;
   for (let y = FIELD_HEIGHT - 1; y >= 0; y--) { // 下から上へスキャン
@@ -698,9 +772,8 @@ function drawInputField(ctx, inputText, inputField) {
   ctx.font = `${CELL_SIZE * 1}px 'M PLUS Rounded 1c'`;
   ctx.textBaseline = 'middle';
   ctx.textAlign = 'center';
-
   // 入力文字をキャンバスの中央に描画
-  ctx.fillText(inputText, inputField.width / 2, textY);
+  ctx.fillText(inputText, inputField.getBoundingClientRect().width / 2, textY);
 
 }
 
@@ -753,13 +826,18 @@ function attack(attackValue) {
         console.log("ナーフ攻撃 nerfAttackValue:" + nerfAttackValue);
         playerAttackValueToOffset.push(nerfAttackValue);
 
+        playerAtteckValueToAPM += nerfAttackValue;
+
         socket.emit('attack', {
           attackValue: nerfAttackValue
         });
       }
     } else {
       console.log("攻撃します攻撃力は:" + attackValue);
+
       playerAttackValueToOffset.push(attackValue);
+
+      playerAtteckValueToAPM += attackValue;
 
       console.log(playerAttackValueToOffset);
       socket.emit('attack', {
@@ -867,6 +945,13 @@ function resetGame() {
   chainBonus = 0;
   isUpChain = false;
   isdownChain = false;
+
+  // playerInfoをリセット
+  playerKeyValueToKPM = 0;
+  playerAtteckValueToAPM = 0;
+  playerWordValueToWPM = 0;
+  totalTime = 0;
+  time = "0:00.0";
 
   // 相手のデータもリセット
   opponentField = Array(FIELD_HEIGHT).fill().map(() => Array(FIELD_WIDTH).fill(null));
@@ -984,12 +1069,16 @@ const opponentStatusElement = document.getElementById('opponentStatusField');
 const ctxPlayerStatus = playerStatusElement.getContext('2d');
 const ctxOpponentStatus = opponentStatusElement.getContext('2d');
 
+// グローバル変数に追加
+let opponentReceiveValueToDisplay = [];
+
+
 // ステータスフィールドのサイズ設定関数
 function resizeStatusField(canvas) {
   const dpr = window.devicePixelRatio || 1;
   CELL_SIZE = calculateCellSize();
 
-  const width = CELL_SIZE / 3; // 幅はセルの半分
+  const width = CELL_SIZE / 2; // 幅はセルの半分
   const height = CELL_SIZE * FIELD_HEIGHT;
 
   canvas.width = width * dpr;
@@ -1002,20 +1091,124 @@ function resizeStatusField(canvas) {
   ctx.scale(dpr, dpr);
 }
 
-// ステータス描画関数
+// ステータス描画関数を修正
 function drawStatusField(ctx, isPlayer = true) {
-  console.log("drawStatusField実行" + playerReceiveValueToDisplay);
+  // キャンバスをクリア
   ctx.fillStyle = "rgb(0, 0, 0)";
-  ctx.fillRect(0, 0, CELL_SIZE / 3, CELL_SIZE * FIELD_HEIGHT);
+  ctx.fillRect(0, 0, CELL_SIZE / 2, CELL_SIZE * FIELD_HEIGHT);
 
-  if (isPlayer && playerReceiveValueToDisplay.length > 0) {
-    const startY = FIELD_HEIGHT - playerReceiveValueToDisplay.length;
-    for (let i = 0; i < playerReceiveValueToDisplay.length; i++) {
+  // 描画する値の配列を選択
+  const displayValues = isPlayer ? playerReceiveValueToDisplay : opponentReceiveValueToDisplay;
+
+  if (displayValues.length > 0) {
+    // 値を下から描画するための開始Y座標を計算
+    const startY = CELL_SIZE * (FIELD_HEIGHT - displayValues.length);
+
+    for (let i = 0; i < displayValues.length; i++) {
+      // 各セルの位置を計算
+      const cellY = startY + (i * CELL_SIZE);
+
+      // 赤い背景を描画
       ctx.fillStyle = "rgb(135, 0, 0)";
-      ctx.fillRect(0, (startY + i) * CELL_SIZE, CELL_SIZE / 3, CELL_SIZE);
+      ctx.fillRect(0, cellY, CELL_SIZE / 2, CELL_SIZE);
+
+      // テキストを描画
+      ctx.fillStyle = "white";
+      ctx.font = `${CELL_SIZE * 0.5}px 'M PLUS Rounded 1c'`;
+      ctx.textBaseline = "middle";
+      ctx.textAlign = "center";
+
+      // テキストの位置を計算（セルの中央に配置）
+      const textX = CELL_SIZE / 4;
+      const textY = cellY + (CELL_SIZE / 2);
+
+      ctx.fillText(displayValues[i], textX, textY);
     }
   }
+
+  // プレイヤーの場合、状態を相手に送信
+  if (isPlayer && socket) {
+    socket.emit('statusFieldUpdate', {
+      receiveValues: playerReceiveValueToDisplay
+    });
+  }
 }
+
+
+
+// inputFieldの高さを取得
+const inputHeight = playerInputField.getBoundingClientRect().height;
+
+// infoFieldWrapperの全ての要素を取得
+const infoFieldWrappers = document.getElementsByClassName("infoField-wrapper");
+
+// 新しいマージンサイズを計算
+const newMarginSize = `${inputHeight}px`;
+console.log(newMarginSize);
+
+const unitChair = "/M"
+
+// 各infoField-wrapperに対してCSS変数を設定
+Array.from(infoFieldWrappers).forEach((wrapper) => {
+  wrapper.style.setProperty('--base-size', newMarginSize);
+});
+
+// 値を描写する関数
+function drawInfo() {
+  setInterval(() => {
+    if (gameState !== 'playing') {
+      return;
+    }
+
+    // 0.1秒ごとに値を更新
+    totalTime++; // 0.1秒追加
+
+    // 秒と分を計算
+    const minutes = Math.floor(totalTime / 600); // 600 = 60秒 * 10
+    const seconds = Math.floor((totalTime % 600) / 10); // 秒部分
+    const tenths = totalTime % 10; // 小数点第1位部分
+
+    // 時間をフォーマット
+    timeText = `${minutes}:${seconds.toString().padStart(2, "0")}.${tenths}`;
+
+    // 値を動的に計算・更新（例: 適当に増加させる）
+    playerKPMValue = playerKeyValueToKPM / totalTime * 600;
+    playerAPMValue = playerAtteckValueToAPM / totalTime * 600;
+    playerWPMValue = playerWordValueToWPM / totalTime * 600;
+
+    // 各div要素に値を描画
+    kpmText = `${playerKPMValue.toFixed(2)}/M`;
+    apmText = `${playerAPMValue.toFixed(2)}/M`;
+    wpmText = `${playerWPMValue.toFixed(2)}/M`;
+
+    mainKPMText = kpmText.slice(0, -4);
+    mainAPMText = apmText.slice(0, -4);
+    mainWPMText = wpmText.slice(0, -4);
+    mainTimeText = timeText.slice(0, -2);
+
+    toSmallKPMChars = kpmText.slice(-4);
+    toSmallAPMChars = apmText.slice(-4);
+    toSmallWPMChars = wpmText.slice(-4);
+    toSmallTimeText = timeText.slice(-2);
+
+    kpmDiv.innerHTML = `${mainKPMText}<span class="smallText">${toSmallKPMChars}</span>`;
+    apmDiv.innerHTML = `${mainAPMText}<span class="smallText">${toSmallAPMChars}</span>`;
+    wpmDiv.innerHTML = `${mainWPMText}<span class="smallText">${toSmallWPMChars}</span>`;
+    for (let timeDiv of timeDivs) {
+      timeDiv.innerHTML = `${mainTimeText}<span class="smallText">${toSmallTimeText}</span>`;
+    }
+    
+    // 相手に情報を送信
+    socket.emit('playerInfoUpdate', {
+      kpm: { main: mainKPMText, small: toSmallKPMChars },
+      apm: { main: mainAPMText, small: toSmallAPMChars },
+      wpm: { main: mainWPMText, small: toSmallWPMChars },
+    });
+
+  }, 100);
+}
+
+
 
 // main.jsに追加
 function initializeSocket() {
@@ -1159,6 +1352,21 @@ function initializeSocket() {
     drawStatusField(ctxPlayerStatus, true);
 
     console.log("攻撃を受けました:" + playerReceiveValueToOffset);
+  });
+
+  // Socket.IOのイベントハンドラを追加
+  socket.on('statusFieldSync', (data) => {
+    opponentReceiveValueToDisplay = data.receiveValues;
+    // 対戦相手のステータスフィールドを更新
+    drawStatusField(ctxOpponentStatus, false);
+  });
+
+  // クライアント側で相手の情報を受信して表示する処理を追加
+  socket.on('opponentInfoSync', (data) => {
+    // 相手の情報を更新
+    opponentKpmDiv.innerHTML = `${data.kpm.main}<span class="smallText">${data.kpm.small}</span>`;
+    opponentApmDiv.innerHTML = `${data.apm.main}<span class="smallText">${data.apm.small}</span>`;
+    opponentWpmDiv.innerHTML = `${data.wpm.main}<span class="smallText">${data.wpm.small}</span>`;
   });
 
 }

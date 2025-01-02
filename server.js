@@ -127,7 +127,32 @@ io.on('connection', (socket) => {
   //   }
   // });
 
-  
+  // サーバー側に追加するコード（server.js）
+  socket.on('statusFieldUpdate', (data) => {
+    const room = Array.from(socket.rooms)[1];
+    if (room) {
+      const gameRoom = rooms.get(room);
+      if (gameRoom) {
+        // 送信元以外のプレイヤーにデータを送信
+        const targetSocket = socket.id === gameRoom.player1.id ? gameRoom.player2 : gameRoom.player1;
+        targetSocket.emit('statusFieldSync', {
+          receiveValues: data.receiveValues
+        });
+      }
+    }
+  });
+
+  socket.on('playerInfoUpdate', (data) => {
+    const room = Array.from(socket.rooms)[1];
+    if (room) {
+      const gameRoom = rooms.get(room);
+      if (gameRoom) {
+        const targetSocket = socket.id === gameRoom.player1.id ? gameRoom.player2 : gameRoom.player1;
+        targetSocket.emit('opponentInfoSync', data);
+      }
+    }
+  });
+
   // ゲームオーバー処理
   socket.on('gameOver', (data) => {
     const room = Array.from(socket.rooms)[1];
@@ -135,7 +160,7 @@ io.on('connection', (socket) => {
       const gameRoom = rooms.get(room);
       if (gameRoom) {
         // 両プレイヤーにゲームオーバーを通知
-        io.to(room).emit('gameOver', { 
+        io.to(room).emit('gameOver', {
           loserId: data.loserId
         });
       }
@@ -151,17 +176,17 @@ io.on('connection', (socket) => {
         if (!gameRoom.retryResponses) {
           gameRoom.retryResponses = new Map();
         }
-        
+
         gameRoom.retryResponses.set(socket.id, data.response);
-        
+
         if (gameRoom.retryResponses.size === 2) {
           const bothAgreed = Array.from(gameRoom.retryResponses.values()).every(response => response);
-          
+
           io.to(room).emit('retryResponse', {
             bothPlayersAgreed: bothAgreed,
             canRetry: bothAgreed
           });
-          
+
           if (bothAgreed) {
             // ゲーム状態をリセット
             gameRoom.gameState = {
