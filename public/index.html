@@ -9,25 +9,40 @@
   </style>
   <script src="https://unpkg.com/wanakana"></script>
   <script src="/socket.io/socket.io.js"></script>
-  <title>タイピングバトル</title>
+  <title>PUZZTYPE</title>
   <link rel="stylesheet" href="./style.css">
 
 </head>
 
 <body>
-  <div class="game-container">
-    <div class="gameArea">
-      <div class="infoField-wrapper">
-        <div class="infoFieldName">KPM</div>
-        <div id="kpmplayerInfo" class="infoField"></div>
-        <div class="infoFieldName">APM</div>
-        <div id="apmplayerInfo" class="infoField"></div>
-        <div class="infoFieldName">WPM</div>
-        <div id="wpmplayerInfo" class="infoField"></div>
-        <div class="infoFieldName">Time</div>
-        <div class="time infoField"></div>
+  <div class="gameContainer">
+    <div id="playerGameArea" class="gameArea">
+      <div class="sideWrapper">
+        <div class="nextFieldWrapper">
+          <div class="nextText">Next</div>
+          <div id="playerNext1" class="next next1"></div>
+          <div id="playerNext2" class="next"></div>
+          <div id="playerNext3" class="next"></div>
+          <div id="playerNext4" class="next"></div>
+          <div id="playerNext5" class="next next5"></div>
+        </div>
+        <div id="playerAttackInfoWrapper" class="attackInfoWrapper">
+          <div id="playerAttackKind" class="attackInfo attackKind"></div>
+          <div id="playerChainBonus" class="attackInfo chainBonus"></div>
+          <div id="playerNerfValue" class="attackInfo nerfValue"></div>
+        </div>
+        <div class="infoFieldWrapper">
+          <div class="infoFieldName">KPM</div>
+          <div id="kpmplayerInfo" class="infoField"></div>
+          <div class="infoFieldName">APM</div>
+          <div id="apmplayerInfo" class="infoField"></div>
+          <div class="infoFieldName">WPM</div>
+          <div id="wpmplayerInfo" class="infoField"></div>
+          <div class="infoFieldName">Time</div>
+          <div class="time infoField"></div>
+        </div>
       </div>
-      <div class="field-container">
+      <div class="fieldContainer">
         <div class="field-wrapper" style="display: flex;">
           <canvas id="playerStatusField" class="statusField"></canvas>
           <canvas id="playerField" class="field"></canvas>
@@ -35,18 +50,33 @@
         <canvas id="playerInputField" class="inputField"></canvas>
       </div>
     </div>
-    <div class="gameArea">
-      <div class="infoField-wrapper">
-        <div class="infoFieldName">KPM</div>
-        <div id="kpmOpponentInfo" class="infoField"></div>
-        <div class="infoFieldName">APM</div>
-        <div id="apmOpponentInfo" class="infoField"></div>
-        <div class="infoFieldName">WPM</div>
-        <div id="wpmOpponentInfo" class="infoField"></div>
-        <div class="infoFieldName">Time</div>
-        <div class="time infoField"></div>
+    <div id="opponentGameArea"  class="gameArea">
+      <div class="sideWrapper">
+        <div class="nextFieldWrapper">
+          <div class="nextText">Next</div>
+          <div id="opponentNext1" class="next next1"></div>
+          <div id="opponentNext2" class="next"></div>
+          <div id="opponentNext3" class="next"></div>
+          <div id="opponentNext4" class="next"></div>
+          <div id="opponentNext5" class="next next5"></div>
+        </div>
+        <div id="opponentAttackInfoWrapper" class="attackInfoWrapper">
+          <div id="opponentAttackKind" class="attackInfo attackKind"></div>
+          <div id="opponentChainBonus" class="attackInfo chainBonus"></div>
+          <div id="opponentNerfValue" class="attackInfo nerfValue"></div>
+        </div>
+        <div class="infoFieldWrapper">
+          <div class="infoFieldName">KPM</div>
+          <div id="kpmOpponentInfo" class="infoField"></div>
+          <div class="infoFieldName">APM</div>
+          <div id="apmOpponentInfo" class="infoField"></div>
+          <div class="infoFieldName">WPM</div>
+          <div id="wpmOpponentInfo" class="infoField"></div>
+          <div class="infoFieldName">Time</div>
+          <div class="time infoField"></div>
+        </div>
       </div>
-      <div class="field-container">
+      <div class="fieldContainer">
         <div class="field-wrapper" style="display: flex;">
           <canvas id="opponentStatusField" class="statusField"></canvas>
           <canvas id="opponentField" class="field"></canvas>

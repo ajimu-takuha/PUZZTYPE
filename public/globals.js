@@ -25,8 +25,10 @@ let opponentField = Array.from({ length: FIELD_HEIGHT }, () =>
 let selectedCategory = "hiragana";
 
 // 各プレイヤーのフィールド単語リスト
+let wordPool = [];
 let playerFieldWords = [];
 let opponentFieldWords = [];
+
 
 // 2~10文字が繰り返し出現するための文字長を格納
 let playerUsedLengths = [];
@@ -51,7 +53,9 @@ let playerReceiveValueToOffset = [];
 
 let isUpChain = false;
 let isDownChain = false;
+let SameChar = false;
 let chainBonus = 0;
+let isNerf = false;
 
 let playerKeyValueToKPM = 0;
 let playerAtteckValueToAPM = 0;
@@ -77,6 +81,15 @@ const ctxPlayerInput = playerInputField.getContext("2d");
 const ctxOpponentInput = opponentInputField.getContext("2d");
 
 
+// DOM要素の取得
+const playerAttackKind = document.getElementById('playerAttackKind');
+const playerNerfValue = document.getElementById('playerNerfValue');
+const playerChainBonus = document.getElementById('playerChainBonus');
+
+const opponentAttackKind = document.getElementById('opponentAttackKind');
+const opponentNerfValue = document.getElementById('opponentNerfValue');
+const opponentChainBonus = document.getElementById('opponentChainBonus');
+
 // 各info要素の取得
 const kpmDiv = document.getElementById("kpmplayerInfo");
 const apmDiv = document.getElementById("apmplayerInfo");
@@ -94,6 +107,7 @@ window.GameConfig = {
   FIELD_HEIGHT,
   playerField,
   opponentField,
+  wordPool,
   playerFieldWords,
   opponentFieldWords,
   playerInput,
@@ -115,11 +129,19 @@ window.GameConfig = {
   totalTime,
   isUpChain,
   isDownChain,
+  SameChar,
+  isNerf,
   chainBonus,
   ctxPlayer,
   ctxOpponent,
   ctxPlayerInput,
   ctxOpponentInput,
+  playerAttackKind,
+  playerNerfValue,
+  playerChainBonus,
+  opponentAttackKind,
+  opponentNerfValue,
+  opponentChainBonus,
   kpmDiv,
   apmDiv,
   wpmDiv,

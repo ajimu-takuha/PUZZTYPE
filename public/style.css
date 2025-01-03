@@ -2,18 +2,27 @@ body {
   background-color: black;
 }
 
-.gameArea {
-  display: flex;
-}
 /* フィールド全体の配置 */
-.game-container {
+.gameContainer {
   margin-top: 5vw;
   display: flex;
   justify-content: space-around;
 }
 
+.gameArea {
+  display: flex;
+}
+
+#playerGameArea {
+  margin-left: 10vw;
+}
+
+#opponentGameArea {
+  margin-right: 15vw;
+}
+
 /* 各フィールドと入力領域を縦に並べる */
-.field-container {
+.fieldContainer {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -59,7 +68,7 @@ canvas {}
   left: 50%;
   transform: translateX(-50%);
   width: 80%;
-  /* game-containerの80%の幅 */
+  /* gameContainerの80%の幅 */
   height: 3px;
   /* バーの高さを少し太めに */
   background-color: rgba(255, 255, 255, 0.1);
@@ -81,21 +90,21 @@ canvas {}
   /* 光っているような効果 */
 }
 
-/* game-containerのposition調整 */
-.game-container {
+/* gameContainerのposition調整 */
+.gameContainer {
   position: relative;
   /* プログレスバーの配置の基準点 */
-  padding-bottom: 40px;
+  /* padding-bottom: 40px; */
   /* プログレスバー用の余白 */
 }
 
 /* プログレスバーのコンテナ */
 #intervalProgressBar {
   position: absolute;
-  bottom: -30px;
+  bottom: -4vh;
   left: 55vw;
   transform: translateX(-50%);
-  width: 70vw;
+  width: 65vw;
   height: 3px;
   background-color: rgba(255, 255, 255, 0.1);
   border-radius: 1.5px;
@@ -135,14 +144,181 @@ canvas {}
   --base-size: 5vh; /* 基準サイズ */
 }
 
-.infoField-wrapper {
+
+.sideWrapper {
+  display: flex;
+  flex-direction: column;
+  width: 16vw;
+  font-family: 'M PLUS Rounded 1c';
+}
+
+.nextFieldWrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-end;
+  /* padding-bottom: 10vw; */
+  height: 50%;
+  width: auto;
+  /* margin-right: 0.2vw; */
+}
+
+.nextText {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 2vh;
+  width: 100%;
+  background-color: rgb(255, 255, 255, 0.8);
+  border-right: 0.2vw solid rgba(255, 255, 255, 0.25);
+  border-left: 0.2vw solid rgba(255, 255, 255, 0.5);
+  color: rgb(0, 0, 0);
+  font-size: 0.8vw;
+  font-weight: bold;
+}
+
+.next {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 3.8vh;
+  width: 60%;
+  text-align: right;
+  font-size: 0.8vw;
+  color: rgba(255, 255, 255, 0.6);
+  /* border-right: 0.1vw solid rgba(255, 255, 255, 0.5); */
+  border-left: 0.1vw solid rgba(255, 255, 255, 0.5);
+}
+
+.next1 {
+  height: 7vh;
+  width: 100%;
+  font-size: 1.5vw;
+  /* text-wrap: nowrap; */
+  color: rgba(255, 255, 255, 0.8);
+  border: 0.2vw solid rgba(255, 255, 255, 0.8);
+  font-weight: 500;
+}
+
+.next5 {
+  border-bottom: 0.1vw solid rgba(255, 255, 255, 0.5);
+}
+
+.attackInfoWrapper {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   justify-content: flex-end;
-  height: auto;
+  justify-content: center;
   width: auto;
-  margin-bottom: calc(var(--base-size) + 4vh); ;
+  margin-right: 0.5vw;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.attackInfo {
+  background-color: #00000000;
+  color: rgba(255, 255, 255, 0.5);
+  height: 5vh;
+
+  font-family: 'M PLUS Rounded 1c';
+  text-align: right;
+  z-index: 100;
+}
+
+.attackKind {
+  display: flex;
+  justify-content: center;
+  font-size: 3vh;
+  color: rgb(255, 80, 80, 0.8);
+  font-weight: bolder;
+}
+
+.chainBonus {
+  display: flex;
+  justify-content: center;
+  width: 5vw;
+  font-size: 2.5vh;
+  color: rgba(180, 140, 30, 0.8);
+  font-weight: bold;
+}
+
+.nerfValue {
+  font-size: 2vh;
+  color: rgb(180, 200, 255, 0.8);
+}
+
+/* AttackKind のアニメーション */
+@keyframes popAndFade {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+/* ChainBonus のアニメーション */
+@keyframes bounceUp {
+  0% {
+    transform: scale(1);
+    opacity: 0;
+  }
+  40% {
+    transform: scale(1.4);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* フェードアウト用の新しいアニメーション */
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.attackKind.animate {
+  animation: popAndFade 1.3s ease-in-out forwards;
+}
+
+.chainBonus.animate {
+  animation: bounceUp 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.nerfValue.animate {
+  animation: bounceUp 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.chainBonus.fade-out {
+  animation: fadeOut 0.5s ease-out forwards;
+}
+
+.nerfValue.fade-out {
+  animation: fadeOut 0.5s ease-out forwards;
+}
+
+/* アニメーションをリセットするためのクラス */
+.reset-animation {
+  animation: none !important;
+}
+
+.infoFieldWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: flex-end;
+  height: 50%;
+  width: auto;
+  margin-bottom: calc(var(--base-size) + 4vh);
+  margin-right: 0.5vw;
 }
 
 .infoField {
@@ -151,7 +327,7 @@ canvas {}
   color: rgba(255, 255, 255, 0.5);
   height: 3vh;
   width: 10vw;
-  margin-right: 0.5vw;
+
   font-family: 'M PLUS Rounded 1c';
   font-size: 2.5vh;
   text-align: right;
@@ -168,10 +344,10 @@ canvas {}
   height: 2.5vh;
   /* padding-top: 2.5vh; */
   margin-top: 1vh;
-  margin-right: 0.5vw;
-  font-family: 'M PLUS Rounded 1c';
+
   font-size: 1.5vh;
   color: rgba(255, 255, 255, 0.5);
   position: relative; /* 親要素に対して相対位置を指定 */
   transform: translateY(0.8vh); /* 下方向に20px移動 */
 }
+

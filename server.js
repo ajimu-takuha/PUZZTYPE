@@ -127,6 +127,20 @@ io.on('connection', (socket) => {
   //   }
   // });
 
+  // サーバー側のコードに追加 (server.js)
+  socket.on('nextWordsUpdate', (data) => {
+    const room = Array.from(socket.rooms)[1];
+    if (room) {
+      const gameRoom = rooms.get(room);
+      if (gameRoom) {
+        const targetSocket = socket.id === gameRoom.player1.id ? gameRoom.player2 : gameRoom.player1;
+        targetSocket.emit('nextWordsSync', {
+          words: data.words
+        });
+      }
+    }
+  });
+
   // サーバー側に追加するコード（server.js）
   socket.on('statusFieldUpdate', (data) => {
     const room = Array.from(socket.rooms)[1];
@@ -152,6 +166,44 @@ io.on('connection', (socket) => {
       }
     }
   });
+
+
+  // サーバー側のコード（server.js）
+  socket.on('sendAttackInfo', (data) => {
+    const room = Array.from(socket.rooms)[1];
+    if (room) {
+      const gameRoom = rooms.get(room);
+      if (gameRoom) {
+        const targetSocket = socket.id === gameRoom.player1.id ? gameRoom.player2 : gameRoom.player1;
+        targetSocket.emit('updateAttackInfo', data);
+      }
+    }
+  });
+
+  
+  // サーバー側のコード（server.js）
+  socket.on('sendNerfInfo', (data) => {
+    const room = Array.from(socket.rooms)[1];
+    if (room) {
+      const gameRoom = rooms.get(room);
+      if (gameRoom) {
+        const targetSocket = socket.id === gameRoom.player1.id ? gameRoom.player2 : gameRoom.player1;
+        targetSocket.emit('updeteNerfInfo', data);
+      }
+    }
+  });
+
+    // サーバー側のコード（server.js）
+    socket.on('sendChainInfo', (data) => {
+      const room = Array.from(socket.rooms)[1];
+      if (room) {
+        const gameRoom = rooms.get(room);
+        if (gameRoom) {
+          const targetSocket = socket.id === gameRoom.player1.id ? gameRoom.player2 : gameRoom.player1;
+          targetSocket.emit('updateChainInfo', data);
+        }
+      }
+    });
 
   // ゲームオーバー処理
   socket.on('gameOver', (data) => {

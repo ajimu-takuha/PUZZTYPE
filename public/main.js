@@ -16,14 +16,51 @@ function calculateCellSize() {
   return Math.min(cellWidth, cellHeight);
 }
 
-function moveWordToField(fieldWords) {
+function setWordPool() {
+  if (wordPool.length === 0) {
+    for (let x = 0; x < 5; x++) {
+      wordPool.push(getRandomWordForField(playerUsedLengths));
+    }
+    console.log(wordPool);
+  } else {
+    wordPool = [];
+    for (let x = 0; x < 5; x++) {
+      wordPool.push(getRandomWordForField(playerUsedLengths));
+    }
+  }
+}
 
-  fieldWords.push(getRandomWordForField(playerUsedLengths));
+// moveWordToField関数を修正
+function moveWordToField(fieldWords) {
+  let toPutFieldWord = wordPool.shift();
+  fieldWords.push(toPutFieldWord);
+  wordPool.push(getRandomWordForField(playerUsedLengths));
 
   // FieldWords を文字数昇順で並び替え
   fieldWords.sort((a, b) => b.length - a.length);
 
+  // Next表示を更新
+  updateNextDisplay(wordPool);
 }
+
+// Next表示用の関数
+function updateNextDisplay(words, isPlayer = true) {
+  const prefix = isPlayer ? 'player' : 'opponent';
+
+  // 5つのNextを表示
+  for (let i = 1; i <= 5; i++) {
+    const nextElement = document.getElementById(`${prefix}Next${i}`);
+    nextElement.textContent = words[i - 1];
+  }
+
+  // プレイヤーの場合、相手に情報を送信
+  if (isPlayer && socket) {
+    socket.emit('nextWordsUpdate', {
+      words: words
+    });
+  }
+}
+
 
 // checkAndRemoveWordからのみ呼び出され、単語を削除後、再描画する
 function updateField(field, fieldWords) {
@@ -243,7 +280,7 @@ function calcReceiveOffsetToDisplay() {
   playerAttackValueToDisplay.sort((a, b) => a - b);
   playerReceiveValueToDisplay.sort((a, b) => a - b);
 
-  console.log("playerReceiveValueToDisplay:" + playerReceiveValueToDisplay);
+  // console.log("playerReceiveValueToDisplay:" + playerReceiveValueToDisplay);
 }
 
 function drawField(ctx, field) {
@@ -447,12 +484,12 @@ const minInterval = 1000; // 最小の間隔（ミリ秒）
 
 // startGame関数を修正
 function startGame() {
-  if (gameState !== 'playing') return;
-
+  // if (gameState !== 'playing') return;
+  setWordPool();
   drawInfo();
 
   function gameStep() {
-    if (gameState !== 'playing') return;
+    // if (gameState !== 'playing') return;
     moveWordToField(playerFieldWords);
     updateFieldAfterReceiveOffset(playerField, playerFieldWords);
     checkAndRemoveWord(playerField, playerFieldWords, playerInput);
@@ -461,7 +498,7 @@ function startGame() {
     // インターバルを更新し、プログレスバーを開始
     interval = Math.max(minInterval, interval - 50);
     updateProgressBar(interval);
-    setTimeout(gameStep, interval);
+    // setTimeout(gameStep, interval);
   }
 
   gameStep();
@@ -562,9 +599,9 @@ function getRandomWordForAttack(characterCount) {
 
 // キー入力リスナー
 window.addEventListener("keydown", (e) => {
-  if (gameState !== 'playing') {
-    return;
-  }
+  // if (gameState !== 'playing') {
+  //   return;
+  // }
   const key = e.key;
 
   // selectedCategoryがhiraganaの場合、ローマ字をひらがなに変換
@@ -606,11 +643,15 @@ window.addEventListener("keydown", (e) => {
       }
     } else if (key === "Backspace") {
       convertedInput = playerInput.slice(0, -1); // バックスペースで最後の文字を削除
+      if (convertedInput === "") {
+        resetHighlight(playerField);
+      }
     } else if (key === "Delete") {
       convertedInput = ""
+      resetHighlight(playerField);
     }
     else if (key === "Enter") {
-      drawInfo();
+      startGame();
     }
 
     playerInput = convertedInput;
@@ -786,17 +827,20 @@ function calcAttackValue(removeWord) {
 
   if (playerLastAttackValue + 1 == removeWord.length) {
     // console.log("upChain攻撃！ もとになる攻撃力は:" + playerAttackValue);
+    isSameChar = false;
     isUpChain = true;
     upChainAttack();
 
   } else if (playerLastAttackValue - 1 == removeWord.length) {
     // console.log("downChain攻撃！ もとになる攻撃力は:" + playerAttackValue);
-    isdownChain = true;
+    isSameChar = false;
+    isDownChain = true;
     downChainAttack();
 
   } else if (playerLastAttackValue == removeWord.length) {
     // console.log("sameChar攻撃！ もとになる攻撃力は:" + playerAttackValue);
     cancelChain();
+    isSameChar = true;
     sameCharAttack();
 
   } else {
@@ -809,61 +853,223 @@ function calcAttackValue(removeWord) {
 
 function cancelChain() {
   isUpChain = false;
-  isdownChain = false;
+  isDownChain = false;
+  isSameChar = false;
   chainBonus = 0;
+  updateChainInfoDisplay();
 }
 
 
+// 既存のattack関数を修正
 function attack(attackValue) {
   if (gameStarted) {
     if (nerfValue !== 0) {
+      // isNerf = true;
       let nerfAttackValue = attackValue - nerfValue;
       nerfValue = 0;
+
       if (nerfAttackValue < 2) {
         console.log("ナーフで攻撃無効 nerfAttackValue:" + nerfAttackValue);
+        updateNerfInfoDisplay();
+
+        updateAttackInfoDisplay();
+        emitAttackInfo();
         return;
+
       } else {
         console.log("ナーフ攻撃 nerfAttackValue:" + nerfAttackValue);
         playerAttackValueToOffset.push(nerfAttackValue);
-
         playerAtteckValueToAPM += nerfAttackValue;
-
         socket.emit('attack', {
           attackValue: nerfAttackValue
         });
+        updateAttackInfoDisplay();
+        emitAttackInfo();
       }
+
+      updateNerfInfoDisplay();
+
     } else {
+      // isNerf = false;
       console.log("攻撃します攻撃力は:" + attackValue);
-
       playerAttackValueToOffset.push(attackValue);
-
       playerAtteckValueToAPM += attackValue;
-
-      console.log(playerAttackValueToOffset);
       socket.emit('attack', {
         attackValue: attackValue
       });
+      updateAttackInfoDisplay();
+      emitAttackInfo();
     }
+
     calcReceiveOffsetToDisplay();
     drawStatusField(ctxPlayerStatus, true);
   }
 }
 
+function emitAttackInfo() {
+  // 攻撃タイプの判定
+  let attackType = 'Attack';
+  if (isUpChain) {
+    attackType = 'UpChain';
+  } else if (isDownChain) {
+    attackType = 'DownChain';
+  } else if (isSameChar) {
+    attackType = 'DoubleAttack';
+  }
+
+  let playerChainBonus = 0;
+  if (chainBonus !== 0) {
+    playerChainBonus = chainBonus;
+  }
+
+  socket.emit('sendAttackInfo', {
+    attackType: attackType,
+    chainBonus: playerChainBonus,
+  });
+}
+
+// 攻撃情報の表示を更新する関数
+function updateAttackInfoDisplay() {
+
+  // 攻撃タイプの判定
+  let attackType = 'Attack';
+  if (isUpChain) {
+    attackType = 'UpChain';
+  } else if (isDownChain) {
+    attackType = 'DownChain';
+  } else if (isSameChar) {
+    attackType = 'DoubleAttack';
+  }
+
+  // 表示の更新
+  // playerAttackKind.textContent = attackType;
+  animateAttackInfo(playerAttackKind, attackType);
+  updateChainInfoDisplay();
+
+
+  // playerChainBonus.textContent = chainBonus !== 0 ? `Chain: ${chainBonus}` : '';
+
+}
+
+function updateOpponentAttackInfoDisplay(attackType) {
+  animateAttackInfo(opponentAttackKind, attackType);
+}
+
+// アニメーションを適用する関数
+function animateAttackInfo(element, value) {
+  // 値を設定
+  element.textContent = value;
+
+  // 既存のアニメーションをリセット
+  element.classList.remove('animate');
+  element.classList.add('reset-animation');
+
+  // リフロー（強制的な再描画）をトリガー
+  void element.offsetWidth;
+
+  // リセットクラスを削除してアニメーションを開始
+  element.classList.remove('reset-animation');
+  element.classList.add('animate');
+}
+
+function updateChainInfoDisplay() {
+  if (chainBonus !== 0) {
+    animateAttackInfo(playerChainBonus, `Chain: ${chainBonus}`);
+  } else {
+    // フェードアウトアニメーションを適用
+    playerChainBonus.classList.remove('animate');
+    playerChainBonus.classList.add('fade-out');
+
+    // アニメーション終了後に空文字列を設定
+    setTimeout(() => {
+      playerChainBonus.textContent = '';
+      playerChainBonus.classList.remove('fade-out');
+    }, 500); // フェードアウトアニメーションの時間と同じ
+  }
+  emitChainInfo();
+}
+
+function emitChainInfo() {
+  socket.emit('sendChainInfo', {
+    chainBonus: chainBonus,
+  });
+}
+
+function updateOpponentChainInfoDisplay(chainBonus) {
+  if (chainBonus !== 0) {
+    animateAttackInfo(opponentChainBonus, `Chain: ${chainBonus}`);
+  } else {
+    // フェードアウトアニメーションを適用
+    opponentChainBonus.classList.remove('animate');
+    opponentChainBonus.classList.add('fade-out');
+
+    // アニメーション終了後に空文字列を設定
+    setTimeout(() => {
+      opponentChainBonus.textContent = '';
+      opponentChainBonus.classList.remove('fade-out');
+    }, 500); // フェードアウトアニメーションの時間と同じ
+  }
+}
+
+function updateNerfInfoDisplay() {
+  // playerNerfValue.textContent = nerfValue !== 0 ? `Nerf: ${nerfValue}` : '';
+  if (nerfValue !== 0) {
+    animateAttackInfo(playerNerfValue, `Nerf: ${nerfValue}`);
+  } else {
+    // フェードアウトアニメーションを適用
+    playerNerfValue.classList.remove('animate');
+    playerNerfValue.classList.add('fade-out');
+
+    // アニメーション終了後に空文字列を設定
+    setTimeout(() => {
+      playerNerfValue.textContent = '';
+      playerNerfValue.classList.remove('fade-out');
+    }, 500); // フェードアウトアニメーションの時間と同じ
+  }
+  emitNerfInfo();
+}
+
+function emitNerfInfo() {
+  socket.emit('sendNerfInfo', {
+    nerfValue: nerfValue,
+  });
+}
+
+function updateOpponentNerfInfoDisplay(nerfValue) {
+  opponentNerfValue.textContent = nerfValue !== 0 ? `Nerf: ${nerfValue}` : '';
+  if (nerfValue !== 0) {
+    animateAttackInfo(opponentNerfValue, `Nerf: ${nerfValue}`);
+  } else {
+    // フェードアウトアニメーションを適用
+    opponentNerfValue.classList.remove('animate');
+    opponentNerfValue.classList.add('fade-out');
+
+    // アニメーション終了後に空文字列を設定
+    setTimeout(() => {
+      opponentNerfValue.textContent = '';
+      opponentNerfValue.classList.remove('fade-out');
+    }, 500); // フェードアウトアニメーションの時間と同じ
+  }
+}
+
+
+
 function upChainAttack() {
-  if (isdownChain === true) {
-    isdownChain = false;
+  if (isDownChain === true) {
+    isDownChain = false;
     chainBonus = 0;
-    console.log("upChainAttackに切り替わったのでボーナスは0");
-    console.log("isdownChainは" + isdownChain);
+    console.log("upChainAttackに切り替わったのでボーナスは2");
+    console.log("isDownChainは" + isDownChain);
     console.log("isUpChainは" + isUpChain);
   }
-  attack(playerAttackValue);
   if (chainBonus === 0) {
     chainBonus = 2;
+    attack(playerAttackValue);
     attack(chainBonus);
     console.log("初めてのchainBonusは" + chainBonus);
     chainBonus++;
   } else {
+    attack(playerAttackValue);
     attack(chainBonus);
     console.log("連続chainBonusは" + chainBonus);
     chainBonus++;
@@ -875,22 +1081,24 @@ function downChainAttack() {
     isUpChain = false;
     chainBonus = 0;
     console.log("downChainAttackに切り替わったのでボーナスは0");
-    console.log("isdownChainは" + isdownChain);
+    console.log("isDownChainは" + isDownChain);
     console.log("isUpChainは" + isUpChain);
   }
-  attack(playerAttackValue);
   if (chainBonus === 0) {
     chainBonus = 2;
     console.log("初めてのchainBonusは" + chainBonus);
+    attack(playerAttackValue);
     attack(chainBonus);
     chainBonus = chainBonus + 2;
   } else {
     if (chainBonus >= 10) {
+      attack(playerAttackValue);
       attack(10);
       attack(chainBonus % 10);
       console.log("chainBonusによる追加攻撃");
       console.log("連続chainBonusは" + chainBonus);
     } else {
+      attack(playerAttackValue);
       attack(chainBonus);
       console.log("連続chainBonusは" + chainBonus);
     }
@@ -907,6 +1115,7 @@ function sameCharAttack() {
     const randomValue = array[Math.floor(Math.random() * array.length)];
     attack(randomValue);
     attack(10 - randomValue);
+
   } else if (playerAttackValue > 10) {
     attack(10);
     attack(playerAttackValue % 10);
@@ -918,10 +1127,8 @@ function sameCharAttack() {
 
 function nerfAttackValue() {
   nerfValue = nerfValue + 1;
-  console.log(nerfValue + "文字ナーフされます");
+  updateNerfInfoDisplay();
 }
-
-
 
 // ゲームリセット関数
 function resetGame() {
@@ -944,7 +1151,7 @@ function resetGame() {
   nerfValue = 0;
   chainBonus = 0;
   isUpChain = false;
-  isdownChain = false;
+  isDownChain = false;
 
   // playerInfoをリセット
   playerKeyValueToKPM = 0;
@@ -978,9 +1185,8 @@ function showMatchingSuccess() {
     transform: translate(-50%, -50%);
     background-color: rgba(0, 0, 0, 0.8);
     color: white;
-    padding: 20px 40px;
     border-radius: 10px;
-    font-size: 24px;
+    font-size: 6vh;
     z-index: 1000;
   `;
   overlay.textContent = 'マッチングに成功しました';
@@ -1002,7 +1208,7 @@ function showCountdown(count) {
     transform: translate(-50%, -50%);
     color: white;
     font: Arial;
-    font-size: 88px;
+    font-size: 8vh;
     z-index: 1000;
   `;
   overlay.textContent = count;
@@ -1140,7 +1346,7 @@ function drawStatusField(ctx, isPlayer = true) {
 const inputHeight = playerInputField.getBoundingClientRect().height;
 
 // infoFieldWrapperの全ての要素を取得
-const infoFieldWrappers = document.getElementsByClassName("infoField-wrapper");
+const infoFieldWrappers = document.getElementsByClassName("infoFieldWrapper");
 
 // 新しいマージンサイズを計算
 const newMarginSize = `${inputHeight}px`;
@@ -1148,7 +1354,7 @@ console.log(newMarginSize);
 
 const unitChair = "/M"
 
-// 各infoField-wrapperに対してCSS変数を設定
+// 各infoFieldWrapperに対してCSS変数を設定
 Array.from(infoFieldWrappers).forEach((wrapper) => {
   wrapper.style.setProperty('--base-size', newMarginSize);
 });
@@ -1156,9 +1362,9 @@ Array.from(infoFieldWrappers).forEach((wrapper) => {
 // 値を描写する関数
 function drawInfo() {
   setInterval(() => {
-    if (gameState !== 'playing') {
-      return;
-    }
+    // if (gameState !== 'playing') {
+    //   return;
+    // }
 
     // 0.1秒ごとに値を更新
     totalTime++; // 0.1秒追加
@@ -1197,7 +1403,7 @@ function drawInfo() {
     for (let timeDiv of timeDivs) {
       timeDiv.innerHTML = `${mainTimeText}<span class="smallText">${toSmallTimeText}</span>`;
     }
-    
+
     // 相手に情報を送信
     socket.emit('playerInfoUpdate', {
       kpm: { main: mainKPMText, small: toSmallKPMChars },
@@ -1352,6 +1558,24 @@ function initializeSocket() {
     drawStatusField(ctxPlayerStatus, true);
 
     console.log("攻撃を受けました:" + playerReceiveValueToOffset);
+  });
+
+  // クライアント側のコード（main.jsなど）
+  socket.on('updateAttackInfo', (data) => {
+    updateOpponentAttackInfoDisplay(data.attackType);
+  });
+
+  socket.on('updeteNerfInfo', (data) => {
+    updateOpponentNerfInfoDisplay(data.nerfValue);
+  });
+
+  socket.on('updateChainInfo', (data) => {
+    updateOpponentChainInfoDisplay(data.chainBonus);
+  });
+
+  // Socket.IOイベントハンドラをクライアント側に追加
+  socket.on('nextWordsSync', (data) => {
+    updateNextDisplay(data.words, false);
   });
 
   // Socket.IOのイベントハンドラを追加
