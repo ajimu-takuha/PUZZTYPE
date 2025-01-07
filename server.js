@@ -41,35 +41,6 @@ io.on('connection', (socket) => {
 
   }
 
-
-  // ハイライト状態の同期
-  // socket.on('highlightUpdate', (data) => {
-  //   console.log('Server received highlightUpdate:', {
-  //     socketId: socket.id,
-  //     data
-  //   });
-
-  //   const gameRoom = rooms.get(room);
-  //   if (gameRoom) {
-  //     console.log('Emitting highlightSync to room:', room);
-  //     const targetSocket = socket.id === gameRoom.player1.id ? gameRoom.player2 : gameRoom.player1;
-  //     targetSocket.emit('highlightSync', {
-  //       highlightIndex: data.highlightIndex,
-  //       length: data.length
-  //     });
-  //   }
-  // });
-
-
-  // ハイライトリセットの同期
-  // socket.on('highlightReset', () => {
-  //   const room = Array.from(socket.rooms)[1];
-  //   if (room) {
-  //     socket.to(room).emit('highlightResetSync');
-  //   }
-  // });
-
-
   // 攻撃イベントの処理を追加
   socket.on('attack', (data) => {
 
@@ -116,18 +87,7 @@ io.on('connection', (socket) => {
     }
   });
 
-  // socket.on('inputEmptyUpdate', (data) => {
-  //   const room = Array.from(socket.rooms)[1];
-  //   if (room) {
-  //     const gameRoom = rooms.get(room);
-  //     const targetSocket = socket.id === gameRoom.player1.id ? gameRoom.player2 : gameRoom.player1;
-  //     targetSocket.emit('syncInputEmpty', {
-  //       input: data.input
-  //     });
-  //   }
-  // });
-
-  // サーバー側のコードに追加 (server.js)
+  // Socket.IOイベントハンドラをクライアント側に追加
   socket.on('nextWordsUpdate', (data) => {
     const room = Array.from(socket.rooms)[1];
     if (room) {
@@ -135,7 +95,39 @@ io.on('connection', (socket) => {
       if (gameRoom) {
         const targetSocket = socket.id === gameRoom.player1.id ? gameRoom.player2 : gameRoom.player1;
         targetSocket.emit('nextWordsSync', {
-          words: data.words
+          words: data.words,
+          styledWords: data.styledWords
+        });
+      }
+    }
+  });
+
+  // サーバーサイド
+  socket.on('syncOpponentGradients', (data) => {
+    const room = Array.from(socket.rooms)[1];
+    if (room) {
+      const gameRoom = rooms.get(room);
+      if (gameRoom) {
+        const targetSocket = socket.id === gameRoom.player1.id
+          ? gameRoom.player2
+          : gameRoom.player1;
+
+        targetSocket.emit('syncOpponentGradients', {
+          gradientStyles: data.gradientStyles
+        });
+      }
+    }
+  });
+
+  // ソケットイベントの設定
+  socket.on('fieldHighlightUpdate', (data) => {
+    const room = Array.from(socket.rooms)[1];
+    if (room) {
+      const gameRoom = rooms.get(room);
+      if (gameRoom) {
+        const targetSocket = socket.id === gameRoom.player1.id ? gameRoom.player2 : gameRoom.player1;
+        targetSocket.emit('fieldHighlightSync', {
+          combinedWords: data.combinedWords
         });
       }
     }
@@ -180,7 +172,7 @@ io.on('connection', (socket) => {
     }
   });
 
-  
+
   // サーバー側のコード（server.js）
   socket.on('sendNerfInfo', (data) => {
     const room = Array.from(socket.rooms)[1];
@@ -193,17 +185,17 @@ io.on('connection', (socket) => {
     }
   });
 
-    // サーバー側のコード（server.js）
-    socket.on('sendChainInfo', (data) => {
-      const room = Array.from(socket.rooms)[1];
-      if (room) {
-        const gameRoom = rooms.get(room);
-        if (gameRoom) {
-          const targetSocket = socket.id === gameRoom.player1.id ? gameRoom.player2 : gameRoom.player1;
-          targetSocket.emit('updateChainInfo', data);
-        }
+  // サーバー側のコード（server.js）
+  socket.on('sendChainInfo', (data) => {
+    const room = Array.from(socket.rooms)[1];
+    if (room) {
+      const gameRoom = rooms.get(room);
+      if (gameRoom) {
+        const targetSocket = socket.id === gameRoom.player1.id ? gameRoom.player2 : gameRoom.player1;
+        targetSocket.emit('updateChainInfo', data);
       }
-    });
+    }
+  });
 
   // ゲームオーバー処理
   socket.on('gameOver', (data) => {

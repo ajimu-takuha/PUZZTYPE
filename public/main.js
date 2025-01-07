@@ -43,23 +43,130 @@ function moveWordToField(fieldWords) {
   updateNextDisplay(wordPool);
 }
 
+const colors = ["rgba(255, 0, 0, 0.5)", "rgba(0, 0, 255, 0.5)", "rgba(0, 255, 0, 0.5)", "rgba(255, 255, 0, 0.5)", "rgba(255, 0, 255, 0.5)"];
+
 // Next表示用の関数
 function updateNextDisplay(words, isPlayer = true) {
   const prefix = isPlayer ? 'player' : 'opponent';
 
+  // 一致する文字を取得
+  const combinedWords = [...playerFieldWords, ...wordPool];
+  const matchingChars = getMatchingStartAndEndLetters(combinedWords);
+
   // 5つのNextを表示
   for (let i = 1; i <= 5; i++) {
     const nextElement = document.getElementById(`${prefix}Next${i}`);
-    nextElement.textContent = words[i - 1];
+    const word = words[i - 1];
+
+    // 一致する文字を基にスタイルを変更
+    let styledWord = word.split("").map((char, index) => {
+      let colorIndex = matchingChars.indexOf(char);
+
+      // 先頭文字が一致かつ lastChar と同じ場合
+      if (index === 0 && char === lastChar) {
+        return `<span style="color: rgb(0, 0, 0); text-shadow: -1px -1px 0 rgb(255, 255, 255), 1px -1px 0 rgb(255, 255, 255), -1px 1px 0 rgb(255, 255, 255), 1px 1px 0 rgb(255, 255, 255);">${char}</span>`;
+      }
+
+      // 最初の文字が一致（lastChar のチェックはなし）
+      if (index === 0 && colorIndex !== -1) {
+        return `<span style="color: ${colors[colorIndex % colors.length]}">${char}</span>`;
+      }
+
+      // 最後の文字が一致
+      if (index === word.length - 1 && colorIndex !== -1) {
+        return `<span style="color: ${colors[colorIndex % colors.length]}">${char}</span>`;
+      }
+
+      return char;
+    }).join("");
+
+    nextElement.innerHTML = styledWord;
   }
 
   // プレイヤーの場合、相手に情報を送信
   if (isPlayer && socket) {
+    // スタイル情報を生成
+    const styledWords = words.map((word) => {
+      if (!word) return "";
+      return word.split("").map((char, index) => {
+        let colorIndex = matchingChars.indexOf(char);
+        const color = colorIndex !== -1 ? colors[colorIndex % colors.length] : "black";
+
+        if (index === 0 && char === lastChar) {
+          return `<span style="color: rgb(0, 0, 0); text-shadow: -2px -2px 0 rgb(255, 255, 255), 2px -2px 0 rgb(255, 255, 255), -2px 2px 0 rgb(255, 255, 255), 2px 2px 0 rgb(255, 255, 255);">${char}</span>`;
+        }
+
+        // 最初の文字が一致
+        if (index === 0 && matchingChars.includes(char)) {
+          return `<span style="color: ${color}">${char}</span>`;
+        }
+
+        // 最後の文字が一致
+        if (index === word.length - 1 && matchingChars.includes(char)) {
+          return `<span style="color: ${color}">${char}</span>`;
+        }
+
+        return char;
+      }).join("");
+    });
+
+    updateAllNextGradients(wordPool, true);
+
     socket.emit('nextWordsUpdate', {
-      words: words
+      words: words,
+      styledWords: styledWords
     });
   }
+
 }
+
+// Next要素のグラデーション背景を更新する関数
+function updateNextElementGradient(prefix, index, wordLength) {
+  const nextElement = document.getElementById(`${prefix}Next${index}`);
+  if (!nextElement || !wordLength) return;
+
+  const lengthDiff = wordLength - memorizeLastAttackValue;
+  let gradientStyle = '';
+
+  if (lengthDiff === 1) {
+    // 青色のグラデーション（1文字多い場合）
+    gradientStyle = 'background: radial-gradient(circle at center, rgba(173, 216, 230, 0.02) 0%, rgba(173, 216, 230, 0.05) 50%, rgba(173, 216, 230, 0.3) 100%);';
+  } else if (lengthDiff === -1) {
+    // 緑色のグラデーション（1文字少ない場合）
+    gradientStyle = 'background: radial-gradient(circle at center, rgba(144, 238, 144, 0.02) 0%, rgba(144, 238, 144, 0.05) 50%, rgba(144, 238, 144, 0.3) 100%);';
+  } else {
+    // 差分がない場合は背景をクリア
+    gradientStyle = 'background: none;';
+  }
+
+  nextElement.style = gradientStyle;
+  return gradientStyle;
+}
+
+// 全てのNext要素のグラデーションを更新し、相手画面と同期する関数
+function updateAllNextGradients(words, isPlayer = true) {
+  const prefix = isPlayer ? 'player' : 'opponent';
+  const gradientStyles = [];
+
+  // 自分の画面のNext要素を更新
+  for (let i = 1; i <= 5; i++) {
+    const word = words[i - 1];
+    const gradientStyle = updateNextElementGradient(prefix, i, word?.length);
+    gradientStyles.push(gradientStyle || '');
+  }
+
+  // プレイヤーの操作の場合のみ、相手画面の同期を行う
+  if (isPlayer && socket) {
+    // 相手画面のNext要素を更新するためのイベントを発行
+    socket.emit('syncOpponentGradients', {
+      gradientStyles: gradientStyles
+    });
+  }
+
+  return gradientStyles;
+}
+
+// ソケット通信用のグラデーション更新関数
 
 
 // checkAndRemoveWordからのみ呼び出され、単語を削除後、再描画する
@@ -143,6 +250,65 @@ function updateFieldAfterReceiveOffset(field, fieldWords) {
   syncFieldUpdate();
 }
 
+// ひらがなの大文字・小文字を正規化する関数
+function normalizeHiragana(char) {
+  const smallToLargeMap = {
+    "ぁ": "あ", "ぃ": "い", "ぅ": "う", "ぇ": "え", "ぉ": "お",
+    "ゃ": "や", "ゅ": "ゆ", "ょ": "よ", "ゎ": "わ",
+    "っ": "つ", "ゕ": "か", "ゖ": "け"
+  };
+  return smallToLargeMap[char] || char; // 小文字なら変換、大文字はそのまま
+}
+
+
+function getMatchingStartAndEndLetters(combinedWords) {
+  const startMap = new Map(); // 各文字の先頭での出現位置を記録
+  const endMap = new Map();   // 各文字の終了での出現位置を記録
+
+  // 各単語の先頭文字と終了文字を収集
+  combinedWords.forEach((word, index) => {
+    if (word.length === 0) return; // 空文字列は無視
+    const startChar = normalizeHiragana(word[0]); // 先頭文字を正規化
+    const endChar = normalizeHiragana(word[word.length - 1]); // 終了文字を正規化
+
+    // 先頭文字の出現位置を記録
+    if (!startMap.has(startChar)) {
+      startMap.set(startChar, []);
+    }
+    startMap.get(startChar).push(index);
+
+    // 終了文字の出現位置を記録
+    if (!endMap.has(endChar)) {
+      endMap.set(endChar, []);
+    }
+    endMap.get(endChar).push(index);
+  });
+
+  const matchingChars = [];
+
+  // 先頭文字と終了文字で一致している文字を探す
+  for (const char of startMap.keys()) {
+    if (endMap.has(char)) {
+      const startIndices = startMap.get(char);
+      const endIndices = endMap.get(char);
+
+      // 合計出現回数が2の場合
+      if (startIndices.length + endIndices.length === 2) {
+        // 出現位置が同じかどうかを確認
+        if (startIndices[0] === endIndices[0]) {
+          // 出現位置が同じ場合は除外（何もしない）
+          continue;
+        }
+      }
+
+      // それ以外は matchingChars に追加
+      matchingChars.push(char);
+    }
+  }
+
+  return matchingChars;
+}
+
 // ゲームオーバー処理
 function handleGameOver(isLoser) {
   if (gameState === 'ended') return; // 既にゲーム終了処理が行われている場合は何もしない
@@ -192,6 +358,7 @@ function syncFieldUpdate() {
       fieldWords: playerFieldWords
     });
   }
+  // console.log("syncFieldUpdateのplayerFieldWords" + playerFieldWords);
 }
 
 function calcReceiveOffset() {
@@ -283,10 +450,110 @@ function calcReceiveOffsetToDisplay() {
   // console.log("playerReceiveValueToDisplay:" + playerReceiveValueToDisplay);
 }
 
-function drawField(ctx, field) {
-  if (gameState === 'ended') {
-    return;
+// グローバル変数の初期化
+let playerOverlayCanvas;
+let opponentOverlayCanvas;
+
+// オーバーレイキャンバスの初期化関数
+function initializeOverlayCanvases() {
+  // プレイヤーのオーバーレイキャンバスを作成
+  playerOverlayCanvas = document.createElement('canvas');
+  playerOverlayCanvas.id = 'playerChainStyleOverlay';
+  playerOverlayCanvas.style.position = 'absolute';
+  playerOverlayCanvas.style.pointerEvents = 'none';
+  const playerFieldWrapper = document.querySelector('#playerGameArea .field-wrapper');
+  playerFieldWrapper.style.position = 'relative';
+  playerFieldWrapper.appendChild(playerOverlayCanvas);
+
+  // 相手のオーバーレイキャンバスを作成
+  opponentOverlayCanvas = document.createElement('canvas');
+  opponentOverlayCanvas.id = 'opponentChainStyleOverlay';
+  opponentOverlayCanvas.style.position = 'absolute';
+  opponentOverlayCanvas.style.pointerEvents = 'none';
+  const opponentFieldWrapper = document.querySelector('#opponentGameArea .field-wrapper');
+  opponentFieldWrapper.style.position = 'relative';
+  opponentFieldWrapper.appendChild(opponentOverlayCanvas);
+
+  // 両方のキャンバスをリサイズ
+  resizeWarningOverlay(playerOverlayCanvas);
+  resizeWarningOverlay(opponentOverlayCanvas);
+}
+
+// ハイライト処理関数を修正
+function highlightMatchingCells(field, combinedWords) {
+  let isPlayer = true;
+  if (field === opponentField) {
+    isPlayer = false;
   }
+  const matchingChars = getMatchingStartAndEndLetters(combinedWords);
+
+  // 文字と色の対応を保持
+  const charColorMap = new Map();
+  matchingChars.forEach((char, index) => {
+    charColorMap.set(char, colors[index % colors.length]);
+  });
+
+  // 使用するオーバーレイキャンバスを選択
+  const overlayCanvas = isPlayer ? playerOverlayCanvas : opponentOverlayCanvas;
+  const overlayCtx = overlayCanvas.getContext('2d');
+
+  // キャンバスをクリア
+  overlayCtx.clearRect(0, 0, overlayCtx.canvas.getBoundingClientRect().width, overlayCtx.canvas.getBoundingClientRect().height);
+
+  overlayCtx.lineWidth = 3;
+  console.log(isPlayer);
+
+  // 各行を上から順にチェック
+  for (let y = 0; y < FIELD_HEIGHT; y++) {
+    // まず先頭(x=0)をチェック
+    if (!field[y][0] || !field[y][0].word) {
+      continue;
+    }
+
+    // 先頭の文字のチェック
+    const startChar = field[y][0].word[0];
+    if (isPlayer && startChar === lastChar) {
+      // セルを白く点滅させたい
+    }
+    else if (charColorMap.has(startChar)) {
+      overlayCtx.strokeStyle = charColorMap.get(startChar);
+      overlayCtx.strokeRect(
+        0 + overlayCtx.lineWidth / 2,
+        y * CELL_SIZE + overlayCtx.lineWidth / 2,
+        CELL_SIZE - overlayCtx.lineWidth,
+        CELL_SIZE - overlayCtx.lineWidth
+      );
+    }
+
+    // その行の最後尾を探してチェック
+    for (let x = FIELD_WIDTH - 1; x > 0; x--) {
+      if (field[y][x] && field[y][x].word) {
+        const endChar = normalizeHiragana(field[y][x].word[field[y][x].word.length - 1]);
+        if (charColorMap.has(endChar)) {
+          overlayCtx.strokeStyle = charColorMap.get(endChar);
+          overlayCtx.strokeRect(
+            x * CELL_SIZE + overlayCtx.lineWidth / 2,
+            y * CELL_SIZE + overlayCtx.lineWidth / 2,
+            CELL_SIZE - overlayCtx.lineWidth,
+            CELL_SIZE - overlayCtx.lineWidth
+          );
+        }
+        break;  // 最後尾が見つかったらその行の探索終了
+      }
+    }
+  }
+
+  // プレイヤーの場合、相手に情報を送信
+  if (isPlayer && socket) {
+    // ハイライト情報の収集と送信処理...
+    socket.emit('fieldHighlightUpdate', {
+      combinedWords: combinedWords
+    });
+  }
+}
+
+function drawField(ctx, field) {
+  if (gameState === 'ended') return;
 
   ctx.fillStyle = "#000000";
   ctx.fillRect(0, 0, ctx.canvas.getBoundingClientRect().width, ctx.canvas.getBoundingClientRect().height);
@@ -336,6 +603,8 @@ function drawField(ctx, field) {
     }
   }
   drawGrid(ctx);
+  // const combinedWords = [...playerFieldWords, ...wordPool];
+  highlightMatchingCells(field, playerFieldWords);
 }
 
 function drawGrid(ctx) {
@@ -408,20 +677,28 @@ function resizeAllCanvases() {
   drawInputField(ctxOpponentInput, opponentInput, opponentInputField);
   drawStatusField(ctxPlayerStatus, true);
   drawStatusField(ctxOpponentStatus, false);
+
+  // オーバーレイのリサイズ
+  resizeWarningOverlay(overlayContexts.playerOverlay);
+  resizeWarningOverlay(overlayContexts.opponentOverlay);
+
+  resizeWarningOverlay(playerOverlayCanvas);
+  resizeWarningOverlay(opponentOverlayCanvas);
+
+  // 警告オーバーレイの再描画
+  if (warningState.player.isVisible) {
+    drawWarningOverlay(true);
+  }
+  if (warningState.opponent.isVisible) {
+    drawWarningOverlay(false);
+  }
 }
-
-
 
 // ウィンドウリサイズ時のイベントリスナー
 window.addEventListener('resize', () => {
   resizeAllCanvases();
-  // グリッドを描画
-  drawGrid(ctxPlayer);
-  drawGrid(ctxOpponent);
 });
 
-
-// TODO　グリッドを手前に描写して再描写しない
 // グリッドを描画する関数
 function drawGrid(ctx) {
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
@@ -477,6 +754,8 @@ loadWordList().then(() => {
 
   drawGrid(ctxPlayer);
   drawGrid(ctxOpponent);
+
+  initializeOverlayCanvases();
 });
 
 let interval = 5000; // 初期の間隔（ミリ秒）
@@ -574,27 +853,31 @@ function clearProgressBar() {
 
 // ランダムな単語を取得
 function getRandomWordForField(usedLengths) {
-  if (!wordList || !wordList[selectedCategory]) return '';
-
-  const allLengths = Object.keys(wordList[selectedCategory]);
-  if (usedLengths.length === allLengths.length) {
-    usedLengths.length = 0;
-  }
-
-  const availableLengths = allLengths.filter(length => !usedLengths.includes(length));
-  const randomLength = availableLengths[Math.floor(Math.random() * availableLengths.length)];
-  usedLengths.push(randomLength);
-
-  const words = wordList[selectedCategory][randomLength];
+  const words = wordList[selectedCategory]["test"];
   return words[Math.floor(Math.random() * words.length)];
+  // if (!wordList || !wordList[selectedCategory]) return '';
+
+  // const allLengths = Object.keys(wordList[selectedCategory]);
+  // if (usedLengths.length === allLengths.length) {
+  //   usedLengths.length = 0;
+  // }
+
+  // const availableLengths = allLengths.filter(length => !usedLengths.includes(length));
+  // const randomLength = availableLengths[Math.floor(Math.random() * availableLengths.length)];
+  // usedLengths.push(randomLength);
+
+  // const words = wordList[selectedCategory][randomLength];
+  // return words[Math.floor(Math.random() * words.length)];
 }
 
 // 攻撃用の単語を取得
 function getRandomWordForAttack(characterCount) {
-  let character = ["two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"];
-  if (!wordList || !wordList[selectedCategory]) return '';
-  const words = wordList[selectedCategory][character[characterCount - 2]];
+  const words = wordList[selectedCategory]["test"];
   return words[Math.floor(Math.random() * words.length)];
+  // let character = ["two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"];
+  // if (!wordList || !wordList[selectedCategory]) return '';
+  // const words = wordList[selectedCategory][character[characterCount - 2]];
+  // return words[Math.floor(Math.random() * words.length)];
 }
 
 // キー入力リスナー
@@ -690,7 +973,7 @@ function extractLeadingJapanese(input) {
 }
 
 function checkAndRemoveWord(field, fieldWords, input) {
-  // console.log("checkAndRemoveWord実行")
+
 
   // 入力された単語が fieldWords に存在するか確認
   if (input.length !== 0) {
@@ -710,6 +993,8 @@ function checkAndRemoveWord(field, fieldWords, input) {
       calcAttackValue(matchedWord);
 
       updateField(field, fieldWords);
+
+      updateAllNextGradients(wordPool, true);
 
       return;
     }
@@ -743,14 +1028,6 @@ function highlightMatchWords(field, highLightWordIndex, matchedLength) {
   for (let x = 0; x < matchedLength; x++) {
     field[field.length - 1 - highLightWordIndex][x].isHighlighted = true;
   }
-
-  // ハイライト状態の同期
-  // if (gameStarted && field === playerField) {
-  //   socket.emit('highlightUpdate', {
-  //     highlightIndex: highLightWordIndex,
-  //     length: matchedLength
-  //   });
-  // }
 }
 
 // resetHighlight関数を修正
@@ -762,11 +1039,6 @@ function resetHighlight(field) {
       }
     }
   }
-
-  // ハイライトリセット状態の同期
-  // if (gameStarted && field === playerField) {
-  //   socket.emit('highlightReset', {});
-  // }
 }
 
 function removeWordFromField(field, word) {
@@ -780,19 +1052,12 @@ function removeWordFromField(field, word) {
         remainingWord = remainingWord.slice(1); // 残りの文字列を更新
         if (remainingWord.length === 0) {
           playerInput = ""; // 入力をリセット
+          syncInputUpdate();
+          resetHighlight(field);
           return;
         }
       }
     }
-  }
-  resetHighlight(field);
-}
-
-function syncInputEmpty() {
-  if (gameStarted) {
-    socket.emit('inputEmptyUpdate', {
-      input: playerInput,
-    });
   }
 }
 
@@ -818,20 +1083,34 @@ function drawInputField(ctx, inputText, inputField) {
 
 }
 
+let memorizeLastAttackValue = 0;
 function calcAttackValue(removeWord) {
   playerAttackValue = removeWord.length;
-  let memorizeLastAttackValue = playerAttackValue;
+  memorizeLastAttackValue = playerAttackValue;
   console.log("removeWordの攻撃力は:" + playerAttackValue);
   // console.log("playerLastAttackValueは" + playerLastAttackValue);
   // console.log("playerAttackValueは" + playerAttackValue);
 
-  if (playerLastAttackValue + 1 == removeWord.length) {
+  // 現在の removeWord の最初の文字
+  let firstChar = removeWord.charAt(0);
+
+  // 特定の条件: 前回の最後の文字と今回の最初の文字が一致する場合
+  if (lastChar === firstChar) {
+    isWordChain = true;
+    console.log("isWordChainはtrue")
+  } else {
+    isWordChain = false;
+  }
+  if (isWordChain) {
+    connect();
+  }
+  else if (playerLastAttackValue - 1 == removeWord.length) {
     // console.log("upChain攻撃！ もとになる攻撃力は:" + playerAttackValue);
     isSameChar = false;
     isUpChain = true;
     upChainAttack();
 
-  } else if (playerLastAttackValue - 1 == removeWord.length) {
+  } else if (playerLastAttackValue + 1 == removeWord.length) {
     // console.log("downChain攻撃！ もとになる攻撃力は:" + playerAttackValue);
     isSameChar = false;
     isDownChain = true;
@@ -839,7 +1118,7 @@ function calcAttackValue(removeWord) {
 
   } else if (playerLastAttackValue == removeWord.length) {
     // console.log("sameChar攻撃！ もとになる攻撃力は:" + playerAttackValue);
-    cancelChain();
+    // cancelChain();
     isSameChar = true;
     sameCharAttack();
 
@@ -849,6 +1128,9 @@ function calcAttackValue(removeWord) {
     attack(playerAttackValue);
   }
   playerLastAttackValue = memorizeLastAttackValue;
+
+  // 現在の removeWord の最後の文字を記憶
+  lastChar = normalizeHiragana(removeWord.charAt(removeWord.length - 1));
 }
 
 function cancelChain() {
@@ -909,7 +1191,9 @@ function attack(attackValue) {
 function emitAttackInfo() {
   // 攻撃タイプの判定
   let attackType = 'Attack';
-  if (isUpChain) {
+  if (isWordChain) {
+    attackType = 'Connect!';
+  } else if (isUpChain) {
     attackType = 'UpChain';
   } else if (isDownChain) {
     attackType = 'DownChain';
@@ -933,7 +1217,9 @@ function updateAttackInfoDisplay() {
 
   // 攻撃タイプの判定
   let attackType = 'Attack';
-  if (isUpChain) {
+  if (isWordChain) {
+    attackType = 'Connect!';
+  } else if (isUpChain) {
     attackType = 'UpChain';
   } else if (isDownChain) {
     attackType = 'DownChain';
@@ -1052,45 +1338,30 @@ function updateOpponentNerfInfoDisplay(nerfValue) {
   }
 }
 
-
+function connect() {
+  isUpChain = false;
+  isDownChain = false;
+  attack(playerAttackValue);
+  if (chainBonus !== 0) {
+    attack(chainBonus);
+  }
+}
 
 function upChainAttack() {
   if (isDownChain === true) {
     isDownChain = false;
-    chainBonus = 0;
+    chainBonus = 2;
     console.log("upChainAttackに切り替わったのでボーナスは2");
     console.log("isDownChainは" + isDownChain);
     console.log("isUpChainは" + isUpChain);
   }
   if (chainBonus === 0) {
-    chainBonus = 2;
     attack(playerAttackValue);
     attack(chainBonus);
     console.log("初めてのchainBonusは" + chainBonus);
-    chainBonus++;
-  } else {
-    attack(playerAttackValue);
-    attack(chainBonus);
-    console.log("連続chainBonusは" + chainBonus);
-    chainBonus++;
-  }
-}
 
-function downChainAttack() {
-  if (isUpChain === true) {
-    isUpChain = false;
-    chainBonus = 0;
-    console.log("downChainAttackに切り替わったのでボーナスは0");
-    console.log("isDownChainは" + isDownChain);
-    console.log("isUpChainは" + isUpChain);
-  }
-  if (chainBonus === 0) {
-    chainBonus = 2;
-    console.log("初めてのchainBonusは" + chainBonus);
-    attack(playerAttackValue);
-    attack(chainBonus);
-    chainBonus = chainBonus + 2;
   } else {
+    chainBonus = chainBonus + 2;
     if (chainBonus >= 10) {
       attack(playerAttackValue);
       attack(10);
@@ -1102,7 +1373,34 @@ function downChainAttack() {
       attack(chainBonus);
       console.log("連続chainBonusは" + chainBonus);
     }
-    chainBonus = chainBonus + 2;
+  }
+}
+
+function downChainAttack() {
+  if (isUpChain === true) {
+    isUpChain = false;
+    chainBonus = 2;
+    console.log("downChainAttackに切り替わったのでボーナスは2");
+    console.log("isDownChainは" + isDownChain);
+    console.log("isUpChainは" + isUpChain);
+  }
+  if (chainBonus === 0) {
+    console.log("初めてのchainBonusは" + chainBonus);
+    attack(playerAttackValue);
+    attack(chainBonus);
+  } else {
+    chainBonus++;
+    if (chainBonus >= 10) {
+      attack(playerAttackValue);
+      attack(10);
+      attack(chainBonus % 10);
+      console.log("chainBonusによる追加攻撃");
+      console.log("連続chainBonusは" + chainBonus);
+    } else {
+      attack(playerAttackValue);
+      attack(chainBonus);
+      console.log("連続chainBonusは" + chainBonus);
+    }
   }
 }
 
@@ -1148,6 +1446,8 @@ function resetGame() {
   playerReceiveValueToOffset = [];
   playerAttackValueToDisplay = [];
   playerReceiveValueToDisplay = [];
+  lastChar = "";
+  isWordChain = false;
   nerfValue = 0;
   chainBonus = 0;
   isUpChain = false;
@@ -1173,6 +1473,8 @@ function resetGame() {
   drawInputField(ctxPlayerInput, '', playerInputField);
   drawInputField(ctxOpponentInput, '', opponentInputField);
   drawStatusField(ctxPlayerStatus, true);
+
+  cleanupWarningAnimations();
 }
 
 // マッチング成功UI表示
@@ -1195,7 +1497,7 @@ function showMatchingSuccess() {
   setTimeout(() => {
     document.body.removeChild(overlay);
     startCountdown();
-  }, 2000);
+  }, 500);
 }
 
 // カウントダウン表示
@@ -1214,7 +1516,7 @@ function showCountdown(count) {
   overlay.textContent = count;
   document.body.appendChild(overlay);
 
-  setTimeout(() => document.body.removeChild(overlay), 900);
+  setTimeout(() => document.body.removeChild(overlay), 100);
 }
 
 // カウントダウン処理
@@ -1233,7 +1535,7 @@ function startCountdown() {
       startGame();
     }
     count--;
-  }, 1000);
+  }, 100);
 }
 
 // リトライダイアログ表示
@@ -1278,7 +1580,6 @@ const ctxOpponentStatus = opponentStatusElement.getContext('2d');
 // グローバル変数に追加
 let opponentReceiveValueToDisplay = [];
 
-
 // ステータスフィールドのサイズ設定関数
 function resizeStatusField(canvas) {
   const dpr = window.devicePixelRatio || 1;
@@ -1297,34 +1598,151 @@ function resizeStatusField(canvas) {
   ctx.scale(dpr, dpr);
 }
 
-// ステータス描画関数を修正
+// オーバーレイのリサイズ関数を修正
+function resizeWarningOverlay(overlayElement) {
+  const dpr = window.devicePixelRatio || 1;
+  const width = CELL_SIZE * FIELD_WIDTH + 3;
+  const height = CELL_SIZE * FIELD_HEIGHT + 3;
+
+  // 実際の解像度を高く設定
+  overlayElement.width = width * dpr;
+  overlayElement.height = height * dpr;
+
+  // CSSスタイルとして見た目のサイズを設定
+  overlayElement.style.width = `${width}px`;
+  overlayElement.style.height = `${height}px`;
+
+  // コンテキストをスケーリング
+  const ctx = overlayElement.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  // statusFieldの幅を考慮して位置を調整
+  overlayElement.style.top = `1.5px`;
+  overlayElement.style.left = `${CELL_SIZE / 2 + 3.5}px`;
+}
+
+
+// setupWarningOverlay関数を修正
+function setupWarningOverlay() {
+  const playerWrapper = document.querySelector('#playerGameArea .field-wrapper');
+  const opponentWrapper = document.querySelector('#opponentGameArea .field-wrapper');
+
+  // プレイヤー側のオーバーレイ
+  const playerOverlay = document.createElement('canvas');
+  playerOverlay.id = 'playerWarningOverlay';
+  playerOverlay.style.position = 'absolute';
+  playerOverlay.style.pointerEvents = 'none';
+  playerWrapper.style.position = 'relative';
+  playerWrapper.appendChild(playerOverlay);
+
+  // 対戦相手側のオーバーレイ
+  const opponentOverlay = document.createElement('canvas');
+  opponentOverlay.id = 'opponentWarningOverlay';
+  opponentOverlay.style.position = 'absolute';
+  opponentOverlay.style.pointerEvents = 'none';
+  opponentWrapper.style.position = 'relative';
+  opponentWrapper.appendChild(opponentOverlay);
+
+  // 初期サイズを設定
+  resizeWarningOverlay(playerOverlay);
+  resizeWarningOverlay(opponentOverlay);
+
+  return {
+    playerCtx: playerOverlay.getContext('2d'),
+    opponentCtx: opponentOverlay.getContext('2d'),
+    playerOverlay,
+    opponentOverlay
+  };
+}
+
+// グローバル変数として追加したoverlayContextsの定義を修正
+const overlayContexts = setupWarningOverlay();
+const warningState = {
+  player: {
+    isVisible: false,
+    interval: null
+  },
+  opponent: {
+    isVisible: false,
+    interval: null
+  }
+};
+
+// 警告オーバーレイを描画する関数を修正
+function drawWarningOverlay(isPlayer) {
+  const ctx = isPlayer ? overlayContexts.playerCtx : overlayContexts.opponentCtx;
+  const state = isPlayer ? warningState.player : warningState.opponent;
+
+  // オーバーレイをクリア
+  ctx.clearRect(0, 0, CELL_SIZE * FIELD_WIDTH, CELL_SIZE * FIELD_HEIGHT);
+
+  if (state.isVisible) {
+    // グラデーションの作成
+    const centerX = CELL_SIZE * FIELD_WIDTH / 2;
+    const centerY = CELL_SIZE * FIELD_HEIGHT / 2;
+
+    // 対角線の長さを計算して、グラデーションの半径とする
+    const radius = Math.sqrt(Math.pow(CELL_SIZE * FIELD_WIDTH, 2) + Math.pow(CELL_SIZE * FIELD_HEIGHT, 2)) / 2;
+
+    const gradient = ctx.createRadialGradient(
+      centerX, centerY, 0,          // 内側の円の中心座標とサイズ
+      centerX, centerY, radius      // 外側の円の中心座標とサイズ
+    );
+
+    // グラデーションの色を設定
+    gradient.addColorStop(0, 'rgba(255, 0, 0, 0.05)');   // 中心は薄く
+    gradient.addColorStop(0.8, 'rgba(255, 0, 0, 0.15)'); // 中間
+    gradient.addColorStop(1, 'rgba(255, 0, 0, 0.3)');   // 端は濃く
+
+    // グラデーションを適用して描画
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, CELL_SIZE * FIELD_WIDTH, CELL_SIZE * FIELD_HEIGHT);
+  }
+}
+
+// drawStatusField関数を修正
 function drawStatusField(ctx, isPlayer = true) {
-  // キャンバスをクリア
+  // 既存のステータス描画処理
   ctx.fillStyle = "rgb(0, 0, 0)";
   ctx.fillRect(0, 0, CELL_SIZE / 2, CELL_SIZE * FIELD_HEIGHT);
 
-  // 描画する値の配列を選択
   const displayValues = isPlayer ? playerReceiveValueToDisplay : opponentReceiveValueToDisplay;
+  const fieldWords = isPlayer ? playerFieldWords : opponentFieldWords;
+  const state = isPlayer ? warningState.player : warningState.opponent;
 
+  // オーバーフロー状態の確認
+  const isOverflowing = displayValues.length + fieldWords.length > FIELD_HEIGHT;
+
+  // 警告アニメーションの管理
+  if (isOverflowing && !state.interval) {
+    // アニメーション開始
+    state.interval = setInterval(() => {
+      state.isVisible = !state.isVisible;
+      drawWarningOverlay(isPlayer);
+    }, 500);
+  } else if (!isOverflowing && state.interval) {
+    // オーバーフローが解消されたら該当プレイヤーのアニメーションのみを停止
+    clearInterval(state.interval);
+    state.interval = null;
+    state.isVisible = false;
+    drawWarningOverlay(isPlayer);
+  }
+
+  // 既存の値表示処理
   if (displayValues.length > 0) {
-    // 値を下から描画するための開始Y座標を計算
     const startY = CELL_SIZE * (FIELD_HEIGHT - displayValues.length);
 
     for (let i = 0; i < displayValues.length; i++) {
-      // 各セルの位置を計算
       const cellY = startY + (i * CELL_SIZE);
 
-      // 赤い背景を描画
       ctx.fillStyle = "rgb(135, 0, 0)";
       ctx.fillRect(0, cellY, CELL_SIZE / 2, CELL_SIZE);
 
-      // テキストを描画
       ctx.fillStyle = "white";
       ctx.font = `${CELL_SIZE * 0.5}px 'M PLUS Rounded 1c'`;
       ctx.textBaseline = "middle";
       ctx.textAlign = "center";
 
-      // テキストの位置を計算（セルの中央に配置）
       const textX = CELL_SIZE / 4;
       const textY = cellY + (CELL_SIZE / 2);
 
@@ -1332,7 +1750,7 @@ function drawStatusField(ctx, isPlayer = true) {
     }
   }
 
-  // プレイヤーの場合、状態を相手に送信
+  // プレイヤーの状態を送信
   if (isPlayer && socket) {
     socket.emit('statusFieldUpdate', {
       receiveValues: playerReceiveValueToDisplay
@@ -1340,7 +1758,26 @@ function drawStatusField(ctx, isPlayer = true) {
   }
 }
 
+// ゲーム終了時にクリーンアップを行う関数
+function cleanupWarningAnimations() {
+  // プレイヤー側のアニメーションをクリア
+  if (warningState.player.interval) {
+    clearInterval(warningState.player.interval);
+    warningState.player.interval = null;
+    warningState.player.isVisible = false;
+  }
 
+  // 対戦相手側のアニメーションをクリア
+  if (warningState.opponent.interval) {
+    clearInterval(warningState.opponent.interval);
+    warningState.opponent.interval = null;
+    warningState.opponent.isVisible = false;
+  }
+
+  // オーバーレイをクリア
+  overlayContexts.playerCtx.clearRect(0, 0, CELL_SIZE * FIELD_WIDTH, CELL_SIZE * FIELD_HEIGHT);
+  overlayContexts.opponentCtx.clearRect(0, 0, CELL_SIZE * FIELD_WIDTH, CELL_SIZE * FIELD_HEIGHT);
+}
 
 // inputFieldの高さを取得
 const inputHeight = playerInputField.getBoundingClientRect().height;
@@ -1488,11 +1925,6 @@ function initializeSocket() {
     drawField(ctxOpponent, opponentField);
   });
 
-  socket.on('highlightResetSync', () => {
-    resetHighlight(opponentField);
-    drawField(ctxOpponent, opponentField);
-  });
-
   socket.on('inputSync', (data) => {
     opponentInput = data.input;
     checkAndRemoveWord(opponentField, opponentFieldWords, opponentInput);
@@ -1500,16 +1932,10 @@ function initializeSocket() {
     drawInputField(ctxOpponentInput, opponentInput, opponentInputField);
   });
 
-  // socket.on('syncInputEmpty', (data) => {
-  //   opponentInput = data.input;
-  //   console.log(opponentInput);
-  //   drawInputField(ctxOpponentInput, opponentInput, opponentInputField);
-  // });
-
   socket.on('fieldSync', (data) => {
-    console.log("fieldSync実行");
     opponentFieldWords = data.fieldWords;
     opponentField = data.field;
+
     clearField(opponentField);
 
     // 単語をフィールドに左詰めで配置
@@ -1541,6 +1967,7 @@ function initializeSocket() {
     }
     checkAndRemoveWord(opponentField, opponentFieldWords, opponentInput);
     drawField(ctxOpponent, opponentField);
+    drawStatusField(ctxOpponentStatus, false);
   });
 
   socket.on('opponentDisconnected', () => {
@@ -1573,9 +2000,27 @@ function initializeSocket() {
     updateOpponentChainInfoDisplay(data.chainBonus);
   });
 
-  // Socket.IOイベントハンドラをクライアント側に追加
+  // Socket.IOイベントハンドラ: 相手から受信したNextを表示
   socket.on('nextWordsSync', (data) => {
-    updateNextDisplay(data.words, false);
+    const prefix = 'opponent'; // 相手のNextを更新
+    for (let i = 1; i <= 5; i++) {
+      const nextElement = document.getElementById(`${prefix}Next${i}`);
+      nextElement.innerHTML = data.styledWords[i - 1] || ""; // スタイル付きで表示
+    }
+  });
+
+  // クライアント側のSocket.IOイベントリスナー
+  socket.on('syncOpponentGradients', (data) => {
+    data.gradientStyles.forEach((style, index) => {
+      const nextElement = document.getElementById(`opponentNext${index + 1}`);
+      if (nextElement && style) {
+        nextElement.style = style;
+      }
+    });
+  });
+
+  socket.on('fieldHighlightSync', (data) => {
+    highlightMatchingCells(opponentField, data.combinedWords);
   });
 
   // Socket.IOのイベントハンドラを追加

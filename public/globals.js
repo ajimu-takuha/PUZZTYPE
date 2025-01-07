@@ -51,6 +51,8 @@ let opponentLastAttackValue = 0;
 let playerAttackValueToOffset = [];
 let playerReceiveValueToOffset = [];
 
+let lastChar = "";
+let isWordChain = false;
 let isUpChain = false;
 let isDownChain = false;
 let SameChar = false;
@@ -79,7 +81,6 @@ const opponentInputField = document.getElementById("opponentInputField");
 
 const ctxPlayerInput = playerInputField.getContext("2d");
 const ctxOpponentInput = opponentInputField.getContext("2d");
-
 
 // DOM要素の取得
 const playerAttackKind = document.getElementById('playerAttackKind');
@@ -127,6 +128,8 @@ window.GameConfig = {
   playerWPMValue,
   time,
   totalTime,
+  lastChar,
+  isWordChain,
   isUpChain,
   isDownChain,
   SameChar,

@@ -230,6 +230,7 @@ canvas {}
   justify-content: center;
   font-size: 3vh;
   color: rgb(255, 80, 80, 0.8);
+  animation: popAndFade 1.3s ease-in-out forwards;
   font-weight: bolder;
 }
 
@@ -287,6 +288,8 @@ canvas {}
 
 .attackKind.animate {
   animation: popAndFade 1.3s ease-in-out forwards;
+  -webkit-text-stroke: 2px black;
+  paint-order: stroke;
 }
 
 .chainBonus.animate {
@@ -350,4 +353,3 @@ canvas {}
   position: relative; /* 親要素に対して相対位置を指定 */
   transform: translateY(0.8vh); /* 下方向に20px移動 */
 }
-
