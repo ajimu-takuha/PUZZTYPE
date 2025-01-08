@@ -353,3 +353,48 @@ canvas {}
   position: relative; /* 親要素に対して相対位置を指定 */
   transform: translateY(0.8vh); /* 下方向に20px移動 */
 }
+
+@keyframes shake-horizontal {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(calc(var(--shake-distance) * 1.5));
+  }
+}
+
+.shake-horizontal {
+  animation: shake-horizontal 0.2s ease-in-out;
+}
+
+@keyframes shake-vertical {
+  0% {
+    transform: translateY(0) scale(1); /* 初期状態 */
+  }
+  50% {
+    transform: translateY(var(--shake-distance)) scale(calc(1 - var(--shake-scale) / 2)); /* 動的scale */
+  }
+  100% {
+    transform: translateY(0) scale(1); /* 元の状態に戻る */
+  }
+}
+
+.shake-vertical {
+  animation: shake-vertical 0.12s ease-in-out;
+}
+
+@keyframes color-flash {
+  0% {
+    background-color: transparent;
+  }
+  50% {
+    background-color: rgba(255, 0, 0, 0.5); /* 赤色のフラッシュ効果 */
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+.flash-effect {
+  animation: color-flash 0.3s ease-in-out;
+}

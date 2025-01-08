@@ -57,6 +57,22 @@ io.on('connection', (socket) => {
     }
   });
 
+  // server.js
+  socket.on('attackShake', (data) => {
+    const room = Array.from(socket.rooms)[1];
+    if (room) {
+      const gameRoom = rooms.get(room);
+      if (gameRoom) {
+        // 攻撃を受けるプレイヤーにデータを送信
+        const targetSocket = socket.id === gameRoom.player1.id ? gameRoom.player2 : gameRoom.player1;
+        targetSocket.emit('receiveAttackShake', {
+          attackValue: data.attackValue, // 攻撃値
+          shakeDistance: Math.min(15, Math.max(5, data.attackValue)) // 動的シェイク距離
+        });
+      }
+    }
+  });
+
   // フィールド状態の同期
   socket.on('fieldUpdate', (data) => {
     const room = Array.from(socket.rooms)[1];
@@ -70,7 +86,8 @@ io.on('connection', (socket) => {
         }
         socket.to(room).emit('fieldSync', {
           field: data.field,
-          fieldWords: data.fieldWords
+          fieldWords: data.fieldWords,
+          memorizeLastAttackValue: data.memorizeLastAttackValue
         });
       }
     }
@@ -82,7 +99,8 @@ io.on('connection', (socket) => {
       const gameRoom = rooms.get(room);
       const targetSocket = socket.id === gameRoom.player1.id ? gameRoom.player2 : gameRoom.player1;
       targetSocket.emit('inputSync', {
-        input: data.input
+        input: data.input,
+        memorizeLastAttackValue: data.memorizeLastAttackValue
       });
     }
   });
@@ -127,7 +145,7 @@ io.on('connection', (socket) => {
       if (gameRoom) {
         const targetSocket = socket.id === gameRoom.player1.id ? gameRoom.player2 : gameRoom.player1;
         targetSocket.emit('fieldHighlightSync', {
-          combinedWords: data.combinedWords
+          combinedWords: data.combinedWords,
         });
       }
     }

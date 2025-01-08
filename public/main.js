@@ -120,6 +120,50 @@ function updateNextDisplay(words, isPlayer = true) {
 
 }
 
+// グラデーションの色を定義
+const GRADIENT_COLORS = {
+  LONGER_WORD: {
+    r: 0,
+    g: 125,
+    b: 230  // 青色 (lightblue)
+  },
+  SHORTER_WORD: {
+    r: 144,
+    g: 238,
+    b: 144  // 緑色 (lightgreen)
+  }
+};
+
+// グラデーションの透明度を定義
+const GRADIENT_OPACITY = {
+  CENTER: 0.05,
+  MIDDLE: 0.1,
+  EDGE: 0.3
+};
+
+// グローバル変数でグラデーションスタイルを管理
+let playerGradientStyles = Array(5).fill('');
+let opponentGradientStyles = Array(5).fill('');
+
+// グラデーションスタイルを生成する関数（横長用）
+function createGradientStyle(colorType) {
+  const color = GRADIENT_COLORS[colorType];
+  const rgbaEdge = `rgba(${color.r}, ${color.g}, ${color.b}, ${GRADIENT_OPACITY.EDGE})`;
+  const rgbaMiddle = `rgba(${color.r}, ${color.g}, ${color.b}, ${GRADIENT_OPACITY.MIDDLE})`;
+  const rgbaCenter = `rgba(${color.r}, ${color.g}, ${color.b}, ${GRADIENT_OPACITY.CENTER})`;
+
+  // 横長のグラデーションを作成
+  return `
+    background: linear-gradient(to right, 
+      ${rgbaEdge} 0%, 
+      ${rgbaMiddle} 10%, 
+      ${rgbaCenter} 50%, 
+      ${rgbaMiddle} 90%, 
+      ${rgbaEdge} 100%);
+  `;
+}
+
+
 // Next要素のグラデーション背景を更新する関数
 function updateNextElementGradient(prefix, index, wordLength) {
   const nextElement = document.getElementById(`${prefix}Next${index}`);
@@ -129,17 +173,15 @@ function updateNextElementGradient(prefix, index, wordLength) {
   let gradientStyle = '';
 
   if (lengthDiff === 1) {
-    // 青色のグラデーション（1文字多い場合）
-    gradientStyle = 'background: radial-gradient(circle at center, rgba(173, 216, 230, 0.02) 0%, rgba(173, 216, 230, 0.05) 50%, rgba(173, 216, 230, 0.3) 100%);';
+    gradientStyle = createGradientStyle('LONGER_WORD');
   } else if (lengthDiff === -1) {
-    // 緑色のグラデーション（1文字少ない場合）
-    gradientStyle = 'background: radial-gradient(circle at center, rgba(144, 238, 144, 0.02) 0%, rgba(144, 238, 144, 0.05) 50%, rgba(144, 238, 144, 0.3) 100%);';
+    gradientStyle = createGradientStyle('SHORTER_WORD');
   } else {
-    // 差分がない場合は背景をクリア
     gradientStyle = 'background: none;';
   }
 
   nextElement.style = gradientStyle;
+  nextElement.style.border = 'solid 2px rgba(${color.r}, ${color.g}, ${color.b})'
   return gradientStyle;
 }
 
@@ -153,6 +195,12 @@ function updateAllNextGradients(words, isPlayer = true) {
     const word = words[i - 1];
     const gradientStyle = updateNextElementGradient(prefix, i, word?.length);
     gradientStyles.push(gradientStyle || '');
+  }
+
+  if (isPlayer) {
+    playerGradientStyles = [...gradientStyles];
+  } else {
+    opponentGradientStyles = [...gradientStyles];
   }
 
   // プレイヤーの操作の場合のみ、相手画面の同期を行う
@@ -227,7 +275,7 @@ function updateFieldAfterReceiveOffset(field, fieldWords) {
         field[row][col] = { word: char, isHighlighted: false };
         col++;
       } else if (row < 0) {
-        drawField(ctxPlayer, playerField);
+        drawField(ctxPlayer, playerField, memorizeLastAttackValue);
 
         console.log("描写する行が上限を突破したためdrawField");
 
@@ -355,7 +403,8 @@ function syncFieldUpdate() {
   if (gameStarted) {
     socket.emit('fieldUpdate', {
       field: playerField,
-      fieldWords: playerFieldWords
+      fieldWords: playerFieldWords,
+      memorizeLastAttackValue: memorizeLastAttackValue
     });
   }
   // console.log("syncFieldUpdateのplayerFieldWords" + playerFieldWords);
@@ -501,7 +550,6 @@ function highlightMatchingCells(field, combinedWords) {
   overlayCtx.clearRect(0, 0, overlayCtx.canvas.getBoundingClientRect().width, overlayCtx.canvas.getBoundingClientRect().height);
 
   overlayCtx.lineWidth = 3;
-  console.log(isPlayer);
 
   // 各行を上から順にチェック
   for (let y = 0; y < FIELD_HEIGHT; y++) {
@@ -552,11 +600,56 @@ function highlightMatchingCells(field, combinedWords) {
   }
 }
 
-function drawField(ctx, field) {
+function drawField(ctx, field, receivedLastWordLength) {
   if (gameState === 'ended') return;
 
   ctx.fillStyle = "#000000";
   ctx.fillRect(0, 0, ctx.canvas.getBoundingClientRect().width, ctx.canvas.getBoundingClientRect().height);
+
+  console.log(receivedLastWordLength);
+  if (receivedLastWordLength !== 0) {
+    for (let y = 0; y < FIELD_HEIGHT; y++) {
+      let hasContent = false;
+      for (let x = 0; x < FIELD_WIDTH; x++) {
+        if (field[y][x] && field[y][x].word) {
+          hasContent = true;
+          break;
+        }
+      }
+
+      if (!hasContent) {
+        continue;
+      }
+
+      // 行の文字を1つの単語として結合
+      let rowWord = '';
+      for (let x = 0; x < FIELD_WIDTH; x++) {
+        if (field[y][x] && field[y][x].word) {
+          rowWord += field[y][x].word;
+        }
+      }
+
+      console.log(rowWord);
+
+      // 単語が存在する場合のみ処理
+      if (rowWord.length > 0) {
+        const hasLongerWord = (receivedLastWordLength === 10 && rowWord.length === 9) ||
+          (receivedLastWordLength === 2 && rowWord.length === 3) ||
+          (rowWord.length === receivedLastWordLength + 1);
+
+        const hasShorterWord = receivedLastWordLength !== 2 &&
+          rowWord.length === receivedLastWordLength - 1;
+
+        if (hasLongerWord) {
+          drawHorizontalGradient(ctx, y, 'LONGER_WORD');
+        } else if (hasShorterWord) {
+          drawHorizontalGradient(ctx, y, 'SHORTER_WORD');
+        }
+      }
+    }
+  }
+
+  // 以下のレンダリング処理は変更なし
   for (let y = 0; y < FIELD_HEIGHT; y++) {
     for (let x = 0; x < FIELD_WIDTH; x++) {
       const cell = field[y][x];
@@ -578,7 +671,6 @@ function drawField(ctx, field) {
         ctx.fillStyle = gradient;
         ctx.fillRect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
 
-        // フォント設定
         ctx.font = `${CELL_SIZE * 0.7}px 'M PLUS Rounded 1c'`;
         ctx.textBaseline = 'middle';
         ctx.textAlign = 'center';
@@ -587,24 +679,56 @@ function drawField(ctx, field) {
         const centerY = y * CELL_SIZE + CELL_SIZE / 2;
 
         if (cell.isHighlighted) {
-          // ハイライト時は白い輪郭線と黒い文字
           ctx.strokeStyle = 'black';
-          ctx.lineWidth = 2;  // 輪郭線の太さ
+          ctx.lineWidth = 2;
           ctx.strokeText(cell.word, centerX, centerY);
-
           ctx.fillStyle = 'white';
           ctx.fillText(cell.word, centerX, centerY);
         } else {
-          // 通常時は白い文字
           ctx.fillStyle = 'white';
           ctx.fillText(cell.word, centerX, centerY);
         }
       }
     }
   }
+
   drawGrid(ctx);
   // const combinedWords = [...playerFieldWords, ...wordPool];
   highlightMatchingCells(field, playerFieldWords);
+}
+
+// 横方向全体にグラデーションを描画する関数を修正
+function drawHorizontalGradient(ctx, row, colorType) {
+  const y = row * CELL_SIZE;
+  const width = FIELD_WIDTH * CELL_SIZE;
+  const height = CELL_SIZE;
+
+  const color = GRADIENT_COLORS[colorType];
+
+  // 左側のグラデーション
+  const gradientLeft = ctx.createLinearGradient(0, y + height / 2, width / 2, y + height / 2);
+  gradientLeft.addColorStop(0, `rgba(${color.r}, ${color.g}, ${color.b}, ${GRADIENT_OPACITY.EDGE})`);
+  gradientLeft.addColorStop(0.5, `rgba(${color.r}, ${color.g}, ${color.b}, ${GRADIENT_OPACITY.MIDDLE})`);
+  gradientLeft.addColorStop(1, `rgba(${color.r}, ${color.g}, ${color.b}, ${GRADIENT_OPACITY.CENTER})`);
+
+  // 右側のグラデーション
+  const gradientRight = ctx.createLinearGradient(width / 2, y + height / 2, width, y + height / 2);
+  gradientRight.addColorStop(0, `rgba(${color.r}, ${color.g}, ${color.b}, ${GRADIENT_OPACITY.CENTER})`);
+  gradientRight.addColorStop(0.5, `rgba(${color.r}, ${color.g}, ${color.b}, ${GRADIENT_OPACITY.MIDDLE})`);
+  gradientRight.addColorStop(1, `rgba(${color.r}, ${color.g}, ${color.b}, ${GRADIENT_OPACITY.EDGE})`);
+
+  // 左半分を描画
+  ctx.fillStyle = gradientLeft;
+  ctx.fillRect(0, y, width / 2, height);
+
+  // 右半分を描画
+  ctx.fillStyle = gradientRight;
+  ctx.fillRect(width / 2, y, width / 2, height);
+
+  // 枠線の描画（新しく追加）
+  ctx.strokeStyle = `rgba(${color.r}, ${color.g}, ${color.b})`;
+  ctx.lineWidth = 3;
+  ctx.strokeRect(0, y, width, height);
 }
 
 function drawGrid(ctx) {
@@ -671,8 +795,8 @@ function resizeAllCanvases() {
   resizeStatusField(opponentStatusElement);
 
   // 全フィールドの再描画
-  drawField(ctxPlayer, playerField);
-  drawField(ctxOpponent, opponentField);
+  drawField(ctxPlayer, playerField, 0);
+  drawField(ctxOpponent, opponentField, 0);
   drawInputField(ctxPlayerInput, playerInput, playerInputField);
   drawInputField(ctxOpponentInput, opponentInput, opponentInputField);
   drawStatusField(ctxPlayerStatus, true);
@@ -772,7 +896,7 @@ function startGame() {
     moveWordToField(playerFieldWords);
     updateFieldAfterReceiveOffset(playerField, playerFieldWords);
     checkAndRemoveWord(playerField, playerFieldWords, playerInput);
-    drawField(ctxPlayer, playerField);
+    drawField(ctxPlayer, playerField, memorizeLastAttackValue);
 
     // インターバルを更新し、プログレスバーを開始
     interval = Math.max(minInterval, interval - 50);
@@ -948,8 +1072,8 @@ window.addEventListener("keydown", (e) => {
   syncInputUpdate();
 
   // フィールドと入力内容を再描画
-  drawField(ctxPlayer, playerField);
-  // drawField(ctxOpponent, opponentField);
+  drawField(ctxPlayer, playerField, memorizeLastAttackValue);
+  // drawField(ctxOpponent, opponentField, memorizeLastAttackValue);
 
   drawInputField(ctxPlayerInput, playerInput, playerInputField);
   // drawInputField(ctxOpponentInput, opponentInput, opponentInputField);
@@ -961,7 +1085,8 @@ function syncInputUpdate() {
   // 入力状態を同期
   if (gameStarted) {
     socket.emit('inputUpdate', {
-      input: playerInput
+      input: playerInput,
+      memorizeLastAttackValue: memorizeLastAttackValue
     });
   }
 }
@@ -1094,6 +1219,10 @@ function calcAttackValue(removeWord) {
   // 現在の removeWord の最初の文字
   let firstChar = removeWord.charAt(0);
 
+  shakeDistance = playerAttackValue + chainBonus;
+  onAttackShake(shakeDistance);
+  console.log(shakeDistance);
+
   // 特定の条件: 前回の最後の文字と今回の最初の文字が一致する場合
   if (lastChar === firstChar) {
     isWordChain = true;
@@ -1139,6 +1268,60 @@ function cancelChain() {
   isSameChar = false;
   chainBonus = 0;
   updateChainInfoDisplay();
+}
+
+// main.js
+const MAX_SHAKE_DISTANCE = 30;
+const MIN_SHAKE_DISTANCE = 5;
+
+// 自分の画面を縦に揺らす
+function triggerPlayerVerticalShake(attackValue) {
+
+  const shakeDistance = Math.min(MAX_SHAKE_DISTANCE, Math.max(MIN_SHAKE_DISTANCE, attackValue));
+  const shakeScale = shakeDistance / 200; // 例: shakeDistance=10ならscale=0.9
+
+  playerGameArea.style.setProperty('--shake-distance', `${shakeDistance}px`);
+  playerGameArea.style.setProperty('--shake-scale', `${shakeScale}`); // scale値をCSSに渡す
+
+
+  playerGameArea.classList.add('shake-vertical');
+  setTimeout(() => playerGameArea.classList.remove('shake-vertical'), 300);
+}
+
+// 相手のフィールドを横に揺らす
+function triggerOpponentHorizontalShake(attackValue) {
+  const shakeDistance = Math.min(MAX_SHAKE_DISTANCE, Math.max(MIN_SHAKE_DISTANCE, attackValue));
+  opponentGameArea.style.setProperty('--shake-distance', `${shakeDistance}px`);
+  opponentGameArea.classList.add('shake-horizontal');
+  setTimeout(() => opponentGameArea.classList.remove('shake-horizontal'), 300);
+}
+
+// 攻撃を受けた時のシェイク（自分は横、相手は縦）
+function triggerShakeOnReceive(data) {
+  const { shakeDistance } = data;
+
+  // 自分の画面を横に揺らす
+  playerGameArea.style.setProperty('--shake-distance', `${shakeDistance}px`);
+  playerGameArea.classList.add('shake-horizontal');
+  setTimeout(() => playerGameArea.classList.remove('shake-horizontal'), 300);
+
+  // 相手の画面を縦に揺らす
+  opponentGameArea.style.setProperty('--shake-distance', `${shakeDistance}px`);
+  opponentGameArea.classList.add('shake-vertical');
+  setTimeout(() => opponentGameArea.classList.remove('shake-vertical'), 300);
+}
+
+// 攻撃イベントの送信
+function onAttackShake(attackValue) {
+  socket.emit('attackShake', { attackValue }); // サーバーに攻撃値を送信
+  triggerPlayerVerticalShake(attackValue);    // 自分の画面を縦に揺らす
+  triggerOpponentHorizontalShake(attackValue); // 相手のフィールドを横に揺らす
+  // triggerColorFlash(playerFieldElement); // 色のフラッシュ効果を適用
+}
+
+function triggerColorFlash(element) {
+  element.classList.add('flash-effect');
+  setTimeout(() => element.classList.remove('flash-effect'), 300); // アニメーション後に削除
 }
 
 
@@ -1351,15 +1534,15 @@ function upChainAttack() {
   if (isDownChain === true) {
     isDownChain = false;
     chainBonus = 2;
-    console.log("upChainAttackに切り替わったのでボーナスは2");
+    console.log("upChainAttackに切り替わったのでchainBonusは2");
     console.log("isDownChainは" + isDownChain);
     console.log("isUpChainは" + isUpChain);
   }
   if (chainBonus === 0) {
+    chainBonus = 2;
     attack(playerAttackValue);
     attack(chainBonus);
     console.log("初めてのchainBonusは" + chainBonus);
-
   } else {
     chainBonus = chainBonus + 2;
     if (chainBonus >= 10) {
@@ -1385,6 +1568,7 @@ function downChainAttack() {
     console.log("isUpChainは" + isUpChain);
   }
   if (chainBonus === 0) {
+    chainBonus = 2;
     console.log("初めてのchainBonusは" + chainBonus);
     attack(playerAttackValue);
     attack(chainBonus);
@@ -1468,8 +1652,8 @@ function resetGame() {
   // キャンバスをクリア
   clearField(playerField);
   clearField(opponentField);
-  drawField(ctxPlayer, playerField);
-  drawField(ctxOpponent, opponentField);
+  drawField(ctxPlayer, playerField, memorizeLastAttackValue);
+  drawField(ctxOpponent, opponentField, 0);
   drawInputField(ctxPlayerInput, '', playerInputField);
   drawInputField(ctxOpponentInput, '', opponentInputField);
   drawStatusField(ctxPlayerStatus, true);
@@ -1912,23 +2096,10 @@ function initializeSocket() {
     }
   });
 
-  socket.on('highlightSync', (data) => {
-    console.log('HighlightSync received:', data);
-
-    resetHighlight(opponentField);
-    const row = opponentField.length - 1 - data.highlightIndex;
-    for (let x = 0; x < data.length; x++) {
-      if (opponentField[row] && opponentField[row][x]) {
-        opponentField[row][x].isHighlighted = true;
-      }
-    }
-    drawField(ctxOpponent, opponentField);
-  });
-
   socket.on('inputSync', (data) => {
     opponentInput = data.input;
     checkAndRemoveWord(opponentField, opponentFieldWords, opponentInput);
-    drawField(ctxOpponent, opponentField);
+    drawField(ctxOpponent, opponentField, data.memorizeLastAttackValue);
     drawInputField(ctxOpponentInput, opponentInput, opponentInputField);
   });
 
@@ -1952,7 +2123,7 @@ function initializeSocket() {
           col++;
           console.log("相手のフィールド描画おわり");
         } else if (row < 0) {
-          drawField(ctxOpponent, opponentField);
+          drawField(ctxOpponent, opponentField, data.memorizeLastAttackValue);
 
           console.log("drawFieldして処理終了");
           return;
@@ -1966,7 +2137,7 @@ function initializeSocket() {
       row--; // 次の単語を下の行に配置
     }
     checkAndRemoveWord(opponentField, opponentFieldWords, opponentInput);
-    drawField(ctxOpponent, opponentField);
+    drawField(ctxOpponent, opponentField, data.memorizeLastAttackValue);
     drawStatusField(ctxOpponentStatus, false);
   });
 
@@ -1985,6 +2156,12 @@ function initializeSocket() {
     drawStatusField(ctxPlayerStatus, true);
 
     console.log("攻撃を受けました:" + playerReceiveValueToOffset);
+  });
+
+  // 攻撃を受けた時のイベントリスナー
+  socket.on('receiveAttackShake', (data) => {
+    triggerShakeOnReceive(data); // シェイクを実行
+    triggerColorFlash(playerFieldElement); // 色のフラッシュ効果を適用
   });
 
   // クライアント側のコード（main.jsなど）
