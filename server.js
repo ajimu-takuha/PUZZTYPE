@@ -145,7 +145,7 @@ io.on('connection', (socket) => {
       if (gameRoom) {
         const targetSocket = socket.id === gameRoom.player1.id ? gameRoom.player2 : gameRoom.player1;
         targetSocket.emit('fieldHighlightSync', {
-          combinedWords: data.combinedWords,
+          highlightData: data.highlightData,
         });
       }
     }

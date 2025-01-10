@@ -30,7 +30,9 @@ function setWordPool() {
   }
 }
 
-// moveWordToField関数を修正
+// フィールドに単語を追加する関数
+// 攻撃を受けていた場合はその値を、そうでなければプールから追加するため
+// updateFieldAfterReceiveOffset内で使用
 function moveWordToField(fieldWords) {
   let toPutFieldWord = wordPool.shift();
   fieldWords.push(toPutFieldWord);
@@ -38,12 +40,90 @@ function moveWordToField(fieldWords) {
 
   // FieldWords を文字数昇順で並び替え
   fieldWords.sort((a, b) => b.length - a.length);
-
-  // Next表示を更新
-  updateNextDisplay(wordPool);
 }
 
-const colors = ["rgba(255, 0, 0, 0.5)", "rgba(0, 0, 255, 0.5)", "rgba(0, 255, 0, 0.5)", "rgba(255, 255, 0, 0.5)", "rgba(255, 0, 255, 0.5)"];
+const colors = [
+  "rgba(200, 0, 0, 0.3)",    // Red
+  "rgba(0, 200, 0, 0.3)",    // Green
+  "rgba(200, 130, 0, 0.3)",  // Orange
+  "rgba(128, 0, 128, 0.3)",  // Purple
+  "rgba(0, 255, 255, 0.3)",  // Cyan
+  "rgba(255, 192, 203, 0.3)", // Pink
+  "rgba(100, 25, 25, 0.3)",  // Brown
+  "rgba(64, 224, 208, 0.3)", // Turquoise
+  "rgba(255, 217, 0, 0.3)",   // Gold
+  "rgba(100, 100, 255, 0.3)"    // Blue
+];
+
+// 色キャッシュ用のMap
+const charColorMap = new Map();
+
+// 使用されている色を把握
+const usedColors = new Set([...charColorMap.values()].map((color) => color.baseColor));
+
+// 色付き文字を生成する関数
+function generateStyledCharacters(word, matchingChars, lastChar) {
+  return word.split("").map((char, index) => {
+    // 正規化した文字を使用
+    const normalizedChar = normalizeHiragana(char);
+
+    let baseColor = "";
+    let borderColor = "";
+
+    // charColorMap に既存の色があればそれを使用
+    if (charColorMap.has(normalizedChar)) {
+      ({ baseColor, borderColor } = charColorMap.get(normalizedChar));
+    } else {
+      // 新しい色を計算し保存
+      const colorIndex = matchingChars.indexOf(normalizedChar);
+      if (colorIndex !== -1) {
+        baseColor = colors[colorIndex % colors.length];
+        const rgbaMatch = baseColor.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*[\d.]+)?\)/);
+        const [r, g, b] = rgbaMatch.slice(1).map(Number);
+        borderColor = `rgba(${Math.max(r - 20, 0)}, ${Math.max(g - 20, 0)}, ${Math.max(b - 20, 0)}, 1)`;
+
+        // charColorMap に保存
+        charColorMap.set(normalizedChar, { baseColor, borderColor });
+      }
+    }
+
+    // 先頭文字が一致かつ lastChar と同じ場合
+    if (index === 0 && normalizedChar === lastChar) {
+      return `
+      <div class="aura-container" style="--aura-color: rgba(255, 255, 255, 0.3); --aura-border-color: rgba(255, 255, 255, 1);">
+        <span class="character">${char}</span>
+      </div>
+    `;
+    }
+    // 最初の文字が一致（lastChar のチェックはなし）
+    if (index === 0 && baseColor) {
+      return `
+      <div class="aura-container" style="--aura-color: ${baseColor}; --aura-border-color: ${borderColor}">
+        <span class="character">${char}</span>
+      </div>
+    `;
+    }
+
+    // 最後の文字が一致
+    if (index === word.length - 1 && baseColor) {
+      return `
+      <div class="aura-container" style="--aura-color: ${baseColor}; --aura-border-color: ${borderColor}">
+        <span class="character">${char}</span>
+      </div>
+    `;
+    }
+
+    // マッチしない文字は通常表示
+    return `<span class="character">${char}</span>`;
+  }).join("");
+}
+
+// 色インデックスを計算する関数（文字コードを基に計算）
+function calculateColorIndex(char) {
+  // 文字コードの合計を用いてインデックスを生成
+  const charCodeSum = [...char].reduce((sum, c) => sum + c.charCodeAt(0), 0);
+  return charCodeSum;
+}
 
 // Next表示用の関数
 function updateNextDisplay(words, isPlayer = true) {
@@ -51,65 +131,38 @@ function updateNextDisplay(words, isPlayer = true) {
 
   // 一致する文字を取得
   const combinedWords = [...playerFieldWords, ...wordPool];
-  const matchingChars = getMatchingStartAndEndLetters(combinedWords);
+  const matchingChars = getMatchingStartAndEndLetters(combinedWords).map(normalizeHiragana);
+
+  // キャッシュを更新：前回のmatchingCharsを保持する
+  matchingChars.forEach((char) => {
+    if (!charColorMap.has(char)) {
+      // 未使用の色を選択
+      const availableColors = colors.filter((color) => !usedColors.has(color));
+      const baseColor = availableColors[0] || colors[0]; // 未使用がなければ最初の色を再利用
+      const rgbaMatch = baseColor.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*[\d.]+)?\)/);
+      const [r, g, b] = rgbaMatch.slice(1).map(Number);
+      const borderColor = `rgba(${Math.max(r - 20, 0)}, ${Math.max(g - 20, 0)}, ${Math.max(b - 20, 0)}, 1)`;
+
+      charColorMap.set(char, { baseColor, borderColor });
+      usedColors.add(baseColor); // 新しく使用した色を追跡
+    }
+  });
+  // console.log(matchingChars);
+  // console.log(charColorMap);
 
   // 5つのNextを表示
   for (let i = 1; i <= 5; i++) {
     const nextElement = document.getElementById(`${prefix}Next${i}`);
     const word = words[i - 1];
+    if (!word) continue;
 
-    // 一致する文字を基にスタイルを変更
-    let styledWord = word.split("").map((char, index) => {
-      let colorIndex = matchingChars.indexOf(char);
-
-      // 先頭文字が一致かつ lastChar と同じ場合
-      if (index === 0 && char === lastChar) {
-        return `<span style="color: rgb(0, 0, 0); text-shadow: -1px -1px 0 rgb(255, 255, 255), 1px -1px 0 rgb(255, 255, 255), -1px 1px 0 rgb(255, 255, 255), 1px 1px 0 rgb(255, 255, 255);">${char}</span>`;
-      }
-
-      // 最初の文字が一致（lastChar のチェックはなし）
-      if (index === 0 && colorIndex !== -1) {
-        return `<span style="color: ${colors[colorIndex % colors.length]}">${char}</span>`;
-      }
-
-      // 最後の文字が一致
-      if (index === word.length - 1 && colorIndex !== -1) {
-        return `<span style="color: ${colors[colorIndex % colors.length]}">${char}</span>`;
-      }
-
-      return char;
-    }).join("");
-
+    const styledWord = generateStyledCharacters(word, matchingChars, lastChar);
     nextElement.innerHTML = styledWord;
   }
 
   // プレイヤーの場合、相手に情報を送信
   if (isPlayer && socket) {
-    // スタイル情報を生成
-    const styledWords = words.map((word) => {
-      if (!word) return "";
-      return word.split("").map((char, index) => {
-        let colorIndex = matchingChars.indexOf(char);
-        const color = colorIndex !== -1 ? colors[colorIndex % colors.length] : "black";
-
-        if (index === 0 && char === lastChar) {
-          return `<span style="color: rgb(0, 0, 0); text-shadow: -2px -2px 0 rgb(255, 255, 255), 2px -2px 0 rgb(255, 255, 255), -2px 2px 0 rgb(255, 255, 255), 2px 2px 0 rgb(255, 255, 255);">${char}</span>`;
-        }
-
-        // 最初の文字が一致
-        if (index === 0 && matchingChars.includes(char)) {
-          return `<span style="color: ${color}">${char}</span>`;
-        }
-
-        // 最後の文字が一致
-        if (index === word.length - 1 && matchingChars.includes(char)) {
-          return `<span style="color: ${color}">${char}</span>`;
-        }
-
-        return char;
-      }).join("");
-    });
-
+    const styledWords = words.map((word) => generateStyledCharacters(word, matchingChars, lastChar));
     updateAllNextGradients(wordPool, true);
 
     socket.emit('nextWordsUpdate', {
@@ -117,7 +170,6 @@ function updateNextDisplay(words, isPlayer = true) {
       styledWords: styledWords
     });
   }
-
 }
 
 // グラデーションの色を定義
@@ -215,8 +267,6 @@ function updateAllNextGradients(words, isPlayer = true) {
 }
 
 // ソケット通信用のグラデーション更新関数
-
-
 // checkAndRemoveWordからのみ呼び出され、単語を削除後、再描画する
 function updateField(field, fieldWords) {
   console.log("updateField実行");
@@ -246,6 +296,10 @@ function updateFieldAfterReceiveOffset(field, fieldWords) {
 
   calcReceiveOffset();
   console.log("相殺後は:" + playerReceiveValueToOffset);
+
+  if (playerReceiveValueToOffset.length === 0) {
+    moveWordToField(fieldWords)
+  }
 
   for (let x = 0; x < playerReceiveValueToOffset.length; x++) {
     let addFieldWord = getRandomWordForAttack(playerReceiveValueToOffset[x]);
@@ -295,6 +349,11 @@ function updateFieldAfterReceiveOffset(field, fieldWords) {
     }
     row--; // 次の単語を下の行に配置
   }
+
+  // Next表示を更新
+  updateNextDisplay(wordPool);
+  highlightMatchingCells(playerField);
+
   syncFieldUpdate();
 }
 
@@ -500,56 +559,70 @@ function calcReceiveOffsetToDisplay() {
 }
 
 // グローバル変数の初期化
-let playerOverlayCanvas;
-let opponentOverlayCanvas;
+let playerOverlayElement;
+let opponentOverlayElement;
 
 // オーバーレイキャンバスの初期化関数
-function initializeOverlayCanvases() {
+function initializeOverlayDivElement() {
   // プレイヤーのオーバーレイキャンバスを作成
-  playerOverlayCanvas = document.createElement('canvas');
-  playerOverlayCanvas.id = 'playerChainStyleOverlay';
-  playerOverlayCanvas.style.position = 'absolute';
-  playerOverlayCanvas.style.pointerEvents = 'none';
+  playerOverlayElement = document.createElement('div');
+  playerOverlayElement.id = 'playerChainStyleOverlay';
+  playerOverlayElement.style.position = 'absolute';
+  playerOverlayElement.style.pointerEvents = 'none';
   const playerFieldWrapper = document.querySelector('#playerGameArea .field-wrapper');
-  playerFieldWrapper.style.position = 'relative';
-  playerFieldWrapper.appendChild(playerOverlayCanvas);
+  playerFieldWrapper.appendChild(playerOverlayElement);
 
   // 相手のオーバーレイキャンバスを作成
-  opponentOverlayCanvas = document.createElement('canvas');
-  opponentOverlayCanvas.id = 'opponentChainStyleOverlay';
-  opponentOverlayCanvas.style.position = 'absolute';
-  opponentOverlayCanvas.style.pointerEvents = 'none';
+  opponentOverlayElement = document.createElement('div');
+  opponentOverlayElement.id = 'opponentChainStyleOverlay';
+  opponentOverlayElement.style.position = 'absolute';
+  opponentOverlayElement.style.pointerEvents = 'none';
   const opponentFieldWrapper = document.querySelector('#opponentGameArea .field-wrapper');
-  opponentFieldWrapper.style.position = 'relative';
-  opponentFieldWrapper.appendChild(opponentOverlayCanvas);
+  opponentFieldWrapper.appendChild(opponentOverlayElement);
 
   // 両方のキャンバスをリサイズ
-  resizeWarningOverlay(playerOverlayCanvas);
-  resizeWarningOverlay(opponentOverlayCanvas);
+  resizeOverlayDivElement(playerOverlayElement);
+  resizeOverlayDivElement(opponentOverlayElement);
 }
 
+function resizeOverlayDivElement(divElement) {
+  const dpr = window.devicePixelRatio || 1;
+  CELL_SIZE = calculateCellSize(); // セルサイズを再計算
+
+  // フィールド全体のサイズを計算
+  const width = CELL_SIZE * FIELD_WIDTH;
+  const height = CELL_SIZE * FIELD_HEIGHT;
+
+  // キャンバスの実際のサイズを設定（高解像度対応）
+  divElement.width = width * dpr;
+  divElement.height = height * dpr;
+
+  // 表示サイズを設定
+  divElement.style.width = `${width}px`;
+  divElement.style.height = `${height}px`;
+
+  // statusFieldの幅を考慮して位置を調整
+  divElement.style.top = `1.5px`;
+  divElement.style.left = `${CELL_SIZE / 2 + 3.5}px`;
+
+}
+
+
 // ハイライト処理関数を修正
-function highlightMatchingCells(field, combinedWords) {
+function highlightMatchingCells(field) {
+
   let isPlayer = true;
   if (field === opponentField) {
     isPlayer = false;
   }
-  const matchingChars = getMatchingStartAndEndLetters(combinedWords);
-
-  // 文字と色の対応を保持
-  const charColorMap = new Map();
-  matchingChars.forEach((char, index) => {
-    charColorMap.set(char, colors[index % colors.length]);
-  });
-
   // 使用するオーバーレイキャンバスを選択
-  const overlayCanvas = isPlayer ? playerOverlayCanvas : opponentOverlayCanvas;
-  const overlayCtx = overlayCanvas.getContext('2d');
+  const overlayDiv = isPlayer ? playerOverlayElement : opponentOverlayElement;
 
-  // キャンバスをクリア
-  overlayCtx.clearRect(0, 0, overlayCtx.canvas.getBoundingClientRect().width, overlayCtx.canvas.getBoundingClientRect().height);
+  removeAuraEffectFromOverlay(overlayDiv);
 
-  overlayCtx.lineWidth = 3;
+  // ハイライト情報を保持する配列
+  const highlightData = [];
+
 
   // 各行を上から順にチェック
   for (let y = 0; y < FIELD_HEIGHT; y++) {
@@ -561,16 +634,17 @@ function highlightMatchingCells(field, combinedWords) {
     // 先頭の文字のチェック
     const startChar = field[y][0].word[0];
     if (isPlayer && startChar === lastChar) {
-      // セルを白く点滅させたい
+      // 先頭文字が一致かつ lastChar と同じ場合
+      // 先頭文字が一致かつ lastChar と同じ場合
+      const colorObj = { baseColor: 'rgba(255, 255, 255, 0.3)', borderColor: 'rgba(255, 255, 255)' }; // 白色を指定
+      applyAuraEffectToCell(y, 0, colorObj, overlayDiv);
+      highlightData.push({ x: 0, y, colorObj });
     }
     else if (charColorMap.has(startChar)) {
-      overlayCtx.strokeStyle = charColorMap.get(startChar);
-      overlayCtx.strokeRect(
-        0 + overlayCtx.lineWidth / 2,
-        y * CELL_SIZE + overlayCtx.lineWidth / 2,
-        CELL_SIZE - overlayCtx.lineWidth,
-        CELL_SIZE - overlayCtx.lineWidth
-      );
+      // 最初の文字が一致（lastChar のチェックはなし）
+      const colorObj = charColorMap.get(startChar);
+      applyAuraEffectToCell(y, 0, colorObj, overlayDiv);
+      highlightData.push({ x: 0, y, colorObj });
     }
 
     // その行の最後尾を探してチェック
@@ -578,35 +652,66 @@ function highlightMatchingCells(field, combinedWords) {
       if (field[y][x] && field[y][x].word) {
         const endChar = normalizeHiragana(field[y][x].word[field[y][x].word.length - 1]);
         if (charColorMap.has(endChar)) {
-          overlayCtx.strokeStyle = charColorMap.get(endChar);
-          overlayCtx.strokeRect(
-            x * CELL_SIZE + overlayCtx.lineWidth / 2,
-            y * CELL_SIZE + overlayCtx.lineWidth / 2,
-            CELL_SIZE - overlayCtx.lineWidth,
-            CELL_SIZE - overlayCtx.lineWidth
-          );
+          // 最後の文字が一致
+          const colorObj = charColorMap.get(endChar);
+          applyAuraEffectToCell(y, x, colorObj, overlayDiv);
+          highlightData.push({ x, y, colorObj });
         }
         break;  // 最後尾が見つかったらその行の探索終了
       }
     }
   }
 
-  // プレイヤーの場合、相手に情報を送信
-  if (isPlayer && socket) {
-    // ハイライト情報の収集と送信処理...
+  // プレイヤーの場合、相手に情報を送信（同期用データ）
+  if (isPlayer) {
     socket.emit('fieldHighlightUpdate', {
-      combinedWords: combinedWords
+      highlightData: highlightData,
     });
   }
 }
 
+// auraElementをすべて削除するメソッド
+function removeAuraEffectFromOverlay(overlayDiv) {
+  // overlayDiv内のすべての子要素を削除
+  while (overlayDiv.firstChild) {
+    overlayDiv.removeChild(overlayDiv.firstChild);
+  }
+}
+
+function applyAuraEffectToCell(y, x, colorObj, overlayDiv) {
+
+  // セルの絶対位置を計算
+  const cellX = x * CELL_SIZE;
+  const cellY = y * CELL_SIZE;
+
+  // アウラエフェクト用のコンテナを作成
+  const auraElement = document.createElement('div');
+  auraElement.className = 'field-aura-container';
+
+  // 位置とサイズを設定
+  auraElement.style.left = `${cellX}px`;
+  auraElement.style.top = `${cellY}px`;
+  auraElement.style.width = `${CELL_SIZE}px`;
+  auraElement.style.height = `${CELL_SIZE}px`;
+
+  // カラー変数を設定
+  auraElement.style.setProperty('--aura-color', colorObj.baseColor);
+  auraElement.style.setProperty('--aura-border-color', colorObj.borderColor);
+
+  // オーバーレイに追加
+  overlayDiv.appendChild(auraElement);
+}
+
 function drawField(ctx, field, receivedLastWordLength) {
+
   if (gameState === 'ended') return;
+  ctx.clearRect(0, 0, ctx.canvas.getBoundingClientRect().width, ctx.canvas.getBoundingClientRect().height);
 
-  ctx.fillStyle = "#000000";
-  ctx.fillRect(0, 0, ctx.canvas.getBoundingClientRect().width, ctx.canvas.getBoundingClientRect().height);
+  // ctx.fillStyle = "rgba(0,0,0,0)";
+  // ctx.fillRect(0, 0, ctx.canvas.getBoundingClientRect().width, ctx.canvas.getBoundingClientRect().height);
 
-  console.log(receivedLastWordLength);
+  // console.log(receivedLastWordLength);
+
   if (receivedLastWordLength !== 0) {
     for (let y = 0; y < FIELD_HEIGHT; y++) {
       let hasContent = false;
@@ -629,7 +734,7 @@ function drawField(ctx, field, receivedLastWordLength) {
         }
       }
 
-      console.log(rowWord);
+      // console.log(rowWord);
 
       // 単語が存在する場合のみ処理
       if (rowWord.length > 0) {
@@ -664,8 +769,8 @@ function drawField(ctx, field, receivedLastWordLength) {
         );
 
         if (cell.isHighlighted) {
-          gradient.addColorStop(0, 'rgb(0, 0, 0)');
-          gradient.addColorStop(1, 'rgba(255, 255, 255, 0.25)');
+          gradient.addColorStop(0, 'rgba(0, 0, 0, 1)');
+          gradient.addColorStop(1, 'rgba(255, 255, 255, 0.5)');
         }
 
         ctx.fillStyle = gradient;
@@ -679,12 +784,17 @@ function drawField(ctx, field, receivedLastWordLength) {
         const centerY = y * CELL_SIZE + CELL_SIZE / 2;
 
         if (cell.isHighlighted) {
-          ctx.strokeStyle = 'black';
+          // ctx.strokeStyle = 'black';
           ctx.lineWidth = 2;
-          ctx.strokeText(cell.word, centerX, centerY);
-          ctx.fillStyle = 'white';
+          // ctx.strokeText(cell.word, centerX, centerY);
+          // ctx.fillStyle = 'white';
+          ctx.fillStyle = 'rgb(0, 0, 0)';
           ctx.fillText(cell.word, centerX, centerY);
         } else {
+          // すべての文字に黒い縁取りを追加
+          ctx.strokeStyle = 'rgba(0, 0, 0, 0.5)';
+          ctx.lineWidth = 2; // 縁取りの太さ
+          ctx.strokeText(cell.word, centerX, centerY);
           ctx.fillStyle = 'white';
           ctx.fillText(cell.word, centerX, centerY);
         }
@@ -693,8 +803,6 @@ function drawField(ctx, field, receivedLastWordLength) {
   }
 
   drawGrid(ctx);
-  // const combinedWords = [...playerFieldWords, ...wordPool];
-  highlightMatchingCells(field, playerFieldWords);
 }
 
 // 横方向全体にグラデーションを描画する関数を修正
@@ -806,8 +914,8 @@ function resizeAllCanvases() {
   resizeWarningOverlay(overlayContexts.playerOverlay);
   resizeWarningOverlay(overlayContexts.opponentOverlay);
 
-  resizeWarningOverlay(playerOverlayCanvas);
-  resizeWarningOverlay(opponentOverlayCanvas);
+  resizeOverlayDivElement(playerOverlayElement);
+  resizeOverlayDivElement(opponentOverlayElement);
 
   // 警告オーバーレイの再描画
   if (warningState.player.isVisible) {
@@ -879,7 +987,7 @@ loadWordList().then(() => {
   drawGrid(ctxPlayer);
   drawGrid(ctxOpponent);
 
-  initializeOverlayCanvases();
+  initializeOverlayDivElement();
 });
 
 let interval = 5000; // 初期の間隔（ミリ秒）
@@ -892,8 +1000,7 @@ function startGame() {
   drawInfo();
 
   function gameStep() {
-    // if (gameState !== 'playing') return;
-    moveWordToField(playerFieldWords);
+    if (gameState !== 'playing') return;
     updateFieldAfterReceiveOffset(playerField, playerFieldWords);
     checkAndRemoveWord(playerField, playerFieldWords, playerInput);
     drawField(ctxPlayer, playerField, memorizeLastAttackValue);
@@ -901,7 +1008,7 @@ function startGame() {
     // インターバルを更新し、プログレスバーを開始
     interval = Math.max(minInterval, interval - 50);
     updateProgressBar(interval);
-    // setTimeout(gameStep, interval);
+    setTimeout(gameStep, interval);
   }
 
   gameStep();
@@ -977,31 +1084,38 @@ function clearProgressBar() {
 
 // ランダムな単語を取得
 function getRandomWordForField(usedLengths) {
-  const words = wordList[selectedCategory]["test"];
-  return words[Math.floor(Math.random() * words.length)];
-  // if (!wordList || !wordList[selectedCategory]) return '';
-
-  // const allLengths = Object.keys(wordList[selectedCategory]);
-  // if (usedLengths.length === allLengths.length) {
-  //   usedLengths.length = 0;
-  // }
-
-  // const availableLengths = allLengths.filter(length => !usedLengths.includes(length));
-  // const randomLength = availableLengths[Math.floor(Math.random() * availableLengths.length)];
-  // usedLengths.push(randomLength);
-
-  // const words = wordList[selectedCategory][randomLength];
+  // const words = wordList[selectedCategory]["test"];
   // return words[Math.floor(Math.random() * words.length)];
+  if (!wordList || !wordList[selectedCategory]) return '';
+
+  const allLengths = Object.keys(wordList[selectedCategory]);
+
+  // すべての length が2回使用されていたらリセット
+  if (Object.values(usedLengths).every(count => count >= 2)) {
+    for (let length in usedLengths) {
+      usedLengths[length] = 0;
+    }
+  }
+
+  // 使用回数が2回未満のものを取得
+  const availableLengths = allLengths.filter(length => (usedLengths[length] || 0) < 2);
+  const randomLength = availableLengths[Math.floor(Math.random() * availableLengths.length)];
+
+  // 使用回数を更新
+  usedLengths[randomLength] = (usedLengths[randomLength] || 0) + 1;
+
+  const words = wordList[selectedCategory][randomLength];
+  return words[Math.floor(Math.random() * words.length)];
 }
 
 // 攻撃用の単語を取得
 function getRandomWordForAttack(characterCount) {
-  const words = wordList[selectedCategory]["test"];
-  return words[Math.floor(Math.random() * words.length)];
-  // let character = ["two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"];
-  // if (!wordList || !wordList[selectedCategory]) return '';
-  // const words = wordList[selectedCategory][character[characterCount - 2]];
+  // const words = wordList[selectedCategory]["test"];
   // return words[Math.floor(Math.random() * words.length)];
+  let character = ["two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"];
+  if (!wordList || !wordList[selectedCategory]) return '';
+  const words = wordList[selectedCategory][character[characterCount - 2]];
+  return words[Math.floor(Math.random() * words.length)];
 }
 
 // キー入力リスナー
@@ -1020,7 +1134,7 @@ window.addEventListener("keydown", (e) => {
       // 文字を追加
       playerInput += key;
       if (key === ' ') {
-        moveWordToField(playerFieldWords);
+        // moveWordToField(playerFieldWords);
         updateFieldAfterReceiveOffset(playerField, playerFieldWords);
         playerInput = playerInput.trim();
         convertedInput = wanakana.toHiragana(playerInput);
@@ -1058,7 +1172,7 @@ window.addEventListener("keydown", (e) => {
       resetHighlight(playerField);
     }
     else if (key === "Enter") {
-      startGame();
+      // startGame();
     }
 
     playerInput = convertedInput;
@@ -1121,6 +1235,8 @@ function checkAndRemoveWord(field, fieldWords, input) {
 
       updateAllNextGradients(wordPool, true);
 
+      updateNextDisplay(wordPool);
+      highlightMatchingCells(playerField);
       return;
     }
 
@@ -1923,11 +2039,12 @@ function drawStatusField(ctx, isPlayer = true) {
       ctx.fillRect(0, cellY, CELL_SIZE / 2, CELL_SIZE);
 
       ctx.fillStyle = "white";
-      ctx.font = `${CELL_SIZE * 0.5}px 'M PLUS Rounded 1c'`;
+      ctx.font = `${CELL_SIZE * 0.45}px 'M PLUS Rounded 1c'`;
       ctx.textBaseline = "middle";
       ctx.textAlign = "center";
+      ctx.letterSpacing = "-0.1em"
 
-      const textX = CELL_SIZE / 4;
+      const textX = CELL_SIZE / 5;
       const textY = cellY + (CELL_SIZE / 2);
 
       ctx.fillText(displayValues[i], textX, textY);
@@ -2197,7 +2314,14 @@ function initializeSocket() {
   });
 
   socket.on('fieldHighlightSync', (data) => {
-    highlightMatchingCells(opponentField, data.combinedWords);
+    // 受信したハイライトデータを使って opponentField を更新
+    const overlayDiv = opponentOverlayElement;
+    removeAuraEffectFromOverlay(overlayDiv);
+
+    // データを基にハイライト処理
+    data.highlightData.forEach(({ x, y, colorObj }) => {
+      applyAuraEffectToCell(y, x, colorObj, overlayDiv);
+    });
   });
 
   // Socket.IOのイベントハンドラを追加
