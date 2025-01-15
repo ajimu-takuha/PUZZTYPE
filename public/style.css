@@ -1,24 +1,208 @@
+@font-face {
+  font-family: 'PixelMplus';
+  src: url('/fonts/PixelMplus12-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Senobi-Gothic-Regular';
+  src: url('/fonts/Senobi-Gothic-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Makinas';
+  src: url('/fonts/Makinas-4-Square.otf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: '851Gkktt';
+  src: url('/fonts/851Gkktt_005.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'zouver';
+  src: url('/fonts/002zouver.2-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 body {
-  background-color: black;
+  /* background-color: black; */
+  background-color: rgb(19, 23, 44);
+  overflow: hidden;
+}
+
+.gradationBackground {
+  position: fixed;
+  /* 全画面に表示 */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  /* 高さを明確に指定 */
+  background: -moz-linear-gradient(45deg, #02e1ba 0%, #26c9f2 29%, #d911f2 66%, #ffa079 100%);
+  background: -webkit-linear-gradient(45deg, #02e1ba 0%, #26c9f2 29%, #d911f2 66%, #ffa079 100%);
+  background: linear-gradient(45deg, #02e1ba 0%, #26c9f2 29%, #d911f2 66%, #ffa079 100%);
+  background-size: 400% 400%;
+  -webkit-animation: Gradient 15s ease infinite;
+  -moz-animation: Gradient 15s ease infinite;
+  animation: Gradient 15s ease infinite;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: space-evenly;
+  overflow: hidden;
+  /* position: relative;
+  width: 100%;
+  height: 100%; */
+  z-index: -1;
+  /* 他の要素の背後に配置 */
+  opacity: .4;
+}
+
+.gradationBackground::before,
+.gradationBackground::after {
+  content: "";
+  width: 70vmax;
+  height: 70vmax;
+  position: absolute;
+  background: rgba(255, 255, 255, 0.07);
+  left: -20vmin;
+  top: -20vmin;
+  animation: morph 15s linear infinite alternate, spin 20s linear infinite;
+  z-index: 1;
+  will-change: border-radius, transform;
+  transform-origin: 55% 55%;
+  pointer-events: none;
+}
+
+.gradationBackground::after {
+  width: 70vmin;
+  height: 70vmin;
+  left: auto;
+  right: -10vmin;
+  top: auto;
+  bottom: 0;
+  animation: morph 10s linear infinite alternate, spin 26s linear infinite reverse;
+  transform-origin: 20% 20%;
+}
+
+/* 既存のアニメーションをそのまま利用 */
+@-webkit-keyframes Gradient {
+  0% {
+    background-position: 0 50%
+  }
+
+  50% {
+    background-position: 100% 50%
+  }
+
+  100% {
+    background-position: 0 50%
+  }
+}
+
+@-moz-keyframes Gradient {
+  0% {
+    background-position: 0 50%
+  }
+
+  50% {
+    background-position: 100% 50%
+  }
+
+  100% {
+    background-position: 0 50%
+  }
+}
+
+@keyframes Gradient {
+  0% {
+    background-position: 0 50%
+  }
+
+  50% {
+    background-position: 100% 50%
+  }
+
+  100% {
+    background-position: 0 50%
+  }
+}
+
+@keyframes morph {
+  0% {
+    border-radius: 40% 60% 60% 40% / 70% 30% 70% 30%;
+  }
+
+  100% {
+    border-radius: 40% 60%;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+
+.animated-background {
+  position: fixed;
+  /* absolute から fixed に変更 */
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -2;
+  opacity: 0.05;
+}
+
+.animated-background canvas {
+  width: 100%;
+  height: 100%;
 }
 
 /* フィールド全体の配置 */
 .gameContainer {
-  margin-top: 5vw;
+  margin-top: 3vw;
   display: flex;
-  justify-content: space-around;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-family: 'M PLUS Rounded 1c';
+  /* position: relative; */
+  /* width: 100%;          */
+}
+
+#allGameArea {
+  display: flex;
+  justify-content: center;
+  /* 中央揃えを追加 */
+  gap: 2vw;
+  /* width: 100%; */
 }
 
 .gameArea {
   display: flex;
+  user-select: none;
 }
 
 #playerGameArea {
-  margin-left: 10vw;
+  /* margin-left: 10vw; */
 }
 
 #opponentGameArea {
-  margin-right: 15vw;
+  margin-right: 12vw;
 }
 
 /* 各フィールドと入力領域を縦に並べる */
@@ -34,28 +218,213 @@ canvas {}
 
 .field-wrapper {
   position: relative;
+  box-shadow: 0.2vw 0.5vh 10px rgba(9, 0, 0, 0.5);
 }
 
 /* フィールドキャンバス */
 .field {
-  background-color: #000000;
-  /* background-color: #333; */
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-  /* キャンバスの影 */
+  /* background-color: rgba(5, 7, 19, 0.7); */
   border: 2px solid rgba(255, 255, 255, 0.5);
-  border-top: none;
+  /* border-top: 2px rgba(255, 255, 255, 0); */
   /* z-index: 2; */
   position: relative;
+  font-family: "DotGothic16", "M PLUS Rounded 1c", serif;
 }
 
-/* 入力領域キャンバス */
-.inputField {
+.effectOverlay {
+  position: absolute;
+}
+
+#childEffectOverlay {
+  height: 100%;
+  width: 100%;
+  position: relative;
+  background: transparent;
+  /* 背景を透明に設定 */
+  z-index: 0;
+}
+
+/* エフェクトクラス */
+.glowingEffect {
+  position: relative;
+  z-index: 0;
+  border-radius: 10px;
+}
+
+.glowingEffect:before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 2px solid transparent;
+  /* ベースの透明な枠線 */
+  border-radius: 10px;
+  background: transparent;
+  box-shadow: 0 0 15px 5px rgba(0, 0, 0, 0.2),
+    0 0 20px 10px rgba(255, 0, 0, 0.5),
+    0 0 25px 15px rgba(255, 200, 0, 0.5),
+    0 0 30px 20px rgba(0, 255, 255, 0.5);
+  animation: glowingEffect 3s linear infinite;
+  /* 虹色アニメーション */
+  z-index: -1;
+  /* 背景に送る */
+}
+
+/* 背景アニメーション */
+@keyframes glowingEffect {
+  0% {
+    box-shadow: 0 0 15px 5px rgba(255, 0, 0, 0.5),
+      0 0 20px 10px rgba(255, 200, 0, 0.5),
+      0 0 25px 15px rgba(0, 255, 255, 0.5),
+      0 0 30px 20px rgba(0, 0, 255, 0.5);
+  }
+
+  50% {
+    box-shadow: 0 0 15px 5px rgba(0, 255, 0, 0.5),
+      0 0 20px 10px rgba(255, 0, 255, 0.5),
+      0 0 25px 15px rgba(255, 255, 0, 0.5),
+      0 0 30px 20px rgba(255, 0, 0, 0.5);
+  }
+
+  100% {
+    box-shadow: 0 0 15px 5px rgba(255, 0, 0, 0.5),
+      0 0 20px 10px rgba(255, 200, 0, 0.5),
+      0 0 25px 15px rgba(0, 255, 255, 0.5),
+      0 0 30px 20px rgba(0, 0, 255, 0.5);
+  }
+}
+
+
+
+.displayAttackValue {
+  position: absolute;
+  text-shadow:
+    2px 2px 0 rgba(255, 255, 255, 0.8),
+    -2px 2px 0 rgba(255, 255, 255, 0.8),
+    -2px -2px 0 rgba(255, 255, 255, 0.8),
+    2px -2px 0 rgba(255, 255, 255, 0.8);
+  white-space: nowrap;
+  opacity: 1;
+  transition: all 1.5s ease-out;
+  font-family: 'zouver';
+
+  pointer-events: none;
+}
+
+.displayAttackValue.fade-out {
+  letter-spacing: 10px;
+  opacity: 0;
+}
+
+/* キーフレームの定義 */
+@keyframes inputFieldAnimation {
+  0% {
+    transform: translateY(0) scale(1);
+  }
+
+  50% {
+    transform: translateY(2px) scale(0.98);
+  }
+
+  100% {
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* アニメーションを適用するクラス */
+.animate-input {
+  animation: inputFieldAnimation 0.1s ease-in-out;
+}
+
+.inputFieldWrapper {
   margin-top: 4vh;
-  /* background-color: #222; 入力領域の背景色を少し明るいダークグレーに設定 */
-  background-color: #000000;
-  border-top: 2px solid #444;
-  /* 境界線 */
-  border-bottom: 2px solid #444;/
+  position: relative;
+  width: fit-content;
+  height: fit-content;
+  display: inline-block;
+  border: 6px solid transparent;
+  /* グラデーションを表示するための余白を作成 */
+  /* border-image: linear-gradient(135deg, rgb(85, 255, 69), rgb(253, 116, 255)); */
+  /* border-image: linear-gradient(135deg, rgba(0, 120, 255, 0.5), rgba(0, 200, 255, 0.5));
+  border-image-slice: 1; */
+}
+
+.inputField {
+  background-color: rgba(5, 7, 19, 0.7);
+  box-shadow: 0 5px 10px rgba(9, 0, 0, 0.5);
+}
+
+/* spanの基本スタイル */
+.inputFieldWrapper span {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  box-sizing: border-box;
+}
+
+.inputFieldWrapper span:nth-child(2) {
+  left: auto;
+  right: 0%;
+}
+
+/* 4つのspanの回転 */
+.inputFieldWrapper span:nth-child(1) {
+  transform: rotate(0deg);
+}
+
+.inputFieldWrapper span:nth-child(2) {
+  transform: rotate(90deg);
+}
+
+.inputFieldWrapper span:nth-child(3) {
+  transform: rotate(180deg);
+}
+
+.inputFieldWrapper span:nth-child(4) {
+  transform: rotate(270deg);
+}
+
+/* アニメーション用の線 */
+.inputFieldWrapper span:before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 2px;
+  /* background: rgba(80, 223, 219, 0.7); */
+  /* background: linear-gradient(135deg, rgba(0, 120, 255, 0.5), rgba(0, 200, 255, 0.5)); */
+  background: linear-gradient(135deg, rgba(85, 255, 69, 1), rgba(253, 116, 255, 1));
+  animation: animate 1.5s linear infinite;
+}
+
+/* アニメーションの定義 */
+@keyframes animate {
+  0% {
+    opacity: 0.1;
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+
+  50% {
+    opacity: 0.5;
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+
+  50.1% {
+    transform: scaleX(1);
+    transform-origin: right;
+  }
+
+  100% {
+    opacity: 0.1;
+    transform: scaleX(0);
+    transform-origin: right;
+  }
 }
 
 .statusField {
@@ -63,38 +432,6 @@ canvas {}
   border-top: 2px solid rgba(255, 255, 255, 0.5);
   border-bottom: 2px solid rgba(255, 255, 255, 0.5);
   /* margin-right: 1px; */
-}
-
-/* 既存のCSSはそのままで、以下を追加 */
-
-/* プログレスバーのコンテナ */
-#intervalProgressBar {
-  position: absolute;
-  bottom: -30px;
-  /* 入力フィールドの下に配置 */
-  left: 50%;
-  transform: translateX(-50%);
-  width: 80%;
-  /* gameContainerの80%の幅 */
-  height: 3px;
-  /* バーの高さを少し太めに */
-  background-color: rgba(255, 255, 255, 0.1);
-  /* 薄い背景 */
-  border-radius: 1.5px;
-  /* 少し角を丸く */
-  overflow: hidden;
-  /* はみ出した部分を隠す */
-}
-
-/* プログレスライン */
-#progressLine {
-  width: 100%;
-  height: 100%;
-  background-color: rgba(255, 255, 255, 0.8);
-  /* やや透明な白 */
-  transition: width 0.1s linear;
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-  /* 光っているような効果 */
 }
 
 /* gameContainerのposition調整 */
@@ -107,15 +444,21 @@ canvas {}
 
 /* プログレスバーのコンテナ */
 #intervalProgressBar {
-  position: absolute;
-  bottom: -4vh;
-  left: 55vw;
-  transform: translateX(-50%);
-  width: 65vw;
+  /* position: absolute; */
+  /* bottom: -4vh; */
+  /* left: 54%; */
+  /* transform: translateX(-50%); */
+  width: 50%;
   height: 3px;
   background-color: rgba(255, 255, 255, 0.1);
   border-radius: 1.5px;
   overflow: hidden;
+  margin: 2vh auto;
+  /* 上下マージンを設定し、左右をautoに */
+  position: relative;
+  /* 位置を相対指定に */
+  transform: none;
+  /* transformプロパティを削除 */
 }
 
 /* 左側のプログレスライン */
@@ -148,7 +491,8 @@ canvas {}
 }
 
 :root {
-  --base-size: 5vh; /* 基準サイズ */
+  --base-size: 5vh;
+  /* 基準サイズ */
 }
 
 
@@ -180,6 +524,7 @@ canvas {}
   border-right: 0.2vw solid rgba(255, 255, 255, 0.25);
   border-left: 0.2vw solid rgba(255, 255, 255, 0.5);
   color: rgb(0, 0, 0);
+  font-family: "Makinas";
   font-size: 0.8vw;
   font-weight: bold;
 }
@@ -191,8 +536,10 @@ canvas {}
   height: 3.8vh;
   width: 60%;
   text-align: right;
+  font-family: "Senobi-Gothic-Regular";
   font-size: 0.8vw;
   color: rgba(255, 255, 255, 0.7);
+  background-color: rgba(5, 7, 19, 0.7);
   /* border-right: 0.1vw solid rgba(255, 255, 255, 0.5); */
   border-left: 0.1vw solid rgba(255, 255, 255, 0.5);
 }
@@ -225,20 +572,29 @@ canvas {}
 }
 
 .attackInfo {
-  background-color: #00000000;
+  white-space: nowrap;
+  background-color: rgba(0, 0, 0, 0);
   color: rgba(255, 255, 255, 0.5);
   height: 5vh;
-
-  font-family: 'M PLUS Rounded 1c';
+  /* font-family: 'M PLUS Rounded 1c'; */
+  font-family: "851Gkktt";
   text-align: right;
   z-index: 100;
 }
 
 .attackKind {
+  width: 6vw;
   display: flex;
-  justify-content: center;
+  justify-content: start;
+  text-align: center;
+  /* テキストを中央揃え */
   font-size: 3vh;
-  color: rgb(255, 80, 80, 0.8);
+  /* color: rgba(255, 0, 0, 0.8); */
+  text-shadow:
+    2px 2px 0 rgb(25, 0, 0, 0.9),
+    -2px 2px 0 rgb(25, 0, 0, 0.9),
+    -2px -2px 0 rgb(25, 0, 0, 0.9),
+    2px -2px 0 rgb(25, 0, 0, 0.9);
   animation: popAndFade 1.3s ease-in-out forwards;
   font-weight: bolder;
 }
@@ -246,13 +602,17 @@ canvas {}
 .chainBonus {
   display: flex;
   justify-content: center;
-  width: 5vw;
   font-size: 2.5vh;
-  color: rgba(180, 140, 30, 0.8);
-  font-weight: bold;
+  color: rgba(255, 200, 50, 0.9);
+  text-shadow:
+    2px 2px 0 rgba(25, 25, 0, 0.9),
+    -2px 2px 0 rgb(25, 25, 0, 0.9),
+    -2px -2px 0 rgb(25, 25, 0, 0.9),
+    2px -2px 0 rgb(25, 25, 0, 0.9);
 }
 
 .nerfValue {
+  font-family: "851Gkktt";
   font-size: 2vh;
   color: rgb(180, 200, 255, 0.8);
 }
@@ -263,6 +623,7 @@ canvas {}
     transform: scale(1);
     opacity: 1;
   }
+
   100% {
     transform: scale(2);
     opacity: 0;
@@ -275,10 +636,12 @@ canvas {}
     transform: scale(1);
     opacity: 0;
   }
+
   40% {
     transform: scale(1.4);
     opacity: 1;
   }
+
   100% {
     transform: scale(1);
     opacity: 1;
@@ -290,6 +653,7 @@ canvas {}
   0% {
     opacity: 1;
   }
+
   100% {
     opacity: 0;
   }
@@ -317,6 +681,32 @@ canvas {}
   animation: fadeOut 0.5s ease-out forwards;
 }
 
+/* 各攻撃タイプ用のクラス */
+.attack-normal {
+  color: rgb(255, 255, 255);
+  text-shadow: 0 0 10px #ff0000;
+}
+
+.attack-connect {
+  color: rgb(0, 255, 0);
+  text-shadow: 0 0 10px #00ff00;
+}
+
+.attack-upchain {
+  color: rgb(0, 255, 255);
+  text-shadow: 0 0 10px #00ffff;
+}
+
+.attack-downchain {
+  color: rgb(255, 0, 255);
+  text-shadow: 0 0 10px #ff00ff;
+}
+
+.attack-double {
+  color: rgb(255, 255, 255);
+  text-shadow: 0 0 10px #ff0000;
+}
+
 /* アニメーションをリセットするためのクラス */
 .reset-animation {
   animation: none !important;
@@ -331,16 +721,15 @@ canvas {}
   width: auto;
   margin-bottom: calc(var(--base-size) + 4vh);
   margin-right: 0.5vw;
+  font-family: '851Gkktt';
 }
 
 .infoField {
-  background-color: #000000;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0);
+  /* box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); */
   color: rgba(255, 255, 255, 0.5);
   height: 3vh;
   width: 10vw;
-
-  font-family: 'M PLUS Rounded 1c';
   font-size: 2.5vh;
   text-align: right;
 }
@@ -351,22 +740,33 @@ canvas {}
 
 .infoFieldName {
   display: flex;
-  flex-direction: column; /* 垂直方向に並べる */
-  justify-content: flex-end; /* 内部のコンテンツを下揃え */
+  flex-direction: column;
+  /* 垂直方向に並べる */
+  justify-content: flex-end;
+  /* 内部のコンテンツを下揃え */
   height: 2.5vh;
   /* padding-top: 2.5vh; */
   margin-top: 1vh;
 
   font-size: 1.5vh;
   color: rgba(255, 255, 255, 0.5);
-  position: relative; /* 親要素に対して相対位置を指定 */
-  transform: translateY(0.8vh); /* 下方向に20px移動 */
+  position: relative;
+  /* 親要素に対して相対位置を指定 */
+  transform: translateY(0.8vh);
+  /* 下方向に移動 */
+}
+
+.infoFieldTime {
+  transform: translateY(0.4vh);
 }
 
 @keyframes shake-horizontal {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translateX(0);
   }
+
   50% {
     transform: translateX(calc(var(--shake-distance) * 1.5));
   }
@@ -378,13 +778,18 @@ canvas {}
 
 @keyframes shake-vertical {
   0% {
-    transform: translateY(0) scale(1); /* 初期状態 */
+    transform: translateY(0) scale(1);
+    /* 初期状態 */
   }
+
   50% {
-    transform: translateY(var(--shake-distance)) scale(calc(1 - var(--shake-scale) / 2)); /* 動的scale */
+    transform: translateY(var(--shake-distance)) scale(calc(1 - var(--shake-scale) / 2));
+    /* 動的scale */
   }
+
   100% {
-    transform: translateY(0) scale(1); /* 元の状態に戻る */
+    transform: translateY(0) scale(1);
+    /* 元の状態に戻る */
   }
 }
 
@@ -396,9 +801,12 @@ canvas {}
   0% {
     background-color: transparent;
   }
+
   50% {
-    background-color: rgba(255, 0, 0, 0.5); /* 赤色のフラッシュ効果 */
+    background-color: rgba(255, 0, 0, 0.1);
+    /* 赤色のフラッシュ効果 */
   }
+
   100% {
     background-color: transparent;
   }
@@ -408,32 +816,22 @@ canvas {}
   animation: color-flash 0.3s ease-in-out;
 }
 
-@keyframes auraAnime {
+@keyframes color-flash {
   0% {
-    transform: scale(.9);
-    opacity: 1;
+    background-color: transparent;
   }
-  90% {
-    opacity: .1;
+
+  50% {
+    background-color: rgba(255, 0, 0, 0.5);
   }
-  to {
-    transform: scale(1.5);
-    opacity: 0;
+
+  100% {
+    background-color: transparent;
   }
 }
 
-@keyframes auraAnimeAfter {
-  0% {
-    transform: scale(.9);
-    opacity: 1;
-  }
-  90% {
-    opacity: .1;
-  }
-  to {
-    transform: scale(2);
-    opacity: 0;
-  }
+.playerMissEffect {
+  animation: color-flash 0.2s ease-in-out;
 }
 
 /* 文字コンテナのスタイル */
@@ -450,11 +848,10 @@ canvas {}
 .aura-container:after {
   content: "";
   position: absolute;
-  z-index: -10;
-  top: 12.5%;
-  left: -2%;
-  width: 100%;
-  height: 75%;
+  top: 5%;
+  left: -7.5%;
+  width: 110%;
+  height: 90%;
   border-radius: 100%;
   background: var(--aura-color);
   border: 2px solid var(--aura-border-color);
@@ -463,11 +860,11 @@ canvas {}
 
 /* 1つ目のオーラレイヤー */
 .aura-container:before {
-  animation: auraAnime 2s ease-out infinite;
+  animation: auraAnime 1.2s ease-out infinite;
 }
 
 .aura-container:after {
-  animation: auraAnime2 2s ease-out infinite;
+  animation: auraAnimeAfter 1.2s ease-out infinite;
 }
 
 /* 文字自体のスタイル */
@@ -476,6 +873,38 @@ canvas {}
   z-index: 1;
 }
 
+
+@keyframes auraAnime {
+  0% {
+    transform: scale(.9);
+    opacity: .7;
+  }
+
+  90% {
+    opacity: .1;
+  }
+
+  to {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+@keyframes auraAnimeAfter {
+  0% {
+    transform: scale(.9);
+    opacity: .7;
+  }
+
+  90% {
+    opacity: .1;
+  }
+
+  to {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
 
 .field-aura-container {
   position: absolute;
@@ -508,9 +937,11 @@ canvas {}
     transform: scale(.9);
     opacity: .7;
   }
+
   90% {
     opacity: .1;
   }
+
   to {
     transform: scale(1.5);
     opacity: 0;
@@ -522,11 +953,246 @@ canvas {}
     transform: scale(.9);
     opacity: .7;
   }
+
   90% {
     opacity: .1;
   }
+
   to {
     transform: scale(2);
     opacity: 0;
   }
+}
+
+.game-buttons {
+  height: 3vh;
+  width: 50vw;
+  display: flex;
+  gap: 1vw;
+}
+
+/* .game-button {
+  flex: 1;
+  margin: 0 auto;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  color: rgba(255, 255, 255, 0.8);
+  font-family: 'M PLUS Rounded 1c';
+  font-size: 0.9vw;
+  font-weight: 300;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  position: relative;
+  overflow: hidden;
+} */
+
+
+button {
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto;
+  color: rgba(29, 154, 242);
+  /* background-color: rgb(41, 45, 62); */
+  background-color: rgba(5, 7, 19, 0.7);
+  border: 2px solid #1D9AF2;
+  border-radius: 4px;
+  /* font-family: 'M PLUS Rounded 1c'; */
+  font-family: 'Makinas';
+  font-size: 0.9vw;
+  font-weight: 300;
+  cursor: pointer;
+  height: 3.5vh;
+  box-shadow: 0 0 4px #999;
+  outline: none;
+  background-position: center;
+  transition: all 0.2s ease-in-out;
+}
+
+button:hover {
+  background-color: rgba(29, 154, 242);
+  color: rgba(5, 7, 19, 0.7);
+  border: none;
+  transform: scale(1.1);
+}
+
+/* ボタン固有のスタイル */
+.random-match {
+  border-color: rgba(29, 154, 242, 0.3);
+}
+
+.random-match:hover {
+  border-color: rgba(29, 154, 242, 0.6);
+}
+
+.room-match {
+  border-color: rgba(255, 100, 100, 0.3);
+}
+
+.room-match:hover {
+  border-color: rgba(255, 100, 100, 0.6);
+}
+
+.config {
+  border-color: rgba(255, 200, 100, 0.3);
+}
+
+.config:hover {
+  border-color: rgba(255, 200, 100, 0.6);
+}
+
+.how-to-play {
+  border-color: rgba(100, 255, 150, 0.3);
+}
+
+.how-to-play:hover {
+  border-color: rgba(100, 255, 150, 0.6);
+}
+
+.retryDialogButton {
+  padding: 0.5rem 1.5rem;
+  width: 4vw;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.45vw;
+}
+
+.retryDialogButton :hover {
+  transform: translateY(2px);
+  opacity: 0.5;
+}
+
+#yesButton {
+  font-size: 0.8vw;
+  background: #4CAF50;
+  color: white;
+}
+
+#noButton {
+  font-size: 0.8vw;
+  background: #f44336;
+  color: white;
+}
+
+/* ルームマッチングダイアログ */
+.room-match-dialog {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.dialog-content {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  text-align: center;
+  font-family: 'M PLUS Rounded 1c';
+  font-size: 0.5vw;
+}
+
+.dialog-content h2 {
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+#roomInput {
+  width: 5vw;
+  height: 2vh;
+  padding: 0.2vh;
+  font-size: 0.5vw;
+  text-align: center;
+  margin-bottom: 1vh;
+  border: 2px solid #ddd;
+  border-radius: 4px;
+}
+
+.dialog-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.dialog-buttons button {
+  width: 4vw;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.45vw;
+}
+
+.dialog-buttons button:hover {
+  transform: translateY(2px);
+  opacity: 0.5;
+}
+
+#connectButton {
+  background: #4CAF50;
+  color: white;
+}
+
+#connectButton:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+#cancelButton {
+  background: #f44336;
+  color: white;
+}
+
+/* ローディングオーバーレイ */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  font-size: 1vw;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.loading-content {
+  text-align: center;
+  color: white;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  background: #151825;
+  border-radius: 50%;
+  border: 1px solid #1D9AF2;
+  border-top: 2px solid #fff;
+  animation: spinner1 600ms linear infinite;
+  margin: 0 auto 1rem;
+}
+
+@keyframes spinner1 {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.matching-success {
+  text-align: center;
+  color: white;
+}
+
+.matching-success h2 {
+  margin-bottom: 1rem;
 }

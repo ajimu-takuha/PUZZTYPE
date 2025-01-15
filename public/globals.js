@@ -1,5 +1,6 @@
 // globals.jsに追加
 let socket;
+let currentRoom = null;
 let isPlayer1 = false;
 let gameStarted = false;
 let playerId = null;

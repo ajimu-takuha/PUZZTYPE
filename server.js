@@ -9,41 +9,104 @@ const io = new Server(server);
 app.use(express.static(__dirname + '/public'));
 
 const rooms = new Map();
+const roomMatches = new Map(); // ルーム番号とプレイヤーの対応を管理
 let waitingPlayer = null;
 
 io.on('connection', (socket) => {
   console.log(`ユーザー接続: ${socket.id}`);
 
-  if (!waitingPlayer) {
-    waitingPlayer = socket;
-    socket.emit('waitingForPlayer');
-  } else {
-    const room = `room_${Date.now()}`;
-    waitingPlayer.join(room);
-    socket.join(room);
+  // ランダムマッチング用のイベントハンドラ
+  socket.on('findMatch', () => {
+    if (!waitingPlayer) {
+      waitingPlayer = socket;
+      socket.emit('waitingForPlayer');
+    } else {
+      const room = `room_${Date.now()}`;
+      waitingPlayer.join(room);
+      socket.join(room);
 
-    // ゲーム開始を通知
-    io.to(room).emit('gameStart', {
-      player1Id: waitingPlayer.id,
-      player2Id: socket.id
-    });
+      io.to(room).emit('gameStart', {
+        player1Id: waitingPlayer.id,
+        player2Id: socket.id
+      });
 
-    rooms.set(room, {
-      player1: waitingPlayer,
-      player2: socket,
-      gameState: {
-        player1Field: [],
-        player2Field: [],
+      rooms.set(room, {
+        player1: waitingPlayer,
+        player2: socket,
+        gameState: {
+          player1Field: [],
+          player2Field: [],
+        }
+      });
+
+      waitingPlayer = null;
+    }
+  });
+
+  // ルームマッチング用のイベントハンドラ
+  socket.on('joinRoom', (roomNumber) => {
+    if (!roomMatches.has(roomNumber)) {
+      roomMatches.set(roomNumber, socket);
+      socket.emit('roomJoined', roomNumber);
+    } else {
+      const waitingSocket = roomMatches.get(roomNumber);
+
+      if (waitingSocket.connected) {
+        const room = `room_${roomNumber}`;
+        waitingSocket.join(room);
+        socket.join(room);
+
+        io.to(room).emit('gameStart', {
+          player1Id: waitingSocket.id,
+          player2Id: socket.id
+        });
+
+        rooms.set(room, {
+          player1: waitingSocket,
+          player2: socket,
+          gameState: {
+            player1Field: [],
+            player2Field: [],
+          }
+        });
+
+        roomMatches.delete(roomNumber);
+      } else {
+        socket.emit('invalidRoom');
+        roomMatches.delete(roomNumber);
       }
-    });
+    }
+  });
 
-    waitingPlayer = null;
+  // if (!waitingPlayer) {
+  //   waitingPlayer = socket;
+  //   socket.emit('waitingForPlayer');
+  // } else {
+  //   const room = `room_${Date.now()}`;
+  //   waitingPlayer.join(room);
+  //   socket.join(room);
 
-  }
+  //   // ゲーム開始を通知
+  //   io.to(room).emit('gameStart', {
+  //     player1Id: waitingPlayer.id,
+  //     player2Id: socket.id
+  //   });
+
+  //   rooms.set(room, {
+  //     player1: waitingPlayer,
+  //     player2: socket,
+  //     gameState: {
+  //       player1Field: [],
+  //       player2Field: [],
+  //     }
+  //   });
+
+  //   waitingPlayer = null;
+
+  // }
 
   // 攻撃イベントの処理を追加
   socket.on('attack', (data) => {
-
     const room = Array.from(socket.rooms)[1];
     if (room) {
       const gameRoom = rooms.get(room);
@@ -56,6 +119,22 @@ io.on('connection', (socket) => {
       }
     }
   });
+
+  // サーバー側で攻撃値を同期
+  socket.on('syncAttackValue', (data) => {
+    const room = Array.from(socket.rooms)[1];
+    if (room) {
+      const gameRoom = rooms.get(room);
+      if (gameRoom) {
+        const targetSocket = socket.id === gameRoom.player1.id
+          ? gameRoom.player2
+          : gameRoom.player1;
+
+        targetSocket.emit('syncAttackValue', data);
+      }
+    }
+  });
+
 
   // server.js
   socket.on('attackShake', (data) => {
@@ -199,6 +278,17 @@ io.on('connection', (socket) => {
       if (gameRoom) {
         const targetSocket = socket.id === gameRoom.player1.id ? gameRoom.player2 : gameRoom.player1;
         targetSocket.emit('updeteNerfInfo', data);
+      }
+    }
+  });
+
+  socket.on('sendPlayerMissEffect', () => {
+    const room = Array.from(socket.rooms)[1];
+    if (room) {
+      const gameRoom = rooms.get(room);
+      if (gameRoom) {
+        const targetSocket = socket.id === gameRoom.player1.id ? gameRoom.player2 : gameRoom.player1;
+        targetSocket.emit('updetePlayerMissEffect');
       }
     }
   });

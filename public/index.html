@@ -7,8 +7,12 @@
   <style>
     @import url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@100;300&display=swap');
   </style>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DotGothic16&display=swap');
+  </style>
   <script src="https://unpkg.com/wanakana"></script>
   <script src="/socket.io/socket.io.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <title>PUZZTYPE</title>
   <link rel="stylesheet" href="./style.css">
 
@@ -16,78 +20,110 @@
 
 <body>
   <div class="gameContainer">
-    <div id="playerGameArea" class="gameArea">
-      <div class="sideWrapper">
-        <div class="nextFieldWrapper">
-          <div class="nextText">Next</div>
-          <div id="playerNext1" class="next next1"></div>
-          <div id="playerNext2" class="next"></div>
-          <div id="playerNext3" class="next"></div>
-          <div id="playerNext4" class="next"></div>
-          <div id="playerNext5" class="next next5"></div>
+    <div id="allGameArea">
+      <div id="playerGameArea" class="gameArea">
+        <div class="sideWrapper">
+          <div class="nextFieldWrapper">
+            <div class="nextText">Next</div>
+            <div id="playerNext1" class="next next1"></div>
+            <div id="playerNext2" class="next"></div>
+            <div id="playerNext3" class="next"></div>
+            <div id="playerNext4" class="next"></div>
+            <div id="playerNext5" class="next next5"></div>
+          </div>
+          <div id="playerAttackInfoWrapper" class="attackInfoWrapper">
+            <div id="playerAttackKind" class="attackInfo attackKind"></div>
+            <div id="playerChainBonus" class="attackInfo chainBonus"></div>
+            <div id="playerNerfValue" class="attackInfo nerfValue"></div>
+          </div>
+          <div class="infoFieldWrapper">
+            <div class="infoFieldName">KPM</div>
+            <div id="kpmplayerInfo" class="infoField"></div>
+            <div class="infoFieldName">APM</div>
+            <div id="apmplayerInfo" class="infoField"></div>
+            <div class="infoFieldName">WPM</div>
+            <div id="wpmplayerInfo" class="infoField"></div>
+            <div class="infoFieldName infoFieldTime">Time</div>
+            <div class="time infoField"></div>
+          </div>
         </div>
-        <div id="playerAttackInfoWrapper" class="attackInfoWrapper">
-          <div id="playerAttackKind" class="attackInfo attackKind"></div>
-          <div id="playerChainBonus" class="attackInfo chainBonus"></div>
-          <div id="playerNerfValue" class="attackInfo nerfValue"></div>
-        </div>
-        <div class="infoFieldWrapper">
-          <div class="infoFieldName">KPM</div>
-          <div id="kpmplayerInfo" class="infoField"></div>
-          <div class="infoFieldName">APM</div>
-          <div id="apmplayerInfo" class="infoField"></div>
-          <div class="infoFieldName">WPM</div>
-          <div id="wpmplayerInfo" class="infoField"></div>
-          <div class="infoFieldName">Time</div>
-          <div class="time infoField"></div>
-        </div>
-      </div>
-      <div class="fieldContainer">
-        <div class="field-wrapper" style="display: flex;">
-          <canvas id="playerStatusField" class="statusField"></canvas>
-          <canvas id="playerField" class="field"></canvas>
-        </div>
-        <canvas id="playerInputField" class="inputField"></canvas>
-      </div>
-    </div>
-    <div id="opponentGameArea"  class="gameArea">
-      <div class="sideWrapper">
-        <div class="nextFieldWrapper">
-          <div class="nextText">Next</div>
-          <div id="opponentNext1" class="next next1"></div>
-          <div id="opponentNext2" class="next"></div>
-          <div id="opponentNext3" class="next"></div>
-          <div id="opponentNext4" class="next"></div>
-          <div id="opponentNext5" class="next next5"></div>
-        </div>
-        <div id="opponentAttackInfoWrapper" class="attackInfoWrapper">
-          <div id="opponentAttackKind" class="attackInfo attackKind"></div>
-          <div id="opponentChainBonus" class="attackInfo chainBonus"></div>
-          <div id="opponentNerfValue" class="attackInfo nerfValue"></div>
-        </div>
-        <div class="infoFieldWrapper">
-          <div class="infoFieldName">KPM</div>
-          <div id="kpmOpponentInfo" class="infoField"></div>
-          <div class="infoFieldName">APM</div>
-          <div id="apmOpponentInfo" class="infoField"></div>
-          <div class="infoFieldName">WPM</div>
-          <div id="wpmOpponentInfo" class="infoField"></div>
-          <div class="infoFieldName">Time</div>
-          <div class="time infoField"></div>
+        <div class="fieldContainer">
+          <div class="field-wrapper" style="display: flex;">
+            <canvas id="playerStatusField" class="statusField"></canvas>
+            <canvas id="playerField" class="field"></canvas>
+            <div id="playerChainStyleOverlay" class="chainStyleOverlay"></div> 
+            <div id="playerEffectOverlay" class="effectOverlay">
+              <div id="childEffectOverlay"></div>
+            </div> 
+          </div>
+          <div class="inputFieldWrapper">
+            <canvas id="playerInputField" class="inputField"></canvas>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
         </div>
       </div>
-      <div class="fieldContainer">
-        <div class="field-wrapper" style="display: flex;">
-          <canvas id="opponentStatusField" class="statusField"></canvas>
-          <canvas id="opponentField" class="field"></canvas>
+      <div id="opponentGameArea" class="gameArea">
+        <div class="sideWrapper">
+          <div class="nextFieldWrapper">
+            <div class="nextText">Next</div>
+            <div id="opponentNext1" class="next next1"></div>
+            <div id="opponentNext2" class="next"></div>
+            <div id="opponentNext3" class="next"></div>
+            <div id="opponentNext4" class="next"></div>
+            <div id="opponentNext5" class="next next5"></div>
+          </div>
+          <div id="opponentAttackInfoWrapper" class="attackInfoWrapper">
+            <div id="opponentAttackKind" class="attackInfo attackKind"></div>
+            <div id="opponentChainBonus" class="attackInfo chainBonus"></div>
+            <div id="opponentNerfValue" class="attackInfo nerfValue"></div>
+          </div>
+          <div class="infoFieldWrapper">
+            <div class="infoFieldName">KPM</div>
+            <div id="kpmOpponentInfo" class="infoField"></div>
+            <div class="infoFieldName">APM</div>
+            <div id="apmOpponentInfo" class="infoField"></div>
+            <div class="infoFieldName">WPM</div>
+            <div id="wpmOpponentInfo" class="infoField"></div>
+            <div class="infoFieldName infoFieldTime">Time</div>
+            <div class="time infoField"></div>
+          </div>
         </div>
-        <canvas id="opponentInputField" class="inputField"></canvas>
+        <div class="fieldContainer">
+          <div class="field-wrapper" style="display: flex;">
+            <canvas id="opponentStatusField" class="statusField"></canvas>
+            <canvas id="opponentField" class="field"></canvas>
+            <div id="opponentChainStyleOverlay" class="chainStyleOverlay"></div> 
+            <div id="opponentEffectOverlay" class="effectOverlay"></div> 
+          </div>
+          <div class="inputFieldWrapper">
+            <canvas id="opponentInputField" class="inputField"></canvas>
+            <div id="playerEffectOverlay" class="effectOverlay"></div> 
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </div>
       </div>
     </div>
     <div id="intervalProgressBar">
       <div id="progressLineLeft"></div>
       <div id="progressLineRight"></div>
     </div>
+    <!-- intervalProgressBarの後に以下を追加 -->
+    <div id="gameButtons" class="game-buttons">
+      <button class="game-button random-match">Random Match</button>
+      <button class="game-button room-match">Room Match</button>
+      <button class="game-button config">Config</button>
+      <button class="game-button how-to-play">How To Play</button>
+    </div>
+    <!-- 修正後: -->
+    <div id="animated-background" class="animated-background animated-background--red" data-color="else"></div>
+    <div class="gradationBackground"></div>
+    <div class="overlay"></div>
   </div>
 
   <script>
@@ -97,7 +133,6 @@
       CELL_SIZE: 30,
     };
   </script>
-
   <script src="./globals.js"></script>
   <script src="./main.js"></script>
 
