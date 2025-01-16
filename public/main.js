@@ -171,7 +171,7 @@ let CELL_SIZE = 30;
 // セルサイズを計算する関数
 function calculateCellSize() {
   const maxFieldWidth = window.innerWidth * 0.5; // 画面幅の40%をフィールドの最大幅に設定
-  const maxFieldHeight = window.innerHeight * 0.7; // 画面高さの80%をフィールドの最大高さに設定
+  const maxFieldHeight = window.innerHeight * 0.65; // 画面高さの80%をフィールドの最大高さに設定
 
   // 各セルのサイズを決定（横方向と縦方向の比率を保つ）
   const cellWidth = maxFieldWidth / FIELD_WIDTH;
@@ -208,26 +208,26 @@ function moveWordToField(fieldWords) {
 }
 
 const colors = [
-  "rgba(255, 0, 0, 0.2)",    // Bright Red
-  "rgba(0, 255, 0, 0.2)",    // Bright Green
+  "rgba(255, 0, 0, 0.3)",    // Bright Red
+  "rgba(0, 255, 0, 0.3)",    // Bright Green
   "rgba(80, 80, 255, 0.3)",    // Bright Blue
-  "rgba(255, 255, 0, 0.2)",  // Bright Yellow
-  "rgba(255, 0, 255, 0.2)",  // Bright Magenta
-  "rgba(0, 255, 255, 0.2)",  // Bright Cyan
-  "rgba(255, 165, 0, 0.2)",  // Bright Orange
-  "rgba(128, 0, 128, 0.2)",  // Purple
-  "rgba(128, 128, 0, 0.2)",  // Olive
-  "rgba(128, 0, 0, 0.2)",    // Maroon
-  "rgba(0, 128, 0, 0.2)",    // Dark Green
-  "rgba(0, 128, 128, 0.2)",  // Teal
-  "rgba(0, 0, 128, 0.2)",    // Navy Blue
-  "rgba(220, 20, 60, 0.2)",  // Crimson
-  "rgba(255, 69, 0, 0.2)",   // Red-Orange
-  "rgba(60, 179, 113, 0.2)", // Medium Sea Green
-  "rgba(106, 90, 205, 0.2)", // Slate Blue
-  "rgba(75, 0, 130, 0.2)",   // Indigo
-  "rgba(218, 112, 214, 0.2)",// Orchid
-  "rgba(139, 69, 19, 0.2)"   // Saddle Brown
+  "rgba(255, 255, 0, 0.3)",  // Bright Yellow
+  "rgba(255, 0, 255, 0.3)",  // Bright Magenta
+  "rgba(0, 255, 255, 0.3)",  // Bright Cyan
+  "rgba(255, 165, 0, 0.3)",  // Bright Orange
+  "rgba(128, 0, 128, 0.3)",  // Purple
+  "rgba(128, 128, 0, 0.3)",  // Olive
+  "rgba(128, 0, 0, 0.3)",    // Maroon
+  "rgba(0, 128, 0, 0.3)",    // Dark Green
+  "rgba(0, 128, 128, 0.3)",  // Teal
+  "rgba(0, 0, 128, 0.3)",    // Navy Blue
+  "rgba(220, 20, 60, 0.3)",  // Crimson
+  "rgba(255, 69, 0, 0.3)",   // Red-Orange
+  "rgba(60, 179, 113, 0.3)", // Medium Sea Green
+  "rgba(106, 90, 205, 0.3)", // Slate Blue
+  "rgba(75, 0, 130, 0.3)",   // Indigo
+  "rgba(218, 112, 214, 0.3)",// Orchid
+  "rgba(139, 69, 19, 0.3)"   // Saddle Brown
 ];
 
 
@@ -323,8 +323,13 @@ function updateNextDisplay(words, isPlayer = true) {
       usedColors.add(baseColor); // 新しく使用した色を追跡
     }
   });
-  // console.log(matchingChars);
-  // console.log(charColorMap);
+
+  // charColorMap を更新：matchingChars に含まれない文字を削除
+  for (const [key] of charColorMap) {
+    if (!matchingChars.includes(key)) {
+      charColorMap.delete(key);
+    }
+  }
 
   // 5つのNextを表示
   for (let i = 1; i <= 5; i++) {
@@ -483,11 +488,21 @@ function updateFieldAfterReceiveOffset(field, fieldWords) {
     moveWordToField(fieldWords)
   }
 
+  const soundCount = playerReceiveValueToOffset.length; // 再生する回数
+  const delayBetweenSounds = 70; // 2回目以降の間隔 (ミリ秒)
+
+  for (let i = 0; i < soundCount; i++) {
+    setTimeout(() => {
+      soundManager.playSound('receiveAttack', { volume: 0.5 });
+    }, i * delayBetweenSounds);
+  }
+
   for (let x = 0; x < playerReceiveValueToOffset.length; x++) {
     let addFieldWord = getRandomWordForAttack(playerReceiveValueToOffset[x]);
     fieldWords.push(addFieldWord);
     console.log("addFieldWordは:" + addFieldWord);
   }
+
   playerAttackValueToOffset = [];
   playerReceiveValueToOffset = [];
   calcReceiveOffsetToDisplay();
@@ -606,13 +621,14 @@ function handleGameOver(isLoser) {
   isGameOver = true;
 
   // 結果表示
-  drawGameOverUI(ctxPlayer, isLoser ? 'Lose' : 'Win'); // プレイヤー側
-  drawGameOverUI(ctxOpponent, isLoser ? 'Win' : 'Lose'); // 対戦相手側
+  drawGameOverUI(isLoser ? 'Lose' : 'Win');
+  // drawGameOverUI(ctxOpponent, isLoser ? 'Win' : 'Lose'); 
 
   // 少し待ってからリトライダイアログを表示
   setTimeout(() => {
     showRetryDialog();
-  }, 1000);
+    resetGameAnimation();
+  }, 2000);
 }
 
 // リトライレスポンス処理
@@ -622,22 +638,145 @@ function handleRetryResponse(response) {
   socket.emit('retryResponse', { response });
 }
 
-function drawGameOverUI(ctx, text) {
-  const width = ctx.canvas.getBoundingClientRect().width;
-  const height = ctx.canvas.getBoundingClientRect().height;
-  ctx.save();
+function showGameOverEffect(elementId, isLoser) {
+  const overlay = document.getElementById(elementId);
+  const resultElement = document.createElement('div');
+
+  resultElement.style.cssText = `
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 8vh;
+    z-index: 1000;
+  `;
+  if (isLoser) {
+    resultElement.textContent = "Lose";
+  } else {
+    resultElement.textContent = "Win";
+  }
+  overlay.appendChild(resultElement);
+}
+
+function animateGameOver(isLoser) {
+  // テキスト表示
+  showGameOverEffect('playerChildEffectOverlay', isLoser);
+  showGameOverEffect('opponentChildEffectOverlay', !isLoser);
+
+  // スタイルシートの追加
+  const styleSheet = document.createElement('style');
+  styleSheet.textContent = `
+  @keyframes fallDown {
+    0% {
+      transform: translateY(0) rotate(0deg);
+    }
+    100% {
+      transform: translateY(100vh) rotate(80deg);
+      opacity: 0;
+    }
+  }
+  
+  @keyframes winnerScale {
+    0% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(2);
+      opacity: 0;
+    }
+  }
+  
+  @keyframes fadeOut {
+    to { opacity: 0; }
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+`;
+  document.head.appendChild(styleSheet);
+
+  // 負けた側の要素をアニメーション
+  const loserElement = document.getElementById(isLoser ? 'playerGameArea' : 'opponentGameArea');
+  loserElement.style.animation = 'fallDown 1.5s cubic-bezier(.55, 0, .1, 1) forwards';
+
+  // 勝った側の要素をアニメーション
+  const winnerElement = document.getElementById(isLoser ? 'opponentGameArea' : 'playerGameArea');
+  winnerElement.style.animation = 'winnerScale 2s ease-out forwards';
+}
+
+// フェードアウト用オーバーレイ
+const fadeOverlay = document.createElement('div');
+fadeOverlay.style.cssText = `
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: black;
+  opacity: 0;
+  z-index: 2000;
+  pointer-events: none;
+`;
+
+// 新しいリセット関数を追加
+function resetGameAnimation() {
+  return new Promise((resolve) => {
+    document.body.appendChild(fadeOverlay);
+    
+    // フェードアウト
+    fadeOverlay.style.animation = 'fadeOut 0.5s forwards';
+    
+    setTimeout(() => {
+      // アニメーション効果のリセット
+      const playerArea = document.getElementById('playerGameArea');
+      const opponentArea = document.getElementById('opponentGameArea');
+      const playerOverlay = document.getElementById('playerChildEffectOverlay');
+      const opponentOverlay = document.getElementById('opponentChildEffectOverlay');
+      
+      // アニメーションと変形をリセット
+      playerArea.style.animation = '';
+      opponentArea.style.animation = '';
+      playerArea.style.transform = '';
+      opponentArea.style.transform = '';
+      
+      // オーバーレイのテキストをクリア
+      playerOverlay.innerHTML = '';
+      opponentOverlay.innerHTML = '';
+      
+      // フェードイン
+      fadeOverlay.style.animation = 'fadeIn 0.5s reverse forwards';
+      
+      setTimeout(() => {
+        document.body.removeChild(fadeOverlay);
+        resolve();
+      }, 500);
+    }, 500);
+  });
+}
+
+function drawGameOverUI(text) {
+  const width = ctxPlayer.canvas.getBoundingClientRect().width;
+  const height = ctxPlayer.canvas.getBoundingClientRect().height;
+  ctxPlayer.save();
+  ctxOpponent.save();
+
   // 半透明の背景
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-  ctx.fillRect(0, 0, width, height);
+  ctxPlayer.fillStyle = 'rgba(0, 0, 0, 0.7)';
+  ctxPlayer.fillRect(0, 0, width, height);
 
-  // 結果テキスト
-  ctx.fillStyle = '#fff';
-  ctx.font = `${CELL_SIZE * 2}px Arial`;
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillText(text, width / 2, height / 2);
+  ctxOpponent.fillStyle = 'rgba(0, 0, 0, 0.7)';
+  ctxOpponent.fillRect(0, 0, width, height);
 
-  ctx.restore();
+  ctxPlayer.restore();
+  ctxOpponent.restore();
+
+  // アニメーション開始
+  const isLoser = text === 'Lose';
+  animateGameOver(isLoser);
 }
 
 function syncFieldUpdate() {
@@ -818,7 +957,7 @@ function highlightMatchingCells(field) {
     if (isPlayer && startChar === lastChar) {
       // 先頭文字が一致かつ lastChar と同じ場合
       // 先頭文字が一致かつ lastChar と同じ場合
-      const colorObj = { baseColor: 'rgba(255, 255, 255, 0.3)', borderColor: 'rgba(255, 255, 255)' }; // 白色を指定
+      const colorObj = { baseColor: 'rgba(255, 255, 255, 0.5)', borderColor: 'rgba(255, 255, 255)' }; // 白色を指定
       applyAuraEffectToCell(y, 0, colorObj, overlayDiv);
       highlightData.push({ x: 0, y, colorObj });
     }
@@ -935,24 +1074,24 @@ function drawField(ctx, field, receivedLastWordLength) {
         if (rowWord.length === receivedLastWordLength) {
           ctx.fillStyle = `rgba(255, 255, 255, 0.2)`;
           ctx.fillRect(0, position, width, height);
-          ctx.strokeStyle = `rgba(255, 255, 255, 0.8)`;
-          ctx.lineWidth = 3;
+          ctx.strokeStyle = `rgba(255, 255, 255, 0.5)`;
+          ctx.lineWidth = 2;
           ctx.strokeRect(0, position, width, height);
 
         } else if (hasLongerWord) {
           // drawHorizontalGradient(ctx, y, 'SHORTER_WORD');
           ctx.fillStyle = `rgba(255, 0, 255, 0.2)`;
           ctx.fillRect(0, position, width, height);
-          ctx.strokeStyle = `rgba(255, 0, 255, 0.8)`;
-          ctx.lineWidth = 3;
+          ctx.strokeStyle = `rgba(255, 0, 255, 0.5)`;
+          ctx.lineWidth = 2;
           ctx.strokeRect(0, position, width, height);
 
         } else if (hasShorterWord) {
           // drawHorizontalGradient(ctx, y, 'SHORTER_WORD');
           ctx.fillStyle = `rgba(0, 255, 255, 0.2)`;
           ctx.fillRect(0, position, width, height);
-          ctx.strokeStyle = `rgba(0, 255, 255, 0.8)`;
-          ctx.lineWidth = 3;
+          ctx.strokeStyle = `rgba(0, 255, 255, 0.5)`;
+          ctx.lineWidth = 2;
           ctx.strokeRect(0, position, width, height);
         }
       }
@@ -983,7 +1122,7 @@ function drawField(ctx, field, receivedLastWordLength) {
 
         // ctx.font = `${CELL_SIZE * 0.7}px 'M PLUS Rounded 1c'`;
         // ctx.font = `${CELL_SIZE * 0.6}px "DotGothic16", "M PLUS Rounded 1c", serif`;
-        ctx.font = `${CELL_SIZE * 0.7}px "Senobi-Gothic-Regular", "M PLUS Rounded 1c", serif`;
+        ctx.font = `${CELL_SIZE * 0.7}px "Ronde-B", "Senobi-Gothic-Regular", "M PLUS Rounded 1c", serif`;
         ctx.textBaseline = 'middle';
         ctx.textAlign = 'center';
         ctx.lineWidth = 0.5;
@@ -1139,6 +1278,7 @@ function resizeAllCanvases() {
   // 全フィールドの再描画
   drawField(ctxPlayer, playerField, 0);
   drawField(ctxOpponent, opponentField, 0);
+
   drawInputField(ctxPlayerInput, playerInput, playerInputField);
   drawInputField(ctxOpponentInput, opponentInput, opponentInputField);
   drawStatusField(ctxPlayerStatus, true);
@@ -1229,6 +1369,13 @@ loadWordList().then(() => {
   drawGrid(ctxOpponent);
 
   initializeOverlayDivElement();
+
+  ctxPlayer.fillStyle = "rgba(5, 7, 19, 0.7)";
+  ctxPlayer.fillRect(0, 0, ctxPlayer.canvas.getBoundingClientRect().width, ctxPlayer.canvas.getBoundingClientRect().height);
+
+  ctxOpponent.fillStyle = "rgba(5, 7, 19, 0.7)";
+  ctxOpponent.fillRect(0, 0, ctxOpponent.canvas.getBoundingClientRect().width, ctxOpponent.canvas.getBoundingClientRect().height);
+
 });
 
 let gameStepInterval = 10000; // 初期の間隔（ミリ秒）
@@ -1377,6 +1524,7 @@ window.addEventListener("keydown", (e) => {
 
       if (key !== ' ') {
         animateInputField();
+        soundManager.playSound('type4', { volume: 1 });
       }
 
       if (key === ' ') {
@@ -1414,20 +1562,29 @@ window.addEventListener("keydown", (e) => {
         resetHighlight(playerField);
       }
     } else if (key === "Delete") {
-      // convertedInput = ""
-      // resetHighlight(playerField);
-      animateAttackInfo(playerAttackKind, 'Attack', 'attack-normal');
+      convertedInput = ""
+      resetHighlight(playerField);
+
+      // animateAttackInfo(playerAttackKind, 'Attack', 'attack-normal');
+      soundManager.playSound('BGM1', { volume: 0.7, loop: true });
     } else if (key === 'ArrowUp') {
-      animateAttackInfo(playerAttackKind, 'UpChain', 'attack-upchain');
+      soundManager.playSound('attackOP', { fade: 0.2, volume: 0.8 });
+
+      // animateAttackInfo(playerAttackKind, 'UpChain', 'attack-upchain');
     } else if (key === "ArrowDown") {
-      animateAttackInfo(playerAttackKind, 'DownChain', 'attack-downchain');
+      soundManager.playSound('attackWeak', { volume: 0.5 });
+      // animateAttackInfo(playerAttackKind, 'DownChain', 'attack-downchain');
     } else if (key === "ArrowLeft") {
-      animateAttackInfo(playerAttackKind, 'Connect', 'attack-connect');
+      soundManager.playSound('attackNormal', { volume: 0.9 });
+      // animateAttackInfo(playerAttackKind, 'Connect', 'attack-connect');
     } else if (key === "ArrowRight") {
-      animateAttackInfo(playerAttackKind, 'DoubleAttack', 'attack-double');
+      soundManager.playSound('attackStrong', { volume: 0.8 });
+      // animateAttackInfo(playerAttackKind, 'DoubleAttack', 'attack-double');
     }
     else if (key === "Enter") {
-      startGame();
+      // startGame();
+      // startCountdown();
+      handleGameOver(true);
     }
 
     playerInput = convertedInput;
@@ -1539,6 +1696,7 @@ function checkAndRemoveWord(field, fieldWords, input) {
       }
       updateChainInfoDisplay();
       nerfAttackValue();
+      soundManager.playSound('missType');
       triggerMissColorFlash(playerInputField);
     }
     return 0; // 一致しない場合は 0 を返す
@@ -1742,13 +1900,23 @@ resizeOverlayDivElement(playerEffectOverlay);
 resizeOverlayDivElement(opponentEffectOverlay);
 
 const playerchildEffectOverlay = document.getElementById('childEffectOverlay');
-playerchildEffectOverlay.classList.add('glowingEffect');
+// playerchildEffectOverlay.classList.add('glowingEffect');
 
 function displayAttackValue(element, number) {
   // 数値以外の入力をチェック
   if (typeof number !== 'number') {
     return;
   }
+  if (number <= 10) {
+    soundManager.playSound('attackWeak', { volume: 0.5 });
+  } else if (number <= 15) {
+    soundManager.playSound('attackNormal', { volume: 1 });
+  } else if (number <= 20) {
+    soundManager.playSound('attackStrong', { volume: 0.8 });
+  } else {
+    soundManager.playSound('attackOP', { fadeOut: 0.5, volume: 0.8 });
+  }
+
   const containerRect = element.getBoundingClientRect();
 
   // フォントサイズの計算: CELL_SIZE * 2 + number
@@ -2036,12 +2204,32 @@ function updateOpponentNerfInfoDisplay(nerfValue) {
 }
 
 function connect() {
+  let calculatedAttackVal = playerAttackValue;
+  if (nerfValue !== 0) {
+    calculatedAttackVal = playerAttackValue - nerfValue;
+    if (calculatedAttackVal < 2) {
+      calculatedAttackVal = 0
+    }
+  }
   isUpChain = false;
   isDownChain = false;
   attack(playerAttackValue);
+
   if (chainBonus !== 0) {
-    attack(chainBonus);
+    if (chainBonus > 10) {
+      let toCalcChainBonusAttack = chainBonus;
+      while (toCalcChainBonusAttack > 10) {
+        attack(10); // 10を減らす
+        toCalcChainBonusAttack -= 10;
+      }
+      attack(toCalcChainBonusAttack);
+    } else {
+      attack(chainBonus);
+    }
   }
+  calculatedAttackVal = calculatedAttackVal + chainBonus;
+  onAttackShake(calculatedAttackVal);
+  displayAttackValue(playerEffectOverlay, calculatedAttackVal);
 }
 
 function upChainAttack() {
@@ -2077,10 +2265,15 @@ function upChainAttack() {
     console.log("初めてのchainBonusは" + chainBonus);
   } else {
     chainBonus = chainBonus + 2;
-    if (chainBonus >= 10) {
+    if (chainBonus > 10) {
       attack(playerAttackValue);
-      attack(10);
-      attack(chainBonus % 10);
+      let toCalcChainBonusAttack = chainBonus;
+      while (toCalcChainBonusAttack > 10) {
+        attack(10); // 10を減らす
+        toCalcChainBonusAttack -= 10;
+      }
+      attack(toCalcChainBonusAttack);
+
       console.log("chainBonusによる追加攻撃");
       console.log("連続chainBonusは" + chainBonus);
     } else {
@@ -2126,12 +2319,20 @@ function downChainAttack() {
     attack(chainBonus);
   } else {
     chainBonus++;
-    if (chainBonus >= 10) {
+    if (chainBonus > 10) {
+
       attack(playerAttackValue);
-      attack(10);
-      attack(chainBonus % 10);
+
+      let toCalcChainBonusAttack = chainBonus;
+      while (toCalcChainBonusAttack > 10) {
+        attack(10); // 10を減らす
+        toCalcChainBonusAttack -= 10;
+      }
+      attack(toCalcChainBonusAttack);
+
       console.log("chainBonusによる追加攻撃");
       console.log("連続chainBonusは" + chainBonus);
+
     } else {
       attack(playerAttackValue);
       attack(chainBonus);
@@ -2206,9 +2407,8 @@ function resetGame() {
   lastChar = "";
   isWordChain = false;
   nerfValue = 0;
-  chainBonus = 0;
-  isUpChain = false;
-  isDownChain = false;
+
+  cancelChain();
 
   // playerInfoをリセット
   playerKeyValueToKPM = 0;
@@ -2230,7 +2430,6 @@ function resetGame() {
   drawInputField(ctxPlayerInput, '', playerInputField);
   drawInputField(ctxOpponentInput, '', opponentInputField);
   drawStatusField(ctxPlayerStatus, true);
-
   cleanupWarningAnimations();
 }
 
@@ -2261,41 +2460,66 @@ function resetGame() {
 // }
 
 // カウントダウン表示
-function showCountdown(count) {
-  const overlay = document.createElement('div');
-  overlay.style.cssText = `
-    position: fixed;
+function showCountdown(count, elementId) {
+  const overlay = document.getElementById(elementId);
+  const countElement = document.createElement('div');
+
+  countElement.style.cssText = `
+    position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     color: white;
-    font: Arial;
     font-size: 8vh;
-    z-index: 1000;
+    animation: countdownAnimation 0.9s ease-in forwards;
   `;
-  overlay.textContent = count;
-  document.body.appendChild(overlay);
 
-  setTimeout(() => document.body.removeChild(overlay), 100);
+  // アニメーションのキーフレーム定義を追加
+  const styleSheet = document.createElement('style');
+  styleSheet.textContent = `
+    @keyframes countdownAnimation {
+      0% {
+        transform: translate(-50%, -50%) scaleX(1);
+        opacity: 1;
+      }
+      100% {
+        transform: translate(-50%, -50%) scaleX(0);
+        opacity: 0;
+      }
+    }
+  `;
+  document.head.appendChild(styleSheet);
+
+  countElement.textContent = count;
+  overlay.appendChild(countElement);
+
+  // アニメーション終了後に要素を削除
+  setTimeout(() => {
+    overlay.removeChild(countElement);
+    document.head.removeChild(styleSheet);
+  }, 900);
 }
 
-// カウントダウン処理
 function startCountdown() {
   gameState = 'countdown';
   let count = 3;
 
   const countInterval = setInterval(() => {
-    if (count >= 1) {
-      showCountdown(count);
-    }
-
-    if (count < 1) {
+    if (count > 0) {
+      // プレイヤーと相手両方の要素にカウントダウンを表示
+      showCountdown(count, 'playerChildEffectOverlay');
+      showCountdown(count, 'opponentChildEffectOverlay');
+    } else if (count === 0) {
+      // GOの表示
+      showCountdown('GO!!', 'playerChildEffectOverlay');
+      showCountdown('GO!!', 'opponentChildEffectOverlay');
+    } else {
       clearInterval(countInterval);
       gameState = 'playing';
       startGame();
     }
     count--;
-  }, 100);
+  }, 1000);
 }
 
 // リトライダイアログ表示
@@ -2755,6 +2979,7 @@ function initializeSocket() {
   // socket.on イベントハンドラを追加・修正
   socket.on('gameOver', (data) => {
     handleGameOver(data.loserId === socket.id);
+    console.log(data.loserId === socket.id);
   });
 
   // ルーム関連のイベント
@@ -2945,3 +3170,149 @@ function initializeSocket() {
   });
 
 }
+class SoundManager {
+  constructor() {
+    // クラス全体で単一のAudioContextを使用
+    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    this.sounds = new Map();
+    this.masterVolume = 1.0;
+
+    // マスターボリュームのゲインノード作成
+    this.masterGainNode = this.audioContext.createGain();
+    this.masterGainNode.connect(this.audioContext.destination);
+    this.masterGainNode.gain.value = this.masterVolume;
+  }
+
+  setMasterVolume(volume) {
+    this.masterVolume = Math.max(0, Math.min(1, volume));
+    this.masterGainNode.gain.value = this.masterVolume;
+  }
+
+  async loadSound(key, filepath) {
+    try {
+      const response = await fetch(filepath);
+      const arrayBuffer = await response.arrayBuffer();
+      const audioBuffer = await this.audioContext.decodeAudioData(arrayBuffer);
+
+      this.sounds.set(key, {
+        buffer: audioBuffer
+      });
+
+      console.log(`Loaded sound: ${key}`);
+    } catch (error) {
+      console.error(`Error loading sound ${key}:`, error);
+    }
+  }
+
+  playSound(key, options = {}) {
+    const sound = this.sounds.get(key);
+    if (!sound) {
+      console.error(`Sound not found: ${key}`);
+      return null;
+    }
+
+    // 共通のaudioContextを使用してノードを作成
+    const source = this.audioContext.createBufferSource();
+    const gainNode = this.audioContext.createGain();
+
+    const {
+      volume = 1.0,
+      rate = 1.0,
+      detune = 0,
+      loop = false,
+      loopStart = 0,
+      loopEnd = 0,
+      fadeIn = 0,
+      fadeOut = 0,
+    } = options;
+
+    source.buffer = sound.buffer;
+    source.playbackRate.value = rate;
+    source.detune.value = detune;
+    source.loop = loop;
+    if (loop && loopEnd > 0) {
+      source.loopStart = loopStart;
+      source.loopEnd = loopEnd;
+    }
+
+    gainNode.gain.value = volume * this.masterVolume;
+
+    if (fadeIn > 0) {
+      gainNode.gain.setValueAtTime(0, this.audioContext.currentTime);
+      gainNode.gain.linearRampToValueAtTime(
+        volume * this.masterVolume,
+        this.audioContext.currentTime + fadeIn
+      );
+    }
+
+    if (fadeOut > 0 && !loop) {
+      const duration = sound.buffer.duration;
+      gainNode.gain.setValueAtTime(
+        volume * this.masterVolume,
+        this.audioContext.currentTime + duration - fadeOut
+      );
+      gainNode.gain.linearRampToValueAtTime(
+        0,
+        this.audioContext.currentTime + duration
+      );
+    }
+
+    source.connect(gainNode);
+    gainNode.connect(this.masterGainNode);
+
+    // Chrome等のブラウザポリシーに対応
+    if (this.audioContext.state === 'suspended') {
+      this.audioContext.resume();
+    }
+
+    source.start(0);
+
+    return {
+      source,
+      gainNode,
+      stop: () => {
+        try {
+          source.stop();
+        } catch (e) {
+          console.warn('Sound already stopped');
+        }
+      },
+      setVolume: (newVolume) => {
+        gainNode.gain.value = Math.max(0, Math.min(1, newVolume)) * this.masterVolume;
+      },
+      setRate: (newRate) => {
+        source.playbackRate.value = newRate;
+      },
+      setDetune: (newDetune) => {
+        source.detune.value = newDetune;
+      }
+    };
+  }
+}
+
+// グローバルなサウンドマネージャーのインスタンスを作成
+const soundManager = new SoundManager();
+
+// 画面ロード時に音声ファイルを読み込む
+window.addEventListener('load', async () => {
+  const soundFiles = {
+    'BGM1': '/sounds/MusMus-CT-NV-23.mp3',
+    'missType': '/sounds/ビープ音4.mp3',
+    'type1': '/sounds/meka_ge_nokey_ent02.mp3',
+    'type2': '/sounds/meka_ge_mouse_s02.mp3',
+    'type3': '/sounds/カーソル移動2.mp3',
+    'type4': '/sounds/9744__horn__typewriter.wav',
+    'attackWeak': '/sounds/346918__julien_matthey__jm_noiz_laser-04.wav',
+    'attackNormal': '/sounds/270548__littlerobotsoundfactory__laser_04.wav',
+    'attackStrong': '/sounds/270551__littlerobotsoundfactory__laser_07.wav',
+    'attackOP': '/sounds/547441__mango777__lazercannon.ogg',
+    'buttonHover': '/sounds/533257__copyc4t__screen-lettering.wav',
+    'receiveAttack': '/sounds/577423__morganpurkis__zip-laser.wav',
+
+  };
+
+  // すべての音声ファイルを読み込む
+  for (const [key, filepath] of Object.entries(soundFiles)) {
+    await soundManager.loadSound(key, filepath);
+  }
+});

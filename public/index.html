@@ -20,6 +20,11 @@
 
 <body>
   <div class="gameContainer">
+    <div id="titleWrapper">
+      <div id="title">
+        PUZZTYPE
+      </div>
+    </div>
     <div id="allGameArea">
       <div id="playerGameArea" class="gameArea">
         <div class="sideWrapper">
@@ -51,10 +56,10 @@
           <div class="field-wrapper" style="display: flex;">
             <canvas id="playerStatusField" class="statusField"></canvas>
             <canvas id="playerField" class="field"></canvas>
-            <div id="playerChainStyleOverlay" class="chainStyleOverlay"></div> 
+            <div id="playerChainStyleOverlay" class="chainStyleOverlay"></div>
             <div id="playerEffectOverlay" class="effectOverlay">
-              <div id="childEffectOverlay"></div>
-            </div> 
+              <div id="playerChildEffectOverlay" class="childEffectOverlay"></div>
+            </div>
           </div>
           <div class="inputFieldWrapper">
             <canvas id="playerInputField" class="inputField"></canvas>
@@ -95,12 +100,13 @@
           <div class="field-wrapper" style="display: flex;">
             <canvas id="opponentStatusField" class="statusField"></canvas>
             <canvas id="opponentField" class="field"></canvas>
-            <div id="opponentChainStyleOverlay" class="chainStyleOverlay"></div> 
-            <div id="opponentEffectOverlay" class="effectOverlay"></div> 
+            <div id="opponentChainStyleOverlay" class="chainStyleOverlay"></div>
+            <div id="opponentEffectOverlay" class="effectOverlay">
+              <div id="opponentChildEffectOverlay" class="childEffectOverlay"></div>
+            </div>
           </div>
           <div class="inputFieldWrapper">
             <canvas id="opponentInputField" class="inputField"></canvas>
-            <div id="playerEffectOverlay" class="effectOverlay"></div> 
             <span></span>
             <span></span>
             <span></span>

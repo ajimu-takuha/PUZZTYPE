@@ -33,10 +33,43 @@
   font-style: normal;
 }
 
+@font-face {
+  font-family: 'MADE_Evolve';
+  src: url('/fonts/MADE_Evolve_Sans_Regular_EVO__PERSONAL_USE_.otf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Terano_Regular';
+  src: url('/fonts/Terano_Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 body {
   /* background-color: black; */
   background-color: rgb(19, 23, 44);
   overflow: hidden;
+}
+
+#titleWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0;
+}
+
+#title {
+  font-family: 'MADE_Evolve', 'zouver', "Makinas";
+  font-size: 3vw;
+  padding: 0.5vw;
+  margin-top: 1vh;
+  margin-bottom: 1.5vh;
+  letter-spacing: 0.3em;
+  position: relative;
+  color: rgba(255, 255, 255, 0.8);
+  text-shadow: 4px 4px 1px rgba(0, 0, 0, 0.5);
 }
 
 .gradationBackground {
@@ -174,7 +207,6 @@ body {
 
 /* フィールド全体の配置 */
 .gameContainer {
-  margin-top: 3vw;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -187,7 +219,6 @@ body {
 #allGameArea {
   display: flex;
   justify-content: center;
-  /* 中央揃えを追加 */
   gap: 2vw;
   /* width: 100%; */
 }
@@ -202,7 +233,7 @@ body {
 }
 
 #opponentGameArea {
-  margin-right: 12vw;
+  margin-right: 16vw;
 }
 
 /* 各フィールドと入力領域を縦に並べる */
@@ -218,13 +249,14 @@ canvas {}
 
 .field-wrapper {
   position: relative;
-  box-shadow: 0.2vw 0.5vh 10px rgba(9, 0, 0, 0.5);
+  box-shadow: 0.2vw 0.2vw 10px rgba(0, 0, 0, 0.8);
 }
 
 /* フィールドキャンバス */
 .field {
   /* background-color: rgba(5, 7, 19, 0.7); */
   border: 2px solid rgba(255, 255, 255, 0.5);
+  border-top: 2px solid rgba(255, 255, 255, 0.05);
   /* border-top: 2px rgba(255, 255, 255, 0); */
   /* z-index: 2; */
   position: relative;
@@ -235,13 +267,13 @@ canvas {}
   position: absolute;
 }
 
-#childEffectOverlay {
+.childEffectOverlay {
   height: 100%;
   width: 100%;
   position: relative;
   background: transparent;
-  /* 背景を透明に設定 */
-  z-index: 0;
+  z-index: 1;
+  font-family: 'zouver', '851Gkktt';
 }
 
 /* エフェクトクラス */
@@ -339,7 +371,7 @@ canvas {}
 }
 
 .inputFieldWrapper {
-  margin-top: 4vh;
+  margin-top: 2vh;
   position: relative;
   width: fit-content;
   height: fit-content;
@@ -353,7 +385,7 @@ canvas {}
 
 .inputField {
   background-color: rgba(5, 7, 19, 0.7);
-  box-shadow: 0 5px 10px rgba(9, 0, 0, 0.5);
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.8);
 }
 
 /* spanの基本スタイル */
@@ -394,10 +426,11 @@ canvas {}
   content: '';
   position: absolute;
   width: 100%;
-  height: 2px;
-  /* background: rgba(80, 223, 219, 0.7); */
+  height: 1px;
+  /* filter: blur(1px); */
+  background: rgba(0, 255, 255);
   /* background: linear-gradient(135deg, rgba(0, 120, 255, 0.5), rgba(0, 200, 255, 0.5)); */
-  background: linear-gradient(135deg, rgba(85, 255, 69, 1), rgba(253, 116, 255, 1));
+  /* background: linear-gradient(135deg, rgba(85, 255, 69, 1), rgba(253, 116, 255, 1)); */
   animation: animate 1.5s linear infinite;
 }
 
@@ -410,7 +443,7 @@ canvas {}
   }
 
   50% {
-    opacity: 0.5;
+    opacity: 0.7;
     transform: scaleX(1);
     transform-origin: left;
   }
@@ -429,7 +462,7 @@ canvas {}
 
 .statusField {
   border-left: 2px solid rgba(255, 255, 255, 0.5);
-  border-top: 2px solid rgba(255, 255, 255, 0.5);
+  border-top: 2px solid rgb(255, 255, 255, 0.05);
   border-bottom: 2px solid rgba(255, 255, 255, 0.5);
   /* margin-right: 1px; */
 }
@@ -518,8 +551,9 @@ canvas {}
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 2vh;
-  width: 100%;
+  height: 1.5vh;
+  padding-top: 4px;
+  width: 75%;
   background-color: rgb(255, 255, 255, 0.8);
   border-right: 0.2vw solid rgba(255, 255, 255, 0.25);
   border-left: 0.2vw solid rgba(255, 255, 255, 0.5);
@@ -534,10 +568,10 @@ canvas {}
   justify-content: center;
   align-items: center;
   height: 3.8vh;
-  width: 60%;
+  width: 50%;
   text-align: right;
   font-family: "Senobi-Gothic-Regular";
-  font-size: 0.8vw;
+  font-size: 0.7vw;
   color: rgba(255, 255, 255, 0.7);
   background-color: rgba(5, 7, 19, 0.7);
   /* border-right: 0.1vw solid rgba(255, 255, 255, 0.5); */
@@ -545,9 +579,9 @@ canvas {}
 }
 
 .next1 {
-  height: 7vh;
-  width: 100%;
-  font-size: 1.5vw;
+  height: 6vh;
+  width: 75%;
+  font-size: 1.2vw;
   /* text-wrap: nowrap; */
   color: rgba(255, 255, 255, 0.8);
   border: 0.2vw solid rgba(255, 255, 255, 0.8);
@@ -848,8 +882,8 @@ canvas {}
 .aura-container:after {
   content: "";
   position: absolute;
-  top: 5%;
-  left: -7.5%;
+  top: 0%;
+  left: -15%;
   width: 110%;
   height: 90%;
   border-radius: 100%;
@@ -990,17 +1024,15 @@ canvas {}
 } */
 
 
-button {
+.game-button {
   flex: 1;
   justify-content: center;
   align-items: center;
   margin: 0 auto;
   color: rgba(29, 154, 242);
-  /* background-color: rgb(41, 45, 62); */
   background-color: rgba(5, 7, 19, 0.7);
-  border: 2px solid #1D9AF2;
+  /* border: 2px solid; */
   border-radius: 4px;
-  /* font-family: 'M PLUS Rounded 1c'; */
   font-family: 'Makinas';
   font-size: 0.9vw;
   font-weight: 300;
@@ -1010,46 +1042,49 @@ button {
   outline: none;
   background-position: center;
   transition: all 0.2s ease-in-out;
+  border: none;
+  box-sizing: border-box;
+  box-shadow: 0.1vw 0.1vw 10px rgba(0, 0, 0, 0.8);
 }
 
-button:hover {
-  background-color: rgba(29, 154, 242);
+.game-button:hover {
   color: rgba(5, 7, 19, 0.7);
   border: none;
+  box-sizing: border-box;
   transform: scale(1.1);
 }
 
-/* ボタン固有のスタイル */
+
 .random-match {
-  border-color: rgba(29, 154, 242, 0.3);
+  color: rgba(85, 184, 255, 1);
 }
 
 .random-match:hover {
-  border-color: rgba(29, 154, 242, 0.6);
+  background-color: rgba(85, 184, 255, 1);
 }
 
 .room-match {
-  border-color: rgba(255, 100, 100, 0.3);
+  color: rgba(255, 100, 100, 1);
 }
 
 .room-match:hover {
-  border-color: rgba(255, 100, 100, 0.6);
+  background-color: rgba(255, 100, 100, 1);
 }
 
 .config {
-  border-color: rgba(255, 200, 100, 0.3);
+  color: rgba(255, 200, 100, 1);
 }
 
 .config:hover {
-  border-color: rgba(255, 200, 100, 0.6);
+  background-color: rgba(255, 200, 100, 1);
 }
 
 .how-to-play {
-  border-color: rgba(100, 255, 150, 0.3);
+  color: rgba(100, 255, 150, 1);
 }
 
 .how-to-play:hover {
-  border-color: rgba(100, 255, 150, 0.6);
+  background-color: rgba(100, 255, 150, 1);
 }
 
 .retryDialogButton {
