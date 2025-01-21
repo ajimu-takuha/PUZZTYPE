@@ -4,12 +4,6 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@100;300&display=swap');
-  </style>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=DotGothic16&display=swap');
-  </style>
   <script src="https://unpkg.com/wanakana"></script>
   <script src="/socket.io/socket.io.js"></script>
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -19,10 +13,58 @@
 </head>
 
 <body>
+  <div id="howToPlayWrapper">
+    <div id="howToPlay">
+    </div>
+    <button class="closeHowToPlay toUseSE">CLOSE HOWTOPLAY</button>
+  </div>
+  <div id="configWrapper">
+    <button class="configButtons BGM toUseSE">
+      <p id="BGMLeft"></p>
+      <p id="BGMRight"></p>
+    </button>
+    <button class="configButtons typeSE toUseSE">
+      <p id="typeSELeft"></p>
+      <p id="typeSERight"></p>
+    </button>
+    <button class="configButtons misstypeSE toUseSE">
+      <p id="misstypeSELeft"></p>
+      <p id="misstypeSERight"></p>
+    </button>
+    <button class="configButtons deleteSE toUseSE">
+      <p id="deleteSELeft"></p>
+      <p id="deleteSERight"></p>
+    </button>
+    <button class="configButtons addWordSE toUseSE">
+      <p id="addWordSELeft"></p>
+      <p id="addWordSERight"></p>
+    </button>
+    <button class="configButtons attackSE toUseSE">
+      <p id="attackSELeft"></p>
+      <p id="attackSERight"></p>
+    </button>
+    <button class="configButtons warningSE toUseSE">
+      <p id="warningSELeft"></p>
+      <p id="warningSERight"></p>
+    </button>
+    <button class="configButtons countdownSE toUseSE">
+      <p id="countdownSELeft"></p>
+      <p id="countdownSERight"></p>
+    </button>
+    <button class="configButtons gameOverSE toUseSE">
+      <p id="gameOverSELeft"></p>
+      <p id="gameOverSERight"></p>
+    </button>
+    <button class="configButtons buttonSE toUseSE">
+      <p id="buttonSELeft"></p>
+      <p id="buttonSERight"></p>
+    </button>
+    <button class="configButtons closeConfig toUseSE">CLOSE CONFIG</button>
+  </div>
   <div class="gameContainer">
     <div id="titleWrapper">
       <div id="title">
-        PUZZTYPE
+        PUZZTYP<span>E</span> 
       </div>
     </div>
     <div id="allGameArea">
@@ -121,10 +163,10 @@
     </div>
     <!-- intervalProgressBarの後に以下を追加 -->
     <div id="gameButtons" class="game-buttons">
-      <button class="game-button random-match">Random Match</button>
-      <button class="game-button room-match">Room Match</button>
-      <button class="game-button config">Config</button>
-      <button class="game-button how-to-play">How To Play</button>
+      <button class="game-button random-match toUseSE">Random Match</button>
+      <button class="game-button room-match toUseSE">Room Match</button>
+      <button class="game-button config toUseSE">Config</button>
+      <button class="game-button howToPlay toUseSE">How To Play</button>
     </div>
     <!-- 修正後: -->
     <div id="animated-background" class="animated-background animated-background--red" data-color="else"></div>

@@ -1,5 +1,5 @@
 
-const font = new FontFace('PixelMplus', 'url(/fonts/Senobi-Gothic-Regular.ttf)');
+const font = new FontFace('Senobi-Gothic-Regular', 'url(/fonts/Senobi-Gothic-Regular.ttf)');
 
 (function ($) {
   // animated hex background
@@ -165,6 +165,673 @@ window.document.onkeydown = function (evt) {
   }
 }
 
+document.addEventListener('DOMContentLoaded', () => {
+  const howToPlayContent = document.getElementById('howToPlay');
+
+  // ページコンテンツの定義
+  const pages = [
+    {
+      title: 'ざっくり概要',
+      content: `
+      <div style="font-size:1.5vw; line-height:6vh;">
+        ・スペースキーか時間経過で画面に単語が追加<br>
+        ・単語をタイプして相手に単語を送る
+        <span style="font-size:1vw; color: rgb(255, 255, 255);"> -ATTACK </span><br>
+        ・タイプする単語の文字数を1ずつ減らすか増やせば攻撃力にボーナス
+        <span style="font-size:1vw; color: rgba(255, 200, 50, 0.9);"> -CHAINBONUS </span><br>
+        ・ボーナスは文字数を減らす
+        <span style="font-size:1vw; color: rgb(0, 255, 255);"> -UPCHAIN </span>
+        と増やす
+        <span style="font-size:1vw; color: rgb(255, 0, 255);"> -DOWNCHAIN </span>
+        の各方向で増加<br>
+        ・しりとりのように単語を連続タイプでボーナスを保持したまま方向リセット
+        <span style="font-size:1vw; color: rgb(0, 255, 0);"> -CONNECT </span><br>
+        ・同じ文字数の単語を連続タイプでボーナスは消えるけど攻撃力2倍
+        <span style="font-size:1vw; color: rgb(255, 255, 255);"> -DOUBLE ATTACK </span><br>
+        ・単語がフィールドからあふれたら負け
+      </div>
+      `
+    },
+    {
+      title: '基本操作',
+      content: `
+      <div style="font-size:1.5vw; color:rgba(255, 255, 255, 0.8); line-height:6vh;">
+        <span style="font-size:1.8vw; color:rgba(85, 184, 255, 1); margin-bottom: 0.5vh;">Random Match</span><br>
+        　・現在RANDOM MATCHを募集している対戦相手を探して対戦<br>
+        <span style="font-size:1.8vw; color: rgba(255, 100, 100, 1); margin-bottom: 0.5vh;">Room Match</span><br>
+        　・4桁の数字を入力して同じ数字を入力しているプレイヤーと対戦<br>
+        <span style="font-size:1.8vw; color: rgba(255, 200, 100, 1); margin-bottom: 0.5vh;">Config</span><br>
+        　・BGMやTYPESOUNDの変更 / 各種SEのオンオフ<br>
+        <span style="font-size:1.8vw; color: rgba(100, 255, 150, 1); margin-bottom: 0.5vh;">How To Play</span><br>
+        　・現在の画面 - 操作方法や各種仕様を説明
+      </div>
+      `
+    },
+    {
+      title: '対戦詳細',
+      content: `
+      <div style="font-size:1vw; line-height:3.5vh;">
+        ・単語が追加される場所がフィールド、その下が入力フィールドで、プレイヤーは左側、対戦相手は右側です<br>
+        ・フィールドには1行に1つずつ2-10文字の単語が追加されます<br>
+        ・タイプすると入力フィールドに打った文字が表示され、BacKSpaceキーで1文字、Deleteキーですべての文字が消せます<br>
+        ・フィールド内の単語と同じ文字をタイプするとその単語がフィールドから消えます<br>
+        ・消した文字と同じ文字数(攻撃力)の単語が相手フィールドに送られます (攻撃)<br>
+        ・攻撃すると相手フィールド左に、攻撃されると自分のフィールド左に文字数とともに赤で表示されます<br>
+        ・攻撃が送られた状態で自分が攻撃するとその攻撃力だけ送られた攻撃力を減らします (相殺)<br>
+        ・相殺は送られた攻撃の文字数の多い順に相殺し、相殺後1以下になるとその攻撃を無効化します<br>
+        ・スペースキー押下時、もしくはフィールド下のプログレスバーで示す時間経過でフィールドに単語が追加されます<br>
+        ・時間経過の場合ゲーム開始後10秒で単語が追加され、追加ごとに0.05秒ずつ加速し、最終1秒ごとに追加されます<br>
+        ・スペースキー押下で単語を追加しても、時間経過による追加は加速しません<br>
+        ・攻撃を受けている場合はその文字数の単語が追加され、そうでない場合はフィールド左のNEXTから単語が追加されます<br>
+        ・NEXTに表示される単語は18回追加されるごとに2-10文字の9種類の長さのランダムな単語が各2回ずつ出現します<br>
+        ・単語がフィールドに21以上追加されたら負けとなります<br>
+       </div>
+      `
+    },
+    {
+      title: '攻撃の種類',
+      content: `
+      <div style="font-size:1vw; line-height:2.2vh;">
+        <span style="color:rgb(255, 255, 255);">ATTACK</span><br>
+        　・単語と同じ文字をタイプするとフィールドから消え、タイプした単語と同じ文字数の単語が相手フィールドに送られます<br>
+        <br>
+        <span style="color:rgb(0, 255, 255);">UPCHAIN</span><br>
+        　・前にタイプした単語より文字数が1少ない単語をタイプすると
+        <span style="color: rgba(255, 200, 50, 0.9);">CHAINBONUS</span>
+        が得られます<br>
+        　・1回目のボーナスは2で、以降2ずつ増えてゆきます<br>
+        　・画面上で背景色がライトブルーになっている単語が
+        <span style="color:rgb(0, 255, 255);">UPCHAIN</span>
+        対象です<br>
+        <br>
+        <span style="color:rgb(255, 0, 255);">DOWNCHAIN</span><br>
+        　・前にタイプした単語より文字数が1多い単語をタイプすると
+        <span style="color: rgba(255, 200, 50, 0.9);">CHAINBONUS</span>
+        が得られます<br>
+        　・1回目のボーナスは2で、以降は1ずつ増えてゆきます<br>
+        　・画面上で背景色がマゼンタになっている単語が
+        <span style="color:rgb(255, 0, 255);">DOWNCHAIN</span>
+        対象です<br>
+        <br>
+        <span style="color:rgb(255, 255, 255);">DOUBLE ATTACK</span><br>
+        　・同じ文字数の単語を連続でタイプすると、攻撃力が2倍になります<br>
+        　・
+        <span style="color: rgba(255, 200, 50, 0.9);">CHAINBONUS</span>
+        がある場合は1度だけ2倍の攻撃力で加算され、
+        <span style="color: rgba(255, 200, 50, 0.9);">CHAINBONUS</span>
+        が0になります<br>
+        　・画面上で背景色がホワイトになっている単語が
+        <span style="color:rgb(255, 255, 255);">DOUBLE ATTACK</span>
+        対象です<br>
+        <br>
+        <span style="color:rgb(0, 255, 0);">CONNECT</span><br>
+        　・最後にタイプした単語の末尾文字と、次の単語の先頭文字が同じ場合、
+        <span style="color:rgb(0, 255, 0);">CONNECT</span>
+        となり攻撃力に
+        <span style="color: rgba(255, 200, 50, 0.9);">CHAINBONUS</span>
+        が加算されます<br>
+        　・
+        <span style="color:rgb(0, 255, 0);">CONNECT</span>
+        は
+        <span style="color: rgba(255, 200, 50, 0.9);">CHAINBONUS</span>
+        を維持したまま
+        <span style="color:rgb(0, 255, 255);">UPCHAIN</span>
+        /
+        <span style="color:rgb(255, 0, 255);">DOWNCHAIN</span>
+        判定を解除します<br>
+        　・
+        <span style="color:rgb(0, 255, 0);">CONNECT</span>
+        はほかの攻撃に優先され、
+        <span style="color:rgb(0, 255, 255);">UPCHAIN</span>
+        /
+        <span style="color:rgb(255, 0, 255);">DOWNCHAIN</span>
+        判定はなく、同じ文字数でも
+        <span style="color:rgb(255, 255, 255);">DOUBLE ATTACK</span>
+        となりません<br>
+        　・画面上で
+        <span style="color:rgb(0, 255, 0);">CONNECT</span>
+        可能な単語の文字に同じ色のエフェクトが、現在
+        <span style="color:rgb(0, 255, 0);">CONNECT</span>
+        可能な単語にホワイトのエフェクトがつきます<br>
+      </div>
+      `
+    },
+    {
+      title: 'Nerfについて',
+      content: `        
+      <div style="font-size:1vw; line-height:4.5vh;">
+        ・タイプミスをすると、入力フィールドが赤く光り、フィールド左側に
+        <span style="color:rgba(180, 200, 255, 0.8);">Nerf</span>
+        値が表示されます<br>
+        ・
+        <span style="color:rgba(180, 200, 255, 0.8);">Nerf</span>
+        されると次の攻撃力から
+        <span style="color:rgba(180, 200, 255, 0.8);">Nerf</span>
+        値だけ減少させ、攻撃力が1以下になると相手に攻撃を送らなくなります<br>
+        ・
+        <span style="color: rgba(255, 200, 50, 0.9);">CHAINBONUS</span>
+        があった場合は2減少し、3の場合は2になります<br>
+        ・
+        <span style="color:rgba(180, 200, 255, 0.8);">Nerf</span>
+        値は次の攻撃後に攻撃力を問わずリセットされます<br>
+        ・
+        <span style="color: rgba(255, 200, 50, 0.9);">CHAINBONUS</span>
+        によって送られる攻撃や、
+        <span style="color:rgb(255, 255, 255);">DOUBLE ATTACK</span>
+        によって増加した攻撃力は
+        <span style="color:rgba(180, 200, 255, 0.8);">Nerf</span>
+        対象になりません<br>
+        ・
+        <span style="color:rgba(180, 200, 255, 0.8);">Nerf</span>
+        判定は、入力フィールドに表示されている文字の、1文字目から続く日本語部分がフィールドの単語と一致するかです<br>
+        ・よってフィールドに「たいぷ」とあり、「たいぱ」のように入力した場合、
+        <span style="color:rgba(180, 200, 255, 0.8);">Nerf</span>
+        されます<br>
+        ・しかし「eたいぺ」/「たいpf」/「たいpぱ」のように入力した場合は
+        <span style="color:rgba(180, 200, 255, 0.8);">Nerf</span>
+        されません<br>
+        ・「たいぱぱ」と入力したあと、BackSpaceキーを入力して「たいぱ」となった場合も
+        <span style="color:rgba(180, 200, 255, 0.8);">Nerf</span>
+        されます<br>
+        ・
+        <span style="color: rgba(255, 200, 50, 0.9);">CHAINBONUS</span>
+        も減ってしまうので、2文字以上タイプミスした場合はDELETEキーを使うのがいいかもしれません<br>
+        ・スペースキーや時間制限によってフィールドに文字が追加された際にもその時点の入力に対して
+        <span style="color:rgba(180, 200, 255, 0.8);">Nerf</span>
+        判定が行われます<br>
+      </div>
+      `
+    },
+    {
+      title: 'あとがき - ゲームについて',
+      content: `        
+      <div style="font-size:1vw; line-height:3.5vh;">
+        なぜこのゲームを作ったかというと、まず
+        <a href="https://ja.wikipedia.org/wiki/QWERTY%E9%85%8D%E5%88%97" target="_blank">QWERTY配列</a>
+        をやめて自作配列のタイピング練習をしていたら<br>
+        「タイピングは音ゲー並みの入力量なのに、それを生かしたスピーディなタイピングゲームというのがないのでは」と考え<br>
+        自分の中でスピーディなゲームという印象が強い「
+        <a href="https://tetr.io/" target="_blank">TETR.IO</a>
+        」をモチーフにゲームが作れそうだと思ったからです<br>
+        初めは高速で攻撃を送りあうゲームを考えていたのですが、途中からタイピングのためのタイピングゲームではなく<br>
+        相殺するか、どの単語をタイプするか、タイプしないという選択肢、それらの最適解
+        を探すというのがこのゲームの本質になりました<br>
+        モチーフがパズルゲームなのもありますが、パズル的思考
+        が本質だと思ったためゲーム名を PUZZTYPE としました<br>
+        テトリスにおける40LINEが早いプレイヤーが必ず勝つわけではないという対戦ゲーム的な駆け引きは必要だと思い<br>
+        当初は考えていなかったのですが、パズル的思考を主軸とするため CONNECT システムを作りました<br>
+        思い描いていたゲームスピードから離れるとは思いましたが、対戦ゲームとしてはこっちでよかったと思います<br>
+        だれかタイピングの入力量を生かしたよりゲームスピードの早いタイピングゲームを作ってください...<br>
+        ゲームは1人で作っていたのでプレイ感が全然わからず、こうすればより面白いだろうというのでシステムは作りました<br>
+        出題単語は一般性を欠き完全に趣味ですが、「タイピングはプロパガンダにピッタリ」という某タイピングゲームの例題を見て<br>
+        よくわからない単語でも、ある日、ふと現実で見つけた際に「このことか」となるのを期待してマニアックにしています<br>
+        作者は配列変更前は
+        <a href="https://sushida.net/play.html" target="_blank">寿司打2万円 </a>
+        / 
+        <a href="https://mikatype.github.io/MIKATYPE_JAVASCRIPT/index2.html" target="_blank">MIKATYPE300文字</a>
+        がやっとレベルのタイパーで、このゲームは素人なので<br>
+        このゲームに最適化されたプロタイパーたちの戦いというのを切に見てみたいです<br>
+        <br>
+      </div>
+       `
+    },
+    {
+      title: 'あとがき - その他',
+      content: `
+      <div style="font-size:1vw; line-height:3vh;">
+        制作期間は2か月弱で、PUZZTYPEにおけるコードの9割くらいは
+        <a href="https://chatgpt.com/" target="_blank">ChatGPT</a>
+        と
+        <a href="https://claude.ai/new" target="_blank">Claude</a>
+        が作っています<br>
+        無料ユーザですが何か頼む際に要点を明確にして、交互に使えば制限を殆ど気にせず使えました<br>
+        普段コードを書かないので、明確なヴィジョンがあり指示ができれば考えを形にするのが簡単な時代になったと感じます<br>
+        <br>
+        テトリスを多く参考にしましたが、作者は上手い人のプレイを見るだけです...<br>
+        最も参考にした
+        <a href="https://tetr.io/" target="_blank">TETR.IO</a>
+        は無料で遊べますが、あまりゲームの才能があると思ってないのでプレイはしてません...<br><br>
+        フォントについて、日本語の丸みがパズル的な世界観と一致せず選ぶのに難儀しました<br>
+        この文の
+        <a href="https://moji-waku.com/kenq/index.html" target="_blank">フォントの制作者がどういうことを考えてフォントを作っているのか</a>
+        がとても面白かったので読んでみてください<br><br>
+        それと、使用BGM作曲者watson氏が音楽を担当するフリーゲーム
+        <a href="https://katatema.main.jp/mu/" target="_blank">ムラサキ</a>
+        、みんなもやろう! ( 
+        <a href="https://store.steampowered.com/app/392030/Murasaki/?l=japanese" target="_blank">Steam</a>
+        で有償購入もできます )<br>
+        あと
+        <a href="https://plicy.net/GamePlay/175820" target="_blank">10パズル</a>
+        というゲームを以前作っているので算数が好きなら遊んでみてください<br><br>
+        最後に、このゲームを楽しんでいただけたら幸いです<br><br>
+        <div style="font-size:0.8vw; line-height:2vh;">
+        P.S.キーボードにはこだわるのに、キー配列はそのままQWERTYを使っているという人は、配列にもこだわってみてください<br>
+        　　QWERTY配列を市場から駆逐しよう! (このゲームのコードは途中から
+        <a href="https://o24.works/layout/" target="_blank">大西配列</a>
+        を使ってすべて記述されています)
+        </div>    
+      </div>      
+        `
+    },
+    {
+      title: '仕様素材',
+      content: `        
+        <br>
+      `
+    },
+  ];
+
+  let currentPage = 0;
+
+  // ページコンテンツの初期化
+  function initializePages() {
+    // コンテンツをクリア
+    howToPlayContent.innerHTML = '';
+
+    // ページコンテナを作成
+    pages.forEach((page, index) => {
+      const pageContainer = document.createElement('div');
+      pageContainer.className = `page-container ${index === 0 ? 'active' : 'nextPage'}`;
+      pageContainer.innerHTML = `
+        <h2>${page.title}</h2>
+        <div class="page-content">${page.content}</div>
+      `;
+      howToPlayContent.appendChild(pageContainer);
+    });
+
+    // ナビゲーションボタンを追加
+    const buttonsContainer = document.createElement('div');
+    buttonsContainer.className = 'page-buttons';
+    buttonsContainer.innerHTML = `
+      <button class="page-button prev-button" ${currentPage === 0 ? 'disabled' : ''}>Previous</button>
+      <button class="page-button next-button" ${currentPage === pages.length - 1 ? 'disabled' : ''}>Next</button>
+    `;
+    howToPlayContent.appendChild(buttonsContainer);
+
+    // ページインジケーターを追加
+    const indicatorContainer = document.createElement('div');
+    indicatorContainer.className = 'page-indicator';
+    indicatorContainer.innerHTML = pages.map((_, index) =>
+      `<div class="page-dot ${index === currentPage ? 'active' : ''}"></div>`
+    ).join('');
+    howToPlayContent.appendChild(indicatorContainer);
+
+    // イベントリスナーを設定
+    setupPageNavigation();
+  }
+
+  // ページナビゲーションの設定
+  function setupPageNavigation() {
+    const prevButton = howToPlayContent.querySelector('.prev-button');
+    const nextButton = howToPlayContent.querySelector('.next-button');
+    const pageContainers = document.querySelectorAll('.page-container');
+    const pageDots = document.querySelectorAll('.page-dot');
+
+    prevButton.addEventListener('click', () => {
+      if (currentPage > 0) {
+        pageContainers[currentPage].classList.remove('active');
+        pageContainers[currentPage].classList.add('nextPage');
+        currentPage--;
+        pageContainers[currentPage].classList.remove('prev');
+        pageContainers[currentPage].classList.add('active');
+        updateNavigation();
+      }
+    });
+
+    nextButton.addEventListener('click', () => {
+      if (currentPage < pages.length - 1) {
+        pageContainers[currentPage].classList.remove('active');
+        pageContainers[currentPage].classList.add('prev');
+        currentPage++;
+        pageContainers[currentPage].classList.remove('nextPage');
+        pageContainers[currentPage].classList.add('active');
+        updateNavigation();
+      }
+    });
+  }
+
+  // ナビゲーション状態の更新
+  function updateNavigation() {
+    const prevButton = howToPlayContent.querySelector('.prev-button');
+    const nextButton = howToPlayContent.querySelector('.next-button');
+    const pageDots = document.querySelectorAll('.page-dot');
+
+    prevButton.disabled = currentPage === 0;
+    nextButton.disabled = currentPage === pages.length - 1;
+
+    pageDots.forEach((dot, index) => {
+      dot.classList.toggle('active', index === currentPage);
+    });
+  }
+
+  // 初期化
+  initializePages();
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  const howToPlayWrapper = document.getElementById('howToPlayWrapper');
+  const howToPlayButton = document.querySelector('.game-button.howToPlay');
+  const closeHowToPlayButton = document.querySelector('.closeHowToPlay');
+
+  // How To Playボタンクリック時の処理
+  howToPlayButton.addEventListener('click', () => {
+    howToPlayWrapper.classList.remove('closing');
+    howToPlayWrapper.classList.add('active');
+  });
+
+  // Close HowToPlayボタンクリック時の処理
+  closeHowToPlayButton.addEventListener('click', () => {
+    howToPlayWrapper.classList.add('closing');
+
+    // アニメーション完了後にclassを削除
+    setTimeout(() => {
+      howToPlayWrapper.classList.remove('active', 'closing');
+    }, 500); // アニメーションの時間に合わせる
+  });
+});
+
+// ボタン要素を全て取得
+const gameButtons = document.querySelectorAll('.toUseSE');
+
+// 各ボタンにイベントリスナーを追加
+gameButtons.forEach(button => {
+  // ホバー時の処理
+  button.addEventListener('mouseenter', () => {
+    if (currentButtonSoundState === 'VALID') {
+      soundManager.playSound('buttonHover', { volume: 0.8 });
+    }
+  });
+
+  // クリック時の処理
+  button.addEventListener('click', () => {
+    if (currentButtonSoundState === 'VALID') {
+      soundManager.playSound('buttonClick', { volume: 0.6 });
+    }
+  });
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  const configWrapper = document.getElementById('configWrapper');
+  const configBtn = document.querySelector('.game-button.config');
+  const closeConfigBtn = document.querySelector('.configButtons.closeConfig');
+  const configButtons = document.querySelectorAll('.configButtons');
+
+  // ボタンごとにインデックスを設定
+  configButtons.forEach((button, index) => {
+    button.style.setProperty('--button-index', index);
+  });
+
+  // Configボタンクリック時の処理
+  configBtn.addEventListener('click', () => {
+    configWrapper.classList.remove('closing');
+    configWrapper.classList.add('active');
+  });
+
+  // Close Configボタンクリック時の処理
+  closeConfigBtn.addEventListener('click', () => {
+    configWrapper.classList.add('closing');
+
+    // 背景のフェードアウトを遅らせる
+    setTimeout(() => {
+      configWrapper.classList.remove('active');
+    }, 800); // ボタンのアニメーションが終わる頃に背景もフェードアウト
+
+    // 完全に非表示にする前に全てのアニメーションを完了させる
+    setTimeout(() => {
+      configWrapper.classList.remove('closing');
+    }, 1000);
+  });
+});
+
+// BGMの状態を管理するグローバル変数
+
+const BGMLeft = document.getElementById('BGMLeft');
+const BGMRight = document.getElementById('BGMRight');
+const BGMButton = document.querySelector('.configButtons.BGM');
+let currentBGMState = 'Consecutive Battle';
+
+// BGM切り替え用の関数
+function toggleBGMState() {
+
+  // BGMの状態を切り替え
+  switch (currentBGMState) {
+    case 'Consecutive Battle':
+      currentBGMState = 'Lightning Brain';
+      break;
+    case 'Lightning Brain':
+      currentBGMState = 'R.E.B.O.R.N';
+      break;
+    case 'R.E.B.O.R.N':
+      currentBGMState = 'OFF';
+      break;
+    case 'OFF':
+      currentBGMState = 'Consecutive Battle';
+      break;
+  }
+  BGMLeft.textContent = 'BGM :';
+  BGMRight.textContent = currentBGMState;
+  return currentBGMState;
+}
+
+const typeSELeft = document.getElementById('typeSELeft');
+const typeSERight = document.getElementById('typeSERight');
+const typeSEButton = document.querySelector('.configButtons.typeSE');
+let currentTypeSoundState = 'type1';
+
+function toggleTypeSoundState() {
+
+  switch (currentTypeSoundState) {
+    case 'type1':
+      currentTypeSoundState = 'type2';
+      break;
+    case 'type2':
+      currentTypeSoundState = 'type3';
+      break;
+    case 'type3':
+      currentTypeSoundState = 'type4';
+      break;
+    case 'type4':
+      currentTypeSoundState = 'type5';
+      break;
+    case 'type5':
+      currentTypeSoundState = 'type6';
+      break;
+    case 'type6':
+      currentTypeSoundState = 'type7';
+      break;
+    case 'type7':
+      currentTypeSoundState = 'type8';
+      break;
+    case 'type8':
+      currentTypeSoundState = 'OFF';
+      break;
+    case 'OFF':
+      currentTypeSoundState = 'type1';
+      break;
+  }
+
+  typeSELeft.textContent = 'TYPE SOUND:';
+  typeSERight.textContent = currentTypeSoundState;
+  return currentTypeSoundState;
+}
+
+const misstypeSELeft = document.getElementById('misstypeSELeft');
+const misstypeSERight = document.getElementById('misstypeSERight');
+const missTypeSEButton = document.querySelector('.configButtons.misstypeSE');
+let currentMissTypeSoundState = 'VALID';
+
+function toggleMissTypeSoundState() {
+  if (currentMissTypeSoundState === 'VALID') {
+    currentMissTypeSoundState = 'INVALID'
+  } else {
+    currentMissTypeSoundState = 'VALID'
+  }
+  misstypeSELeft.textContent = 'MISSTYPE SOUND :';
+  misstypeSERight.textContent = currentMissTypeSoundState;
+  return currentMissTypeSoundState;
+}
+
+const deleteSELeft = document.getElementById('deleteSELeft');
+const deleteSERight = document.getElementById('deleteSERight');
+const deleteSEButton = document.querySelector('.configButtons.deleteSE');
+let currentDeleteSoundState = 'VALID';
+
+function toggleDeleteSoundState() {
+  if (currentDeleteSoundState === 'VALID') {
+    currentDeleteSoundState = 'INVALID'
+  } else {
+    currentDeleteSoundState = 'VALID'
+  }
+  deleteSELeft.textContent = 'DELETE SOUND :';
+  deleteSERight.textContent = currentDeleteSoundState;
+  return currentDeleteSoundState;
+}
+
+const addWordSELeft = document.getElementById('addWordSELeft');
+const addWordSERight = document.getElementById('addWordSERight');
+const addWordSEButton = document.querySelector('.configButtons.addWordSE');
+let currentAddWordSoundState = 'VALID';
+
+function toggleAddWordSoundState() {
+  if (currentAddWordSoundState === 'VALID') {
+    currentAddWordSoundState = 'INVALID'
+  } else {
+    currentAddWordSoundState = 'VALID'
+  }
+  addWordSELeft.textContent = 'ADDWORD SOUND :';
+  addWordSERight.textContent = currentAddWordSoundState;
+  return currentAddWordSoundState;
+}
+
+const attackSELeft = document.getElementById('attackSELeft');
+const attackSERight = document.getElementById('attackSERight');
+const attackSEButton = document.querySelector('.configButtons.attackSE');
+let currentAttackSoundState = 'VALID';
+
+function toggleAttackSoundState() {
+  if (currentAttackSoundState === 'VALID') {
+    currentAttackSoundState = 'INVALID'
+  } else {
+    currentAttackSoundState = 'VALID'
+  }
+  attackSELeft.textContent = 'ATTACK SOUND :';
+  attackSERight.textContent = currentAttackSoundState;
+  return currentAttackSoundState;
+}
+
+
+const warningSELeft = document.getElementById('warningSELeft');
+const warningSERight = document.getElementById('warningSERight');
+const warningSEButton = document.querySelector('.configButtons.warningSE');
+let currentWarningSoundState = 'VALID';
+
+function toggleWarningSoundState() {
+  if (currentWarningSoundState === 'VALID') {
+    currentWarningSoundState = 'INVALID'
+  } else {
+    currentWarningSoundState = 'VALID'
+  }
+  warningSELeft.textContent = 'WARNING SOUND :';
+  warningSERight.textContent = currentWarningSoundState;
+  return currentWarningSoundState;
+}
+
+const countdownSELeft = document.getElementById('countdownSELeft');
+const countdownSERight = document.getElementById('countdownSERight');
+const countdownSEButton = document.querySelector('.configButtons.countdownSE');
+let currentCountdownSoundState = 'VALID';
+
+function toggleCountdownSoundState() {
+  if (currentCountdownSoundState === 'VALID') {
+    currentCountdownSoundState = 'INVALID'
+  } else {
+    currentCountdownSoundState = 'VALID'
+  }
+  countdownSELeft.textContent = 'COUNTDOWN SOUND :';
+  countdownSERight.textContent = currentCountdownSoundState;
+  return currentCountdownSoundState;
+}
+
+const gameOverSELeft = document.getElementById('gameOverSELeft');
+const gameOverSERight = document.getElementById('gameOverSERight');
+const gameOverSEButton = document.querySelector('.configButtons.gameOverSE');
+let currentGameOverSoundState = 'VALID';
+
+function toggleGameOverSoundState() {
+
+  if (currentGameOverSoundState === 'VALID') {
+    currentGameOverSoundState = 'INVALID'
+  } else {
+    currentGameOverSoundState = 'VALID'
+  }
+  gameOverSELeft.textContent = 'GAMEOVER SOUND :';
+  gameOverSERight.textContent = currentGameOverSoundState;
+  return currentGameOverSoundState;
+}
+
+const buttonSELeft = document.getElementById('buttonSELeft');
+const buttonSERight = document.getElementById('buttonSERight');
+const buttonSEButton = document.querySelector('.configButtons.buttonSE');
+let currentButtonSoundState = 'VALID';
+
+function toggleButtonSoundState() {
+  if (currentButtonSoundState === 'VALID') {
+    currentButtonSoundState = 'INVALID'
+  } else {
+    currentButtonSoundState = 'VALID'
+  }
+  buttonSELeft.textContent = 'BUTTON SOUND :';
+  buttonSERight.textContent = currentButtonSoundState;
+  return currentButtonSoundState;
+}
+
+
+// 初期設定
+document.addEventListener('DOMContentLoaded', () => {
+
+  BGMLeft.textContent = 'BGM :';
+  BGMRight.textContent = currentBGMState;
+  BGMButton.addEventListener('click', toggleBGMState);
+
+  typeSELeft.textContent = 'TYPE SOUND :';
+  typeSERight.textContent = currentTypeSoundState;
+  typeSEButton.addEventListener('click', toggleTypeSoundState);
+
+  misstypeSELeft.textContent = 'MISSTYPE SOUND :';
+  misstypeSERight.textContent = currentMissTypeSoundState;
+  missTypeSEButton.addEventListener('click', toggleMissTypeSoundState);
+
+  deleteSELeft.textContent = 'DELETE SOUND :'
+  deleteSERight.textContent = currentDeleteSoundState;
+  deleteSEButton.addEventListener('click', toggleDeleteSoundState);
+
+  addWordSELeft.textContent = 'ADDWORD SOUND :'
+  addWordSERight.textContent = currentAddWordSoundState;
+  addWordSEButton.addEventListener('click', toggleAddWordSoundState);
+
+  attackSELeft.textContent = 'ATTACK SOUND :'
+  attackSERight.textContent = currentAttackSoundState;
+  attackSEButton.addEventListener('click', toggleAttackSoundState);
+
+
+  warningSELeft.textContent = 'WARNING SOUND :'
+  warningSERight.textContent = currentWarningSoundState;
+  warningSEButton.addEventListener('click', toggleWarningSoundState);
+
+  countdownSELeft.textContent = 'COUNTDOWN SOUND :';
+  countdownSERight.textContent = currentCountdownSoundState;
+  countdownSEButton.addEventListener('click', toggleCountdownSoundState);
+
+  gameOverSELeft.textContent = 'GAMEOVER SOUND :';
+  gameOverSERight.textContent = currentGameOverSoundState;
+  gameOverSEButton.addEventListener('click', toggleGameOverSoundState);
+
+  buttonSELeft.textContent = 'BUTTON SOUND :';
+  buttonSERight.textContent = currentButtonSoundState;
+  buttonSEButton.addEventListener('click', toggleButtonSoundState);
+});
+
+
 let CELL_SIZE = 30;
 // CELL_SIZE = calculateCellSize();
 
@@ -186,7 +853,6 @@ function setWordPool() {
     for (let x = 0; x < 5; x++) {
       wordPool.push(getRandomWordForField(playerUsedLengths));
     }
-    console.log(wordPool);
   } else {
     wordPool = [];
     for (let x = 0; x < 5; x++) {
@@ -477,12 +1143,12 @@ function updateField(field, fieldWords) {
 }
 
 function updateFieldAfterReceiveOffset(field, fieldWords) {
-  console.log("updateFieldAfterReceiveOffset実行");
-  console.log("与えた攻撃:" + playerAttackValueToOffset);
-  console.log("受けた攻撃:" + playerReceiveValueToOffset);
+  // console.log("updateFieldAfterReceiveOffset実行");
+  // console.log("与えた攻撃:" + playerAttackValueToOffset);
+  // console.log("受けた攻撃:" + playerReceiveValueToOffset);
 
   calcReceiveOffset();
-  console.log("相殺後は:" + playerReceiveValueToOffset);
+  // console.log("相殺後は:" + playerReceiveValueToOffset);
 
   if (playerReceiveValueToOffset.length === 0) {
     moveWordToField(fieldWords)
@@ -490,11 +1156,12 @@ function updateFieldAfterReceiveOffset(field, fieldWords) {
 
   const soundCount = playerReceiveValueToOffset.length; // 再生する回数
   const delayBetweenSounds = 70; // 2回目以降の間隔 (ミリ秒)
-
-  for (let i = 0; i < soundCount; i++) {
-    setTimeout(() => {
-      soundManager.playSound('receiveAttack', { volume: 0.5 });
-    }, i * delayBetweenSounds);
+  if (currentAttackSoundState === 'VALID') {
+    for (let i = 0; i < soundCount; i++) {
+      setTimeout(() => {
+        soundManager.playSound('receiveAttack', { volume: 0.5 });
+      }, i * delayBetweenSounds);
+    }
   }
 
   for (let x = 0; x < playerReceiveValueToOffset.length; x++) {
@@ -528,9 +1195,8 @@ function updateFieldAfterReceiveOffset(field, fieldWords) {
       } else if (row < 0) {
         drawField(ctxPlayer, playerField, memorizeLastAttackValue);
 
-        console.log("描写する行が上限を突破したためdrawField");
+        // console.log("描写する行が上限を突破したためdrawField");
 
-        console.log("syncFieldUpdateして・handleGameOver処理");
         syncFieldUpdate();
         handleGameOver(true);
 
@@ -615,6 +1281,20 @@ function getMatchingStartAndEndLetters(combinedWords) {
 
 // ゲームオーバー処理
 function handleGameOver(isLoser) {
+  soundManager.stop('warning');
+  switch (currentBGMState) {
+    case 'Consecutive Battle':
+      soundManager.stop('Consecutive Battle');
+      break;
+    case 'Lightning Brain':
+      soundManager.stop('Lightning Brain');
+      break;
+    case 'R.E.B.O.R.N':
+      soundManager.stop('R.E.B.O.R.N');
+      break;
+    case 'OFF':
+      break;
+  }
   if (gameState === 'ended') return; // 既にゲーム終了処理が行われている場合は何もしない
   console.log("handleGameOver実行");
   gameState = 'ended';
@@ -622,7 +1302,6 @@ function handleGameOver(isLoser) {
 
   // 結果表示
   drawGameOverUI(isLoser ? 'Lose' : 'Win');
-  // drawGameOverUI(ctxOpponent, isLoser ? 'Win' : 'Lose'); 
 
   // 少し待ってからリトライダイアログを表示
   setTimeout(() => {
@@ -718,7 +1397,7 @@ fadeOverlay.style.cssText = `
   height: 100%;
   background: black;
   opacity: 0;
-  z-index: 2000;
+  z-index: 1000;
   pointer-events: none;
 `;
 
@@ -726,30 +1405,30 @@ fadeOverlay.style.cssText = `
 function resetGameAnimation() {
   return new Promise((resolve) => {
     document.body.appendChild(fadeOverlay);
-    
+
     // フェードアウト
     fadeOverlay.style.animation = 'fadeOut 0.5s forwards';
-    
+
     setTimeout(() => {
       // アニメーション効果のリセット
       const playerArea = document.getElementById('playerGameArea');
       const opponentArea = document.getElementById('opponentGameArea');
       const playerOverlay = document.getElementById('playerChildEffectOverlay');
       const opponentOverlay = document.getElementById('opponentChildEffectOverlay');
-      
+
       // アニメーションと変形をリセット
       playerArea.style.animation = '';
       opponentArea.style.animation = '';
       playerArea.style.transform = '';
       opponentArea.style.transform = '';
-      
+
       // オーバーレイのテキストをクリア
       playerOverlay.innerHTML = '';
       opponentOverlay.innerHTML = '';
-      
+
       // フェードイン
       fadeOverlay.style.animation = 'fadeIn 0.5s reverse forwards';
-      
+
       setTimeout(() => {
         document.body.removeChild(fadeOverlay);
         resolve();
@@ -1119,10 +1798,7 @@ function drawField(ctx, field, receivedLastWordLength) {
 
         ctx.fillStyle = gradient;
         ctx.fillRect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
-
-        // ctx.font = `${CELL_SIZE * 0.7}px 'M PLUS Rounded 1c'`;
-        // ctx.font = `${CELL_SIZE * 0.6}px "DotGothic16", "M PLUS Rounded 1c", serif`;
-        ctx.font = `${CELL_SIZE * 0.7}px "Ronde-B", "Senobi-Gothic-Regular", "M PLUS Rounded 1c", serif`;
+        ctx.font = `${CELL_SIZE * 0.7}px "Senobi-Gothic-Regular", "851Gkktt", serif`;
         ctx.textBaseline = 'middle';
         ctx.textAlign = 'center';
         ctx.lineWidth = 0.5;
@@ -1372,10 +2048,11 @@ loadWordList().then(() => {
 
   ctxPlayer.fillStyle = "rgba(5, 7, 19, 0.7)";
   ctxPlayer.fillRect(0, 0, ctxPlayer.canvas.getBoundingClientRect().width, ctxPlayer.canvas.getBoundingClientRect().height);
+  drawGrid(ctxPlayer);
 
   ctxOpponent.fillStyle = "rgba(5, 7, 19, 0.7)";
   ctxOpponent.fillRect(0, 0, ctxOpponent.canvas.getBoundingClientRect().width, ctxOpponent.canvas.getBoundingClientRect().height);
-
+  drawGrid(ctxOpponent);
 });
 
 let gameStepInterval = 10000; // 初期の間隔（ミリ秒）
@@ -1386,6 +2063,8 @@ function startGame() {
   // if (gameState !== 'playing') return;
   setWordPool();
   drawInfo();
+  playerInput = "";
+  opponentInput = "";
 
   function gameStep() {
     if (gameState !== 'playing') return;
@@ -1508,9 +2187,6 @@ function getRandomWordForAttack(characterCount) {
 
 // キー入力リスナー
 window.addEventListener("keydown", (e) => {
-  // if (gameState !== 'playing') {
-  //   return;
-  // }
   const key = e.key;
 
   // selectedCategoryがhiraganaの場合、ローマ字をひらがなに変換
@@ -1524,15 +2200,43 @@ window.addEventListener("keydown", (e) => {
 
       if (key !== ' ') {
         animateInputField();
-        soundManager.playSound('type4', { volume: 1 });
+        switch (currentTypeSoundState) {
+          case 'type1':
+            soundManager.playSound('type1');
+            break;
+          case 'type2':
+            soundManager.playSound('type2');
+            break;
+          case 'type3':
+            soundManager.playSound('type3');
+            break;
+          case 'type4':
+            soundManager.playSound('type4');
+            break;
+          case 'type5':
+            soundManager.playSound('type5');
+            break;
+          case 'type6':
+            soundManager.playSound('type6');
+            break;
+          case 'type7':
+            soundManager.playSound('type7');
+            break;
+          case 'type8':
+            soundManager.playSound('type8')
+            break;
+          case 'OFF':
+            break;
+        }
       }
 
       if (key === ' ') {
-        // moveWordToField(playerFieldWords);
+        if (currentAddWordSoundState === 'VALID') {
+          soundManager.playSound('addFieldWord', { volume: 1 });
+        }
         updateFieldAfterReceiveOffset(playerField, playerFieldWords);
         playerInput = playerInput.trim();
         convertedInput = wanakana.toHiragana(playerInput);
-
       } else if (key === "n") {
         // 押下キーが「n」の場合、それ以外を日本語に変換
         convertedInput = wanakana.toHiragana(playerInput.slice(0, -1));
@@ -1562,32 +2266,35 @@ window.addEventListener("keydown", (e) => {
         resetHighlight(playerField);
       }
     } else if (key === "Delete") {
+      if (currentDeleteSoundState === 'VALID') {
+        soundManager.playSound('deleteInput', { volume: 1 });
+      }
+
       convertedInput = ""
       resetHighlight(playerField);
-
-      // animateAttackInfo(playerAttackKind, 'Attack', 'attack-normal');
-      soundManager.playSound('BGM1', { volume: 0.7, loop: true });
     } else if (key === 'ArrowUp') {
-      soundManager.playSound('attackOP', { fade: 0.2, volume: 0.8 });
 
-      // animateAttackInfo(playerAttackKind, 'UpChain', 'attack-upchain');
+      soundManager.playSound('Consecutive Battle');
+
     } else if (key === "ArrowDown") {
-      soundManager.playSound('attackWeak', { volume: 0.5 });
-      // animateAttackInfo(playerAttackKind, 'DownChain', 'attack-downchain');
+
+      soundManager.stop('Consecutive Battle');
+
     } else if (key === "ArrowLeft") {
-      soundManager.playSound('attackNormal', { volume: 0.9 });
-      // animateAttackInfo(playerAttackKind, 'Connect', 'attack-connect');
-    } else if (key === "ArrowRight") {
-      soundManager.playSound('attackStrong', { volume: 0.8 });
-      // animateAttackInfo(playerAttackKind, 'DoubleAttack', 'attack-double');
-    }
+    } else if (key === "ArrowRight") { }
     else if (key === "Enter") {
       // startGame();
-      // startCountdown();
-      handleGameOver(true);
+      startCountdown();
+      // handleGameOver(true);
     }
 
     playerInput = convertedInput;
+  }
+
+  if (gameState !== 'playing') {
+    syncInputUpdate();
+    drawInputField(ctxPlayerInput, playerInput, playerInputField);
+    return;
   }
 
   // 単語のチェックと削除
@@ -1696,7 +2403,9 @@ function checkAndRemoveWord(field, fieldWords, input) {
       }
       updateChainInfoDisplay();
       nerfAttackValue();
-      soundManager.playSound('missType');
+      if (currentMissTypeSoundState === 'VALID') {
+        soundManager.playSound('missType');
+      }
       triggerMissColorFlash(playerInputField);
     }
     return 0; // 一致しない場合は 0 を返す
@@ -1755,14 +2464,12 @@ function drawInputField(ctx, inputText, inputField) {
   // 入力文字を描画する領域をキャンバス内に設定
   const textY = CELL_SIZE; // キャンバス内に少し余裕を持たせた高さに描画
   ctx.clearRect(0, 0, inputField.getBoundingClientRect().width, inputField.getBoundingClientRect().height);
-  ctx.fillStyle = '#fff'; // 白文字
-  // ctx.font = `${CELL_SIZE * 1}px 'M PLUS Rounded 1c'`;
-  ctx.font = `${CELL_SIZE * 1}px "Senobi-Gothic-Regular", "M PLUS Rounded 1c", serif`;
+  ctx.fillStyle = '#fff';
+  ctx.font = `${CELL_SIZE * 1}px "Senobi-Gothic-Regular", "851Gkktt", serif`;
   ctx.textBaseline = 'middle';
   ctx.textAlign = 'center';
   // 入力文字をキャンバスの中央に描画
   ctx.fillText(inputText, inputField.getBoundingClientRect().width / 2, textY);
-
 }
 
 let memorizeLastAttackValue = 0;
@@ -1907,14 +2614,17 @@ function displayAttackValue(element, number) {
   if (typeof number !== 'number') {
     return;
   }
-  if (number <= 10) {
-    soundManager.playSound('attackWeak', { volume: 0.5 });
-  } else if (number <= 15) {
-    soundManager.playSound('attackNormal', { volume: 1 });
-  } else if (number <= 20) {
-    soundManager.playSound('attackStrong', { volume: 0.8 });
-  } else {
-    soundManager.playSound('attackOP', { fadeOut: 0.5, volume: 0.8 });
+
+  if (currentAttackSoundState === 'VALID') {
+    if (number <= 10) {
+      soundManager.playSound('attackWeak', { volume: 0.5 });
+    } else if (number <= 15) {
+      soundManager.playSound('attackNormal', { volume: 1 });
+    } else if (number <= 20) {
+      soundManager.playSound('attackStrong', { volume: 0.8 });
+    } else {
+      soundManager.playSound('attackOP', { fadeOut: 0.5, volume: 0.8 });
+    }
   }
 
   const containerRect = element.getBoundingClientRect();
@@ -2162,7 +2872,7 @@ function updateOpponentChainInfoDisplay(chainBonus) {
 }
 
 function updateNerfInfoDisplay() {
-  console.log("updateNerfInfoDisplay実行");
+  // console.log("updateNerfInfoDisplay実行");
   // playerNerfValue.textContent = nerfValue !== 0 ? `Nerf: ${nerfValue}` : '';
   if (nerfValue !== 0) {
     animateAttackInfo(playerNerfValue, `Nerf: ${nerfValue}`, false);
@@ -2503,20 +3213,43 @@ function showCountdown(count, elementId) {
 function startCountdown() {
   gameState = 'countdown';
   let count = 3;
-
   const countInterval = setInterval(() => {
     if (count > 0) {
       // プレイヤーと相手両方の要素にカウントダウンを表示
       showCountdown(count, 'playerChildEffectOverlay');
       showCountdown(count, 'opponentChildEffectOverlay');
+
+      if (currentCountdownSoundState === 'VALID') {
+        soundManager.playSound('countdown', { fade: 0.2, volume: 1 });
+      }
+
     } else if (count === 0) {
       // GOの表示
       showCountdown('GO!!', 'playerChildEffectOverlay');
       showCountdown('GO!!', 'opponentChildEffectOverlay');
+
+      if (currentCountdownSoundState === 'VALID') {
+        soundManager.playSound('countdown', { rate: 2, volume: 1.5 });
+      }
+
+
     } else {
       clearInterval(countInterval);
       gameState = 'playing';
       startGame();
+      switch (currentBGMState) {
+        case 'Consecutive Battle':
+          soundManager.playSound('Consecutive Battle', { volume: 0.6, loop: true });
+          break;
+        case 'Lightning Brain':
+          soundManager.playSound('Lightning Brain', { volume: 0.6, loop: true });
+          break;
+        case 'R.E.B.O.R.N':
+          soundManager.playSound('R.E.B.O.R.N', { volume: 0.6, loop: true });
+          break;
+        case 'OFF':
+          break;
+      }
     }
     count--;
   }, 1000);
@@ -2527,20 +3260,20 @@ function showRetryDialog() {
   if (retryDialog) return; // 既に表示されている場合は何もしない
 
   retryDialog = document.createElement('div');
-  retryDialog.style.cssText = `
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: rgba(0, 0, 0, 0);
-    color: white;
-    padding: 20px;
-    border-radius: 10px;
-    font-family: 'M PLUS Rounded 1c';
-    font-size: 1.5vw;
-    text-align: center;
-    z-index: 1000;
-  `;
+  // retryDialog.style.cssText = `
+  //   position: fixed;
+  //   top: 50%;
+  //   left: 50%;
+  //   transform: translate(-50%, -50%);
+  //   background-color: rgba(0, 0, 0, 0);
+  //   color: white;
+  //   padding: 20px;
+  //   border-radius: 10px;
+  //   font-family: '851Gkktt';
+  //   font-size: 1.5vw;
+  //   text-align: center;
+  //   z-index: 1000;
+  // `;
 
   retryDialog.innerHTML = `
     <div class="retryDialog dialog-content">
@@ -2704,12 +3437,18 @@ function drawStatusField(ctx, isPlayer = true) {
   // 警告アニメーションの管理
   if (isOverflowing && !state.interval) {
     // アニメーション開始
+
+    if (currentWarningSoundState === 'VALID') {
+      soundManager.playSound('warning', { volume: 0.8, loop: true });
+    }
+
     state.interval = setInterval(() => {
       state.isVisible = !state.isVisible;
       drawWarningOverlay(isPlayer);
     }, 500);
   } else if (!isOverflowing && state.interval) {
     // オーバーフローが解消されたら該当プレイヤーのアニメーションのみを停止
+    soundManager.stop('warning');
     clearInterval(state.interval);
     state.interval = null;
     state.isVisible = false;
@@ -2727,13 +3466,13 @@ function drawStatusField(ctx, isPlayer = true) {
       ctx.fillRect(0, cellY, CELL_SIZE / 2, CELL_SIZE);
 
       ctx.fillStyle = "white";
-      ctx.font = `${CELL_SIZE * 0.45}px 'M PLUS Rounded 1c'`;
+      ctx.font = `${CELL_SIZE * 0.65}px 'digitalism'`;
       ctx.textBaseline = "middle";
       ctx.textAlign = "center";
-      ctx.letterSpacing = "-0.1em"
+      ctx.letterSpacing = "0.05em"
 
-      const textX = CELL_SIZE / 5;
-      const textY = cellY + (CELL_SIZE / 2);
+      const textX = CELL_SIZE / 4;
+      const textY = cellY + (CELL_SIZE / 1.9);
 
       ctx.fillText(displayValues[i], textX, textY);
     }
@@ -2875,12 +3614,12 @@ function showRoomMatchDialog() {
   dialog.className = 'room-match-dialog';
   dialog.innerHTML = `
     <div class="dialog-content">
-      <h2>ルーム番号を入力</h2>
+      <h2>INPUT ROOM NUMBER</h2>
       <input type="text" id="roomInput" maxlength="4" placeholder="4桁の番号を入力"
              pattern="[0-9]*" inputmode="numeric">
       <div class="dialog-buttons">
-        <button id="connectButton">接続</button>
-        <button id="cancelButton">キャンセル</button>
+        <button id="connectButton">CONNECT</button>
+        <button id="cancelButton">CANCEL</button>
       </div>
     </div>
   `;
@@ -3181,6 +3920,9 @@ class SoundManager {
     this.masterGainNode = this.audioContext.createGain();
     this.masterGainNode.connect(this.audioContext.destination);
     this.masterGainNode.gain.value = this.masterVolume;
+
+    // 再生中のサウンドを管理
+    this.playingSounds = new Map();
   }
 
   setMasterVolume(volume) {
@@ -3267,7 +4009,8 @@ class SoundManager {
 
     source.start(0);
 
-    return {
+    // 再生中のサウンドを管理
+    const soundControl = {
       source,
       gainNode,
       stop: () => {
@@ -3287,6 +4030,20 @@ class SoundManager {
         source.detune.value = newDetune;
       }
     };
+
+    this.playingSounds.set(key, soundControl);
+
+    return soundControl;
+  }
+
+  stop(key) {
+    const playingSound = this.playingSounds.get(key);
+    if (playingSound) {
+      playingSound.stop();
+      this.playingSounds.delete(key);
+    } else {
+      console.warn(`No playing sound found for key: ${key}`);
+    }
   }
 }
 
@@ -3296,19 +4053,29 @@ const soundManager = new SoundManager();
 // 画面ロード時に音声ファイルを読み込む
 window.addEventListener('load', async () => {
   const soundFiles = {
-    'BGM1': '/sounds/MusMus-CT-NV-23.mp3',
+    'Consecutive Battle': '/sounds/MusMus-CT-NV-23.mp3',
+    'Lightning Brain': '/sounds/MusMus-BGM-172.mp3',
+    'R.E.B.O.R.N': '/sounds/MusMus-BGM-176.mp3',
     'missType': '/sounds/ビープ音4.mp3',
-    'type1': '/sounds/meka_ge_nokey_ent02.mp3',
-    'type2': '/sounds/meka_ge_mouse_s02.mp3',
-    'type3': '/sounds/カーソル移動2.mp3',
-    'type4': '/sounds/9744__horn__typewriter.wav',
+    'type1': '/sounds/9744__horn__typewriter.wav',
+    'type2': '/sounds/meka_ge_nokey_ent02.mp3',
+    'type3': '/sounds/meka_ge_mouse_s02.mp3',
+    'type4': '/sounds/カーソル移動2.mp3',
+    'type5': '/sounds/194799__jim-ph__keyboard5.wav',
+    'type6': '/sounds/277723__magedu__typewriter_electric_turn_off.wav',
+    'type7': '/sounds/360602__cabled_mess__typewriter-snippet-02.wav',
+    'type8': '/sounds/773604__kreha__smallclick.wav',
     'attackWeak': '/sounds/346918__julien_matthey__jm_noiz_laser-04.wav',
     'attackNormal': '/sounds/270548__littlerobotsoundfactory__laser_04.wav',
     'attackStrong': '/sounds/270551__littlerobotsoundfactory__laser_07.wav',
     'attackOP': '/sounds/547441__mango777__lazercannon.ogg',
     'buttonHover': '/sounds/533257__copyc4t__screen-lettering.wav',
+    'buttonClick': '/sounds/240875__unfa__anime-jump-loud-short-sms-signal.flac',
     'receiveAttack': '/sounds/577423__morganpurkis__zip-laser.wav',
-
+    'countdown': '/sounds/64119__atari66__beeps.wav',
+    'addFieldWord': '/sounds/107156__bubaproducer__button-9-funny.wav',
+    'deleteInput': '/sounds/237421__plasterbrain__hover-2.ogg',
+    'warning': '/sounds/582986__oysterqueen__low-battery.mp3',
   };
 
   // すべての音声ファイルを読み込む

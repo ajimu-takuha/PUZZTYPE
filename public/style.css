@@ -1,11 +1,4 @@
 @font-face {
-  font-family: 'PixelMplus';
-  src: url('/fonts/PixelMplus12-Regular.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
   font-family: 'Senobi-Gothic-Regular';
   src: url('/fonts/Senobi-Gothic-Regular.ttf') format('truetype');
   font-weight: normal;
@@ -15,6 +8,13 @@
 @font-face {
   font-family: 'Makinas';
   src: url('/fonts/Makinas-4-Square.otf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'digitalism';
+  src: url('/fonts/digitalism.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
 }
@@ -40,11 +40,14 @@
   font-style: normal;
 }
 
-@font-face {
-  font-family: 'Terano_Regular';
-  src: url('/fonts/Terano_Regular.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
+a {
+  text-decoration: none;
+  color: rgba(100, 255, 150, 1);
+}
+
+a:hover {
+  text-decoration: underline;
+  color: rgba(100, 255, 149, 0.5);
 }
 
 body {
@@ -53,11 +56,282 @@ body {
   overflow: hidden;
 }
 
+#howToPlayWrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.9);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  user-select: none;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-100%);
+  transition:
+    opacity 0.3s ease-in-out,
+    visibility 0.3s ease-in-out,
+    transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#howToPlayWrapper.active {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+#howToPlayWrapper.closing {
+  opacity: 0;
+  visibility: visible;
+  transform: translateY(-100%);
+}
+
+/* コンテンツコンテナのスタイル */
+#howToPlay {
+  position: relative;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(-20px);
+  transition:
+    opacity 0.3s ease-in-out,
+    transform 0.3s ease-in-out;
+  transition-delay: 0.2s;
+  height: 70vh;
+  width: 70vw;
+  background-color: rgb(5, 7, 19, 0.7);
+  color: rgba(29, 154, 242);
+  border: rgba(255, 255, 255, 0.5) 1px solid;
+  border-bottom: none;
+  font-family: 'Makinas';
+  user-select: none;
+  border-radius: 5px 5px 0 0;
+}
+
+#howToPlay h2 {
+  font-size: 2.5vw;
+  /* color: rgba(100, 255, 150, 1); */
+  color: rgb(0, 0, 0);
+  margin-top: 1.5vh;
+  margin-bottom: 1vh;
+  text-shadow:
+    0px 0px 1px rgba(100, 255, 150, 1),
+    1px 1px 0 rgba(100, 255, 150, 1),
+    -1px 1px 0 rgba(100, 255, 150, 1),
+    -1px -1px 0 rgba(100, 255, 150, 1),
+    1px -1px 0 rgba(100, 255, 150, 1);
+  paint-order: stroke;
+}
+
+/* ページコンテナ */
+.page-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.5s ease-in-out;
+  padding: 1vh 4vw;
+  /* box-sizing: border-box; */
+  font-size: 1.8vh;
+}
+
+/* 非表示ページの初期位置 */
+.page-container.nextPage {
+  transform: translateX(100%);
+  background-color: rgb(5, 7, 19);
+}
+
+.page-container.prev {
+  transform: translateX(-100%);
+}
+
+/* 現在のページ */
+.page-container.active {
+  transform: translateX(0);
+}
+
+/* ページ送りボタン */
+.page-buttons {
+  position: absolute;
+  bottom: 20px;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 20px;
+  box-sizing: border-box;
+}
+
+.page-button {
+  width: 10vw;
+  background-color: rgba(5, 7, 19, 0.7);
+  color: rgba(29, 154, 242);
+  border: rgba(255, 255, 255, 0.5) 1px solid;
+  padding: 5px 0;
+  cursor: pointer;
+  font-family: 'Makinas';
+  font-size: 1.8vh;
+  border-radius: 3px;
+  transition: all 0.3s ease;
+}
+
+.page-button:hover {
+  background-color: rgba(29, 154, 242);
+  color: rgba(5, 7, 19, 0.7);
+}
+
+.page-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ページインジケーター */
+.page-indicator {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 10px;
+}
+
+.page-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.3);
+  transition: background-color 0.3s ease;
+}
+
+.page-dot.active {
+  background-color: rgba(29, 154, 242);
+}
+
+#howToPlayWrapper.active #howToPlay {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.closeHowToPlay {
+  opacity: 0;
+  transform: translateY(-20px);
+  transition:
+    opacity 0.3s ease-in-out,
+    transform 0.3s ease-in-out;
+  transition-delay: 0.3s;
+  height: 4.5vh;
+  width: 70vw;
+  background-color: rgba(5, 7, 19, 0.7);
+  color: rgba(29, 154, 242);
+  font-family: 'Makinas';
+  border: rgba(255, 255, 255, 0.5) 1px solid;
+  font-size: 2vh;
+  cursor: pointer;
+}
+
+.closeHowToPlay:hover {
+  background: rgba(255, 255, 255, 0.9);
+  border: rgba(255, 255, 255, 0.5) 1px solid;
+  border-radius: 5px;
+  background-color: rgba(29, 154, 242);
+  color: rgba(5, 7, 19, 0.7);
+  z-index: 1001;
+}
+
+#howToPlayWrapper.active .closeHowToPlay {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+#configWrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.9);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  user-select: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+}
+
+.configButtons {
+  height: 4.5vh;
+  width: 35vw;
+  background-color: rgba(5, 7, 19, 0.7);
+  /* color: rgba(29, 154, 242); */
+  color: rgba(255, 200, 100, 1);
+  border: rgba(255, 255, 255, 0.5) 1px solid;
+  border-left: rgba(255, 255, 255, 0.5) 2px solid;
+  border-right: rgba(255, 255, 255, 0.5) 2px solid;
+  /* border-radius: 5px; */
+  font-size: 2vh;
+  font-family: 'Makinas';
+  cursor: pointer;
+  transform: translateY(100vh);
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  padding-left: 1.5vw;
+  padding-right: 1.5vw;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.configButtons:hover {
+  background: rgba(255, 255, 255, 0.9);
+  border: rgba(255, 255, 255, 0.5) 1px solid;
+  border-radius: 5px;
+  /* background-color: rgba(29, 154, 242); */
+  background-color: rgba(255, 200, 100, 1);
+  color: rgba(5, 7, 19, 0.7);
+  scale: 1.2;
+  z-index: 1001;
+}
+
+.BGM {
+  border-top: rgba(255, 255, 255, 0.5) 2px solid;
+  border-radius: 5px 5px 0 0 ;
+}
+
+.closeConfig {
+  justify-content: center;
+  border-bottom: rgba(255, 255, 255, 0.5) 2px solid;
+  border-radius: 0 0 5px 5px;
+}
+
+/* 表示時のアニメーション */
+#configWrapper.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+#configWrapper.active .configButtons {
+  transform: translateY(0);
+  transition-delay: calc(0.3s + (var(--button-index) * 0.1s));
+}
+
+/* 非表示時のアニメーション */
+#configWrapper.closing .configButtons {
+  transform: translateY(100vh);
+  transition-delay: calc((7 - var(--button-index)) * 0.1s);
+}
+
 #titleWrapper {
   display: flex;
   justify-content: center;
   align-items: center;
   margin: 0;
+  user-select: none;
 }
 
 #title {
@@ -66,10 +340,15 @@ body {
   padding: 0.5vw;
   margin-top: 1vh;
   margin-bottom: 1.5vh;
-  letter-spacing: 0.3em;
+  /* letter-spacing: 0.3em; */
+  letter-spacing: 1.6em;
   position: relative;
   color: rgba(255, 255, 255, 0.8);
   text-shadow: 4px 4px 1px rgba(0, 0, 0, 0.5);
+}
+
+#title span {
+  letter-spacing: 0;
 }
 
 .gradationBackground {
@@ -211,7 +490,7 @@ body {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  font-family: 'M PLUS Rounded 1c';
+  font-family: '851Gkktt';
   /* position: relative; */
   /* width: 100%;          */
 }
@@ -260,7 +539,6 @@ canvas {}
   /* border-top: 2px rgba(255, 255, 255, 0); */
   /* z-index: 2; */
   position: relative;
-  font-family: "DotGothic16", "M PLUS Rounded 1c", serif;
 }
 
 .effectOverlay {
@@ -533,7 +811,7 @@ canvas {}
   display: flex;
   flex-direction: column;
   width: 16vw;
-  font-family: 'M PLUS Rounded 1c';
+  font-family: '851Gkktt';
 }
 
 .nextFieldWrapper {
@@ -610,7 +888,6 @@ canvas {}
   background-color: rgba(0, 0, 0, 0);
   color: rgba(255, 255, 255, 0.5);
   height: 5vh;
-  /* font-family: 'M PLUS Rounded 1c'; */
   font-family: "851Gkktt";
   text-align: right;
   z-index: 100;
@@ -648,7 +925,7 @@ canvas {}
 .nerfValue {
   font-family: "851Gkktt";
   font-size: 2vh;
-  color: rgb(180, 200, 255, 0.8);
+  color: rgba(180, 200, 255, 0.8);
 }
 
 /* AttackKind のアニメーション */
@@ -1005,25 +1282,6 @@ canvas {}
   gap: 1vw;
 }
 
-/* .game-button {
-  flex: 1;
-  margin: 0 auto;
-  background: rgba(255, 255, 255, 0.1);
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-radius: 4px;
-  color: rgba(255, 255, 255, 0.8);
-  font-family: 'M PLUS Rounded 1c';
-  font-size: 0.9vw;
-  font-weight: 300;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  position: relative;
-  overflow: hidden;
-} */
-
-
 .game-button {
   flex: 1;
   justify-content: center;
@@ -1079,12 +1337,27 @@ canvas {}
   background-color: rgba(255, 200, 100, 1);
 }
 
-.how-to-play {
+.howToPlay {
   color: rgba(100, 255, 150, 1);
 }
 
-.how-to-play:hover {
+.howToPlay:hover {
   background-color: rgba(100, 255, 150, 1);
+}
+
+.retryDialog {
+position: fixed;
+top: 50%;
+left: 50%;
+transform: translate(-50%, -50%);
+background-color: rgba(0, 0, 0, 0);
+color: white;
+padding: 20px;
+border-radius: 10px;
+font-family: '851Gkktt';
+font-size: 1.5vw;
+text-align: center;
+z-index: 1000;
 }
 
 .retryDialogButton {
@@ -1115,6 +1388,7 @@ canvas {}
 
 /* ルームマッチングダイアログ */
 .room-match-dialog {
+  user-select: none;
   position: fixed;
   top: 0;
   left: 0;
@@ -1125,31 +1399,39 @@ canvas {}
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  color: rgba(255, 100, 100, 1);
 }
 
 .dialog-content {
-  background: white;
+  /* background: white; */
+  background-color: rgba(5, 7, 19, 0.7);
   padding: 2rem;
   border-radius: 8px;
   text-align: center;
-  font-family: 'M PLUS Rounded 1c';
+  font-family: '851Gkktt';
   font-size: 0.5vw;
+  border: 1px solid rgba(255, 255, 255, 0.8);
 }
 
 .dialog-content h2 {
   margin-bottom: 1rem;
-  color: #333;
+  /* color: #333; */
+  color: white;
 }
 
 #roomInput {
   width: 5vw;
   height: 2vh;
   padding: 0.2vh;
-  font-size: 0.5vw;
+  font-size: 0.6vw;
   text-align: center;
   margin-bottom: 1vh;
-  border: 2px solid #ddd;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  background-color: rgba(5, 7, 19, 0.7);
+  color: rgba(255, 255, 255, 0.8);
   border-radius: 4px;
+  letter-spacing: "0.2em";
+  font-family: '851Gkktt';
 }
 
 .dialog-buttons {
@@ -1161,7 +1443,7 @@ canvas {}
 .dialog-buttons button {
   width: 4vw;
   border: none;
-  border-radius: 4px;
+  border-radius: 2px;
   cursor: pointer;
   font-size: 0.45vw;
 }
@@ -1172,7 +1454,7 @@ canvas {}
 }
 
 #connectButton {
-  background: #4CAF50;
+  background: rgba(0, 255, 0, 0.8);
   color: white;
 }
 
@@ -1182,7 +1464,7 @@ canvas {}
 }
 
 #cancelButton {
-  background: #f44336;
+  background: rgba(255, 0, 0, 0.8);
   color: white;
 }
 
@@ -1204,6 +1486,7 @@ canvas {}
 .loading-content {
   text-align: center;
   color: white;
+  font-family: '851Gkktt';
 }
 
 .spinner {
