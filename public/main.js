@@ -163,6 +163,20 @@ window.document.onkeydown = function (evt) {
   }
 }
 
+function main() {
+  var url = 'https://puzztype.onrender.com.onrender.com';
+  var response = UrlFetchApp.fetch(url);
+  Logger.log(response.getContentText());
+}
+
+// トリガーを設定する関数
+function setTrigger() {
+  ScriptApp.newTrigger('main')
+    .timeBased()
+    .everyMinutes(13)
+    .create();
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   const howToPlayContent = document.getElementById('howToPlay');
 

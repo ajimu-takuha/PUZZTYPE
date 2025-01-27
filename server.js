@@ -551,10 +551,6 @@ io.on('connection', (socket) => {
 
 const PORT = Number(!!process.env.PORT) || 3000;
 server.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-  console.log("process.env.PORT" + process.env.PORT);
+  // console.log(`Server is running on port ${PORT}`);
+  // console.log("process.env.PORT" + process.env.PORT);
 });
-
-// server.listen(3000, () => {
-//   console.log('サーバー起動: http://localhost:3000');
-// });
