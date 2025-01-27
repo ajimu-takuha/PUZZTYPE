@@ -3,6 +3,7 @@
   src: url('/fonts/Senobi-Gothic-Regular.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
@@ -10,6 +11,7 @@
   src: url('/fonts/Makinas-4-Square.otf') format('truetype');
   font-weight: normal;
   font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
@@ -17,6 +19,7 @@
   src: url('/fonts/digitalism.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
@@ -24,6 +27,7 @@
   src: url('/fonts/851Gkktt_005.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
@@ -31,6 +35,7 @@
   src: url('/fonts/002zouver.2-Regular.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
@@ -38,6 +43,7 @@
   src: url('/fonts/MADE_Evolve_Sans_Regular_EVO__PERSONAL_USE_.otf') format('truetype');
   font-weight: normal;
   font-style: normal;
+  font-display: swap;
 }
 
 a {
@@ -1226,8 +1232,8 @@ canvas {}
 .field-aura-container::after {
   content: "";
   position: absolute;
-  top: 0;
-  left: 0;
+  top: -2.5%;
+  left: -2.5%;
   width: 100%;
   height: 100%;
   border-radius: 100%;
@@ -1513,4 +1519,71 @@ z-index: 1000;
 
 .matching-success h2 {
   margin-bottom: 1rem;
+}
+
+@keyframes countdownAnimation {
+  0% {
+    transform: translate(-50%, -50%) scaleX(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scaleX(0);
+    opacity: 0;
+  }
+}
+
+/* 扉のベーススタイル */
+.door-overlay {
+  position: fixed;
+  top: 0;
+  width: 50%; /* 左右の扉で画面を分割 */
+  height: 100%;
+  background: rgba(5, 7, 19, 1);
+  z-index: 1000;
+  pointer-events: none;
+  transition: transform 0.5s ease; /* スムーズなアニメーション */
+}
+
+/* 左扉の初期状態（画面外左側） */
+.door-left {
+  transform: translateX(-100%); /* 初期位置: 左画面外 */
+  left: 0;
+}
+
+/* 右扉の初期状態（画面外右側） */
+.door-right {
+  transform: translateX(100%); /* 初期位置: 右画面外 */
+  right: 0;
+}
+
+/* 扉が閉じる状態（中央でくっつく） */
+.closed-left {
+  transform: translateX(0); /* 左扉を中央へ */
+}
+
+.closed-right {
+  transform: translateX(0); /* 右扉を中央へ */
+}
+
+/* 扉が開く状態（画面外へ移動） */
+.open-left {
+  transform: translateX(-100%); /* 左扉を画面外へ戻す */
+}
+
+.open-right {
+  transform: translateX(100%); /* 右扉を画面外へ戻す */
+}
+
+.cancel-button {
+  margin-top: 10px;
+  padding: 5px 10px;
+  background-color: #ff4444;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.cancel-button:hover {
+  background-color: #cc0000;
 }

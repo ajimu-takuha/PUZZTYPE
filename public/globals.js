@@ -7,12 +7,14 @@ let playerId = null;
 let opponentId = null;
 
 // main.js に追加・修正
-let gameState = 'waiting';
+let gameState = 'normal';
 let isGameOver = false;
 let retryDialog = null;
 
 const FIELD_WIDTH = 10;
 const FIELD_HEIGHT = 20;
+
+let isDisConnect = false;
 
 // フィールドデータ
 let playerField = Array.from({ length: FIELD_HEIGHT }, () =>

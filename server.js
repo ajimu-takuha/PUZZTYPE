@@ -15,7 +15,23 @@ let waitingPlayer = null;
 io.on('connection', (socket) => {
   console.log(`ユーザー接続: ${socket.id}`);
 
-  // ランダムマッチング用のイベントハンドラ
+  //   // WebRTC接続のためのシグナリングイベント
+  //   socket.on('webrtc-offer', (data) => {
+  //     // オファーを他のクライアントにブロードキャスト
+  //     socket.broadcast.emit('webrtc-offer', data);
+  // });
+
+  // socket.on('webrtc-answer', (data) => {
+  //     // アンサーを対象のクライアントに送信
+  //     socket.broadcast.emit('webrtc-answer', data);
+  // });
+
+  // socket.on('ice-candidate', (candidate) => {
+  //     // ICEカンディデートを対象のクライアントに送信
+  //     socket.broadcast.emit('ice-candidate', candidate);
+  // });
+
+
   socket.on('findMatch', () => {
     if (!waitingPlayer) {
       waitingPlayer = socket;
@@ -38,8 +54,17 @@ io.on('connection', (socket) => {
           player2Field: [],
         }
       });
+      // console.log(rooms);
+      // console.log(room);
 
       waitingPlayer = null;
+    }
+  });
+
+  socket.on('cancelMatch', () => {
+    if (waitingPlayer === socket) {
+      waitingPlayer = null;
+      socket.emit('matchCancelled');
     }
   });
 
@@ -78,6 +103,17 @@ io.on('connection', (socket) => {
     }
   });
 
+  // ルームマッチングのキャンセル処理
+  socket.on('cancelRoomMatch', () => {
+    for (const [roomNumber, waitingSocket] of roomMatches.entries()) {
+      if (waitingSocket.id === socket.id) {
+        roomMatches.delete(roomNumber); // ルーム待機中のプレイヤーを解除
+        socket.emit('roomMatchCancelled');
+        break;
+      }
+    }
+  });
+
   // if (!waitingPlayer) {
   //   waitingPlayer = socket;
   //   socket.emit('waitingForPlayer');
@@ -111,7 +147,6 @@ io.on('connection', (socket) => {
     if (room) {
       const gameRoom = rooms.get(room);
       if (gameRoom) {
-        // 攻撃を受けるプレイヤーにイベントを送信
         const targetSocket = socket.id === gameRoom.player1.id ? gameRoom.player2 : gameRoom.player1;
         targetSocket.emit('receiveAttack', {
           attackValue: data.attackValue
@@ -158,12 +193,14 @@ io.on('connection', (socket) => {
     if (room) {
       const gameRoom = rooms.get(room);
       if (gameRoom) {
-        if (socket.id === gameRoom.player1.id) {
-          gameRoom.gameState.player1Field = data.field;
-        } else {
-          gameRoom.gameState.player2Field = data.field;
-        }
-        socket.to(room).emit('fieldSync', {
+        // if (socket.id === gameRoom.player1.id) {
+        //   gameRoom.gameState.player1Field = data.field;
+        // } else {
+        //   gameRoom.gameState.player2Field = data.field;
+        // }
+        const targetSocket = socket.id === gameRoom.player1.id ? gameRoom.player2 : gameRoom.player1;
+        // socket.to(room).emit('fieldSync', {
+        targetSocket.emit('fieldSync', {
           field: data.field,
           fieldWords: data.fieldWords,
           memorizeLastAttackValue: data.memorizeLastAttackValue
@@ -306,20 +343,108 @@ io.on('connection', (socket) => {
   });
 
   // ゲームオーバー処理
+  // socket.on('gameOver', (data) => {
+  //   const room = Array.from(socket.rooms)[1];
+  //   if (room) {
+  //     const gameRoom = rooms.get(room);
+  //     if (gameRoom) {
+  //       // 両プレイヤーにゲームオーバーを通知
+  //       io.to(room).emit('gameOver', {
+  //         loserId: data.loserId
+  //       });
+  //     }
+  //   }
+  // });
+
   socket.on('gameOver', (data) => {
     const room = Array.from(socket.rooms)[1];
     if (room) {
       const gameRoom = rooms.get(room);
       if (gameRoom) {
-        // 両プレイヤーにゲームオーバーを通知
-        io.to(room).emit('gameOver', {
+        const targetSocket = socket.id === gameRoom.player1.id ? gameRoom.player2 : gameRoom.player1;
+        targetSocket.emit('gameOver', {
           loserId: data.loserId
         });
       }
     }
   });
 
+  // socket.on('gameOver', (data) => {
+  //   const room = Array.from(socket.rooms)[1];
+  //   if (room) {
+  //     const gameRoom = rooms.get(room);
+  //     if (gameRoom) {
+  //       // 勝利数を管理
+  //       gameRoom.wins = gameRoom.wins || { player1: 0, player2: 0 };
+
+  //       // 勝者のIDを判定し、勝利数を加算
+  //       if (data.loserId === gameRoom.player1.id) {
+  //         gameRoom.wins.player2++;
+  //       } else {
+  //         gameRoom.wins.player1++;
+  //       }
+
+  //       // 2勝したプレイヤーがいるか確認
+  //       const player1Wins = gameRoom.wins.player1;
+  //       const player2Wins = gameRoom.wins.player2;
+
+  //       if (player1Wins === 2 || player2Wins === 2) {
+  //         // 最終的な勝者を通知
+  //         io.to(room).emit('gameOver', {
+  //           loserId: data.loserId,
+  //           final: true, // 最終的なゲームオーバーを示す
+  //           winnerId: player1Wins === 2 ? gameRoom.player1.id : gameRoom.player2.id
+  //         });
+
+  //         // 部屋をリセットまたは削除
+  //         rooms.delete(room);
+  //       } else {
+  //         // 次のラウンドに進む通知
+  //         io.to(room).emit('gameOver', {
+  //           loserId: data.loserId,
+  //           final: false // 最終的なゲームオーバーではない
+  //         });
+  //       }
+  //     }
+  //   }
+  // });
+
   // リトライレスポンス処理
+  // socket.on('retryResponse', (data) => {
+  //   const room = Array.from(socket.rooms)[1];
+  //   if (room) {
+  //     const gameRoom = rooms.get(room);
+  //     if (gameRoom) {
+  //       if (!gameRoom.retryResponses) {
+  //         gameRoom.retryResponses = new Map();
+  //       }
+
+  //       gameRoom.retryResponses.set(socket.id, data.response);
+
+  //       if (gameRoom.retryResponses.size === 2) {
+  //         const bothAgreed = Array.from(gameRoom.retryResponses.values()).every(response => response);
+
+  //         io.to(room).emit('retryResponse', {
+  //           bothPlayersAgreed: bothAgreed,
+  //           // canRetry: bothAgreed
+  //         });
+
+  //         if (bothAgreed) {
+  //           // ゲーム状態をリセット
+  //           gameRoom.gameState = {
+  //             player1Field: [],
+  //             player2Field: []
+  //           };
+  //           gameRoom.retryResponses.clear();
+  //         } else {
+  //           rooms.delete(room);
+  //           console.log("ルーム削除");
+  //         }
+  //       }
+  //     }
+  //   }
+  // });
+
   socket.on('retryResponse', (data) => {
     const room = Array.from(socket.rooms)[1];
     if (room) {
@@ -331,12 +456,37 @@ io.on('connection', (socket) => {
 
         gameRoom.retryResponses.set(socket.id, data.response);
 
+        // どちらかのプレイヤーが「No」を選択した場合
+        if (data.response === false) {
+
+          // 両プレイヤーに通知を送信
+          io.to(room).emit('retryResponse', {
+            bothPlayersAgreed: false
+          });
+
+          // 両プレイヤーのソケットからルームを削除
+          waitingPlayer = null;
+          gameRoom.player1.leave(room);
+          gameRoom.player2.leave(room);
+          rooms.delete(room);
+          console.log("ルーム削除");
+
+          // roomMatchesからもルームを削除
+          for (const [roomNumber, waitingSocket] of roomMatches.entries()) {
+            if (waitingSocket.id === socket.id || waitingSocket.id === gameRoom.player1.id || waitingSocket.id === gameRoom.player2.id) {
+              roomMatches.delete(roomNumber);
+            }
+          }
+
+          return; // 処理を終了
+        }
+
+        // 両プレイヤーが応答した場合
         if (gameRoom.retryResponses.size === 2) {
           const bothAgreed = Array.from(gameRoom.retryResponses.values()).every(response => response);
 
           io.to(room).emit('retryResponse', {
-            bothPlayersAgreed: bothAgreed,
-            canRetry: bothAgreed
+            bothPlayersAgreed: bothAgreed
           });
 
           if (bothAgreed) {
@@ -347,8 +497,19 @@ io.on('connection', (socket) => {
             };
             gameRoom.retryResponses.clear();
           } else {
+
             // プレイヤーが合意しなかった場合、ルームを削除
+            waitingPlayer = null;
+            gameRoom.player1.leave(room);
+            gameRoom.player2.leave(room);
             rooms.delete(room);
+
+            rooms.delete(room);
+            for (const [roomNumber, waitingSocket] of roomMatches.entries()) {
+              if (waitingSocket.id === socket.id || waitingSocket.id === gameRoom.player1.id || waitingSocket.id === gameRoom.player2.id) {
+                roomMatches.delete(roomNumber);
+              }
+            }
             console.log("ルーム削除");
           }
         }
@@ -357,15 +518,34 @@ io.on('connection', (socket) => {
   });
 
   socket.on('disconnect', () => {
+    console.log(`ユーザー切断: ${socket.id}`);
+
+    // waitingPlayerのクリア
     if (waitingPlayer === socket) {
       waitingPlayer = null;
     }
-    rooms.forEach((value, key) => {
-      if (value.player1 === socket || value.player2 === socket) {
-        io.to(key).emit('opponentDisconnected');
-        rooms.delete(key);
+
+    // すべてのルームをチェックして、切断したプレイヤーを探す
+    rooms.forEach((gameRoom, roomKey) => {
+      if (gameRoom.player1?.id === socket.id || gameRoom.player2?.id === socket.id) {
+        // 切断を通知
+        io.to(roomKey).emit('opponentDisconnected');
+
+        // プレイヤーをルームから削除
+        if (gameRoom.player1) gameRoom.player1.leave(roomKey);
+        if (gameRoom.player2) gameRoom.player2.leave(roomKey);
+
+        // ルームを削除
+        rooms.delete(roomKey);
       }
     });
+
+    // roomMatchesからの削除
+    for (const [roomNumber, waitingSocket] of roomMatches.entries()) {
+      if (waitingSocket.id === socket.id) {
+        roomMatches.delete(roomNumber);
+      }
+    }
   });
 });
 

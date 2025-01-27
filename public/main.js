@@ -1,6 +1,4 @@
 
-const font = new FontFace('Senobi-Gothic-Regular', 'url(/fonts/Senobi-Gothic-Regular.ttf)');
-
 (function ($) {
   // animated hex background
   $(document).ready(function () {
@@ -195,7 +193,7 @@ document.addEventListener('DOMContentLoaded', () => {
     {
       title: '基本操作',
       content: `
-      <div style="font-size:1.5vw; color:rgba(255, 255, 255, 0.8); line-height:6vh;">
+      <div style="font-size:1.5vw; line-height:6vh;">
         <span style="font-size:1.8vw; color:rgba(85, 184, 255, 1); margin-bottom: 0.5vh;">Random Match</span><br>
         　・現在RANDOM MATCHを募集している対戦相手を探して対戦<br>
         <span style="font-size:1.8vw; color: rgba(255, 100, 100, 1); margin-bottom: 0.5vh;">Room Match</span><br>
@@ -225,6 +223,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ・攻撃を受けている場合はその文字数の単語が追加され、そうでない場合はフィールド左のNEXTから単語が追加されます<br>
         ・NEXTに表示される単語は18回追加されるごとに2-10文字の9種類の長さのランダムな単語が各2回ずつ出現します<br>
         ・単語がフィールドに21以上追加されたら負けとなります<br>
+        ・攻撃時にNerf込みの攻撃力がフィールド右上に表示され、単語が21以上になりそうな場合フィールドか赤く点滅します<br>
        </div>
       `
     },
@@ -359,18 +358,20 @@ document.addEventListener('DOMContentLoaded', () => {
         モチーフがパズルゲームなのもありますが、パズル的思考
         が本質だと思ったためゲーム名を PUZZTYPE としました<br>
         テトリスにおける40LINEが早いプレイヤーが必ず勝つわけではないという対戦ゲーム的な駆け引きは必要だと思い<br>
-        当初は考えていなかったのですが、パズル的思考を主軸とするため CONNECT システムを作りました<br>
-        思い描いていたゲームスピードから離れるとは思いましたが、対戦ゲームとしてはこっちでよかったと思います<br>
-        だれかタイピングの入力量を生かしたよりゲームスピードの早いタイピングゲームを作ってください...<br>
+        当初考えていなかったのですが、パズル的思考を主軸とするため CONNECT システムを作りました<br>
+        (しりとりは英語で「WORD CHAIN」ともいうので名前はそれでもよかったかも)<br>
+        思い描いていたゲームスピードから離れるとは思いましたが、対戦ゲームとしてはこれでよかったと思います<br>
+        だれか入力量を生かしたよりゲームスピードの早いタイピングゲームを作ってください...<br>
         ゲームは1人で作っていたのでプレイ感が全然わからず、こうすればより面白いだろうというのでシステムは作りました<br>
-        出題単語は一般性を欠き完全に趣味ですが、「タイピングはプロパガンダにピッタリ」という某タイピングゲームの例題を見て<br>
+        出題単語は一般性を欠き完全に趣味ですが、「タイピングはプロパガンダにピッタリ」という
+        <a href="https://taisoku.com/" target="_blank">某タイピングゲーム</a>
+        の例題を見て<br>
         よくわからない単語でも、ある日、ふと現実で見つけた際に「このことか」となるのを期待してマニアックにしています<br>
-        作者は配列変更前は
-        <a href="https://sushida.net/play.html" target="_blank">寿司打2万円 </a>
-        / 
-        <a href="https://mikatype.github.io/MIKATYPE_JAVASCRIPT/index2.html" target="_blank">MIKATYPE300文字</a>
-        がやっとレベルのタイパーで、このゲームは素人なので<br>
-        このゲームに最適化されたプロタイパーたちの戦いというのを切に見てみたいです<br>
+        作者は
+        <a href="https://sushida.net/play.html" target="_blank">寿司打</a>
+        2万円/ 
+        <a href="https://mikatype.github.io/MIKATYPE_JAVASCRIPT/index2.html" target="_blank">MIKATYPE</a>
+        300文字がやっとのタイパーなのでこのゲームに最適化されたプロタイパーの戦いが見てみたいです<br>
         <br>
       </div>
        `
@@ -385,15 +386,16 @@ document.addEventListener('DOMContentLoaded', () => {
         <a href="https://claude.ai/new" target="_blank">Claude</a>
         が作っています<br>
         無料ユーザですが何か頼む際に要点を明確にして、交互に使えば制限を殆ど気にせず使えました<br>
-        普段コードを書かないので、明確なヴィジョンがあり指示ができれば考えを形にするのが簡単な時代になったと感じます<br>
+        普段コードを書きませんが、明確なヴィジョンがあり指示ができれば考えを形にするのが簡単な時代になったと感じます<br>
+        サーバはRenderの無料枠を使っていますが(15分使わなかったらスリープ)、P2Pならサーバ不要で作れるらしいので作り方間違えたかも...<br>
         <br>
         テトリスを多く参考にしましたが、作者は上手い人のプレイを見るだけです...<br>
         最も参考にした
         <a href="https://tetr.io/" target="_blank">TETR.IO</a>
         は無料で遊べますが、あまりゲームの才能があると思ってないのでプレイはしてません...<br><br>
         フォントについて、日本語の丸みがパズル的な世界観と一致せず選ぶのに難儀しました<br>
-        この文の
-        <a href="https://moji-waku.com/kenq/index.html" target="_blank">フォントの制作者がどういうことを考えてフォントを作っているのか</a>
+        この文にも使っているフォントの
+        <a href="https://moji-waku.com/kenq/index.html" target="_blank">制作者がどういうことを考えて作っているのか</a>
         がとても面白かったので読んでみてください<br><br>
         それと、使用BGM作曲者watson氏が音楽を担当するフリーゲーム
         <a href="https://katatema.main.jp/mu/" target="_blank">ムラサキ</a>
@@ -403,20 +405,58 @@ document.addEventListener('DOMContentLoaded', () => {
         あと
         <a href="https://plicy.net/GamePlay/175820" target="_blank">10パズル</a>
         というゲームを以前作っているので算数が好きなら遊んでみてください<br><br>
-        最後に、このゲームを楽しんでいただけたら幸いです<br><br>
+        このゲームを楽しんでいただけたら幸いです<br><br>
         <div style="font-size:0.8vw; line-height:2vh;">
         P.S.キーボードにはこだわるのに、キー配列はそのままQWERTYを使っているという人は、配列にもこだわってみてください<br>
         　　QWERTY配列を市場から駆逐しよう! (このゲームのコードは途中から
         <a href="https://o24.works/layout/" target="_blank">大西配列</a>
         を使ってすべて記述されています)
-        </div>    
       </div>      
         `
     },
     {
-      title: '仕様素材',
-      content: `        
-        <br>
+      title: '使用素材',
+      content: `
+      <div style="font-size:0.8vw; line-height:2vh;">   
+      使用BGM:      
+      <a href="https://musmus.main.jp/" target="_blank">MusMus (waston)</a><br>
+      使用フォント:
+      <a href="https://modi.jpn.org/font_senobi.php" target="_blank">せのびゴシック</a>
+      /
+      <a href="https://moji-waku.com/makinas/index.html" target="_blank">マキナス</a>
+      /
+      <a href="https://www.dafont.com/digitalism.font" target="_blank">digitalism</a>
+      /
+      <a href="https://pm85122.onamae.jp/851Gkktt.html" target="_blank">851ゴチカクット</a>
+      /
+      <a href="https://www.lazypolarbear.com/zou" target="_blank">ゾウフォント</a>
+      /
+      <a href="https://apkadmin.com/3jl3bokx90dz/MADE_Evolve.mtz.html" target="_blank">MADE_Evolve</a><br>
+      使用SE:<br>      
+      <a href="https://freesound.org/people/Horn/sounds/9744" target="_blank">typewriter.wav by Horn -- https://freesound.org/s/9744/ -- License: Attribution NonCommercial 3.0</a><br>
+      <a href="https://freesound.org/people/KorgMS2000B/sounds/54405/" target="_blank">Button Click.wav by KorgMS2000B -- https://freesound.org/s/54405/ -- License: Creative Commons 0</a><br>
+      <a href="https://freesound.org/people/atari66/sounds/64119" target="_blank">beeps.wav by atari66 -- https://freesound.org/s/64119/ -- License: Sampling+</a><br>
+      <a href="https://freesound.org/people/bubaproducer/sounds/107156" target="_blank">button 9 funny.wav by bubaproducer -- https://freesound.org/s/107156/ -- License: Attribution 4.0</a><br>
+      <a href="https://freesound.org/people/noirenex/sounds/159399" target="_blank">Power Down by noirenex -- https://freesound.org/s/159399/ -- License: Creative Commons 0</a><br>
+      <a href="https://freesound.org/people/jim-ph/sounds/194799" target="_blank">keyboard5.wav by jim-ph -- https://freesound.org/s/194799/ -- License: Creative Commons 0</a><br>
+      <a href="https://freesound.org/people/unfa/sounds/240875" target="_blank">Anime jump / Loud Short SMS signal by unfa -- https://freesound.org/s/240875/ -- License: Creative Commons 0</a><br>
+      <a href="https://freesound.org/people/farpro/sounds/264762" target="_blank">guiclick.ogg by farpro -- https://freesound.org/s/264762/ -- License: Creative Commons 0</a><br>
+      <a href="https://freesound.org/people/LittleRobotSoundFactory/sounds/270548" target="_blank">Laser_04.wav by LittleRobotSoundFactory -- https://freesound.org/s/270548/ -- License: Attribution 4.0</a><br>
+      <a href="https://freesound.org/people/LittleRobotSoundFactory/sounds/270551" target="_blank">Laser_07.wav by LittleRobotSoundFactory -- https://freesound.org/s/270551/ -- License: Attribution 4.0</a><br>
+      <a href="https://freesound.org/people/magedu/sounds/277723" target="_blank">typewriter_electric_turn_off.wav by magedu -- https://freesound.org/s/277723/ -- License: Attribution 4.0</a><br>
+      <a href="https://freesound.org/people/rhodesmas/sounds/342756" target="_blank">Failure 01 by rhodesmas -- https://freesound.org/s/342756/ -- License: Attribution 3.0</a><br>
+      <a href="https://freesound.org/people/Julien_Matthey/sounds/346918/" target="_blank">JM_NOIZ_Laser 04.wav by Julien_Matthey -- https://freesound.org/s/346918/ -- License: Creative Commons 0</a><br>
+      <a href="https://freesound.org/people/cabled_mess/sounds/360602" target="_blank">Typewriter snippet 02 by cabled_mess -- https://freesound.org/s/360602/ -- License: Creative Commons 0</a><br>
+      <a href="https://freesound.org/people/bigmonmulgrew/sounds/378085/" target="_blank">mechanical key hard.wav by bigmonmulgrew -- https://freesound.org/s/378085/ -- License: Creative Commons 0</a><br>
+      <a href="https://freesound.org/people/copyc4t/sounds/533257" target="_blank">Screen Lettering by copyc4t -- https://freesound.org/s/533257/ -- License: Attribution 4.0</a><br>
+      <a href="https://freesound.org/people/mango777/sounds/547441" target="_blank">LazerCannon.ogg by mango777 -- https://freesound.org/s/547441/ -- License: Creative Commons 0</a><br>
+      <a href="https://freesound.org/people/morganpurkis/sounds/577423" target="_blank">Zip Laser.wav by morganpurkis -- https://freesound.org/s/577423/ -- License: Creative Commons 0</a><br>
+      <a href="https://freesound.org/people/Annyew/sounds/580116" target="_blank">Complete/obtained sound by Annyew -- https://freesound.org/s/580116/ -- License: Attribution 3.0</a><br>
+      <a href="https://freesound.org/people/oysterqueen/sounds/582986" target="_blank">Low-battery.mp3 by oysterqueen -- https://freesound.org/s/582986/ -- License: Creative Commons 0</a><br>
+      <a href="https://freesound.org/people/David819/sounds/668436/" target="_blank">win.mp3 by David819 -- https://freesound.org/s/668436/ -- License: Creative Commons 0</a><br>
+      <a href="https://freesound.org/people/kreha/sounds/773604/" target="_blank">SmallClick by kreha -- https://freesound.org/s/773604/ -- License: Creative Commons 0</a><br>
+      <a href="https://soundeffect-lab.info/sound/button/">効果音ラボ: カーソル移動2 / ビープ音4</a><br>
+      </div>      
       `
     },
   ];
@@ -515,6 +555,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // How To Playボタンクリック時の処理
   howToPlayButton.addEventListener('click', () => {
+    if (gameState !== 'normal') {
+      return;
+    }
+    gameState = 'howToPlay';
     howToPlayWrapper.classList.remove('closing');
     howToPlayWrapper.classList.add('active');
   });
@@ -522,11 +566,12 @@ document.addEventListener('DOMContentLoaded', () => {
   // Close HowToPlayボタンクリック時の処理
   closeHowToPlayButton.addEventListener('click', () => {
     howToPlayWrapper.classList.add('closing');
+    gameState = 'normal'
 
     // アニメーション完了後にclassを削除
     setTimeout(() => {
       howToPlayWrapper.classList.remove('active', 'closing');
-    }, 500); // アニメーションの時間に合わせる
+    }, 500);
   });
 });
 
@@ -563,13 +608,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Configボタンクリック時の処理
   configBtn.addEventListener('click', () => {
+    if (gameState !== 'normal') {
+      return;
+    }
     configWrapper.classList.remove('closing');
     configWrapper.classList.add('active');
+    gameState = 'config';
   });
 
   // Close Configボタンクリック時の処理
   closeConfigBtn.addEventListener('click', () => {
     configWrapper.classList.add('closing');
+    gameState = 'normal';
+    soundManager.stop('Consecutive Battle');
+    soundManager.stop('Lightning Brain');
+    soundManager.stop('R.E.B.O.R.N');
+    isPlaying = false;
 
     // 背景のフェードアウトを遅らせる
     setTimeout(() => {
@@ -585,7 +639,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // BGMの状態を管理するグローバル変数
 
-const BGMLeft = document.getElementById('BGMLeft');
+// const BGMLeft = document.getElementById('BGMLeft');
 const BGMRight = document.getElementById('BGMRight');
 const BGMButton = document.querySelector('.configButtons.BGM');
 let currentBGMState = 'Consecutive Battle';
@@ -608,12 +662,12 @@ function toggleBGMState() {
       currentBGMState = 'Consecutive Battle';
       break;
   }
-  BGMLeft.textContent = 'BGM :';
+  // BGMLeft.textContent = 'BGM :';
   BGMRight.textContent = currentBGMState;
   return currentBGMState;
 }
 
-const typeSELeft = document.getElementById('typeSELeft');
+// const typeSELeft = document.getElementById('typeSELeft');
 const typeSERight = document.getElementById('typeSERight');
 const typeSEButton = document.querySelector('.configButtons.typeSE');
 let currentTypeSoundState = 'type1';
@@ -650,12 +704,12 @@ function toggleTypeSoundState() {
       break;
   }
 
-  typeSELeft.textContent = 'TYPE SOUND:';
+  // typeSELeft.textContent = 'TYPE SOUND(listen here):';
   typeSERight.textContent = currentTypeSoundState;
   return currentTypeSoundState;
 }
 
-const misstypeSELeft = document.getElementById('misstypeSELeft');
+// const misstypeSELeft = document.getElementById('misstypeSELeft');
 const misstypeSERight = document.getElementById('misstypeSERight');
 const missTypeSEButton = document.querySelector('.configButtons.misstypeSE');
 let currentMissTypeSoundState = 'VALID';
@@ -666,12 +720,12 @@ function toggleMissTypeSoundState() {
   } else {
     currentMissTypeSoundState = 'VALID'
   }
-  misstypeSELeft.textContent = 'MISSTYPE SOUND :';
+  // misstypeSELeft.textContent = 'MISSTYPE SOUND :';
   misstypeSERight.textContent = currentMissTypeSoundState;
   return currentMissTypeSoundState;
 }
 
-const deleteSELeft = document.getElementById('deleteSELeft');
+// const deleteSELeft = document.getElementById('deleteSELeft');
 const deleteSERight = document.getElementById('deleteSERight');
 const deleteSEButton = document.querySelector('.configButtons.deleteSE');
 let currentDeleteSoundState = 'VALID';
@@ -682,12 +736,12 @@ function toggleDeleteSoundState() {
   } else {
     currentDeleteSoundState = 'VALID'
   }
-  deleteSELeft.textContent = 'DELETE SOUND :';
+  // deleteSELeft.textContent = 'DELETE SOUND :';
   deleteSERight.textContent = currentDeleteSoundState;
   return currentDeleteSoundState;
 }
 
-const addWordSELeft = document.getElementById('addWordSELeft');
+// const addWordSELeft = document.getElementById('addWordSELeft');
 const addWordSERight = document.getElementById('addWordSERight');
 const addWordSEButton = document.querySelector('.configButtons.addWordSE');
 let currentAddWordSoundState = 'VALID';
@@ -698,12 +752,12 @@ function toggleAddWordSoundState() {
   } else {
     currentAddWordSoundState = 'VALID'
   }
-  addWordSELeft.textContent = 'ADDWORD SOUND :';
+  // addWordSELeft.textContent = 'ADDWORD SOUND :';
   addWordSERight.textContent = currentAddWordSoundState;
   return currentAddWordSoundState;
 }
 
-const attackSELeft = document.getElementById('attackSELeft');
+// const attackSELeft = document.getElementById('attackSELeft');
 const attackSERight = document.getElementById('attackSERight');
 const attackSEButton = document.querySelector('.configButtons.attackSE');
 let currentAttackSoundState = 'VALID';
@@ -714,13 +768,13 @@ function toggleAttackSoundState() {
   } else {
     currentAttackSoundState = 'VALID'
   }
-  attackSELeft.textContent = 'ATTACK SOUND :';
+  // attackSELeft.textContent = 'ATTACK SOUND :';
   attackSERight.textContent = currentAttackSoundState;
   return currentAttackSoundState;
 }
 
 
-const warningSELeft = document.getElementById('warningSELeft');
+// const warningSELeft = document.getElementById('warningSELeft');
 const warningSERight = document.getElementById('warningSERight');
 const warningSEButton = document.querySelector('.configButtons.warningSE');
 let currentWarningSoundState = 'VALID';
@@ -731,12 +785,12 @@ function toggleWarningSoundState() {
   } else {
     currentWarningSoundState = 'VALID'
   }
-  warningSELeft.textContent = 'WARNING SOUND :';
+  // warningSELeft.textContent = 'WARNING SOUND :';
   warningSERight.textContent = currentWarningSoundState;
   return currentWarningSoundState;
 }
 
-const countdownSELeft = document.getElementById('countdownSELeft');
+// const countdownSELeft = document.getElementById('countdownSELeft');
 const countdownSERight = document.getElementById('countdownSERight');
 const countdownSEButton = document.querySelector('.configButtons.countdownSE');
 let currentCountdownSoundState = 'VALID';
@@ -747,12 +801,12 @@ function toggleCountdownSoundState() {
   } else {
     currentCountdownSoundState = 'VALID'
   }
-  countdownSELeft.textContent = 'COUNTDOWN SOUND :';
+  // countdownSELeft.textContent = 'COUNTDOWN SOUND :';
   countdownSERight.textContent = currentCountdownSoundState;
   return currentCountdownSoundState;
 }
 
-const gameOverSELeft = document.getElementById('gameOverSELeft');
+// const gameOverSELeft = document.getElementById('gameOverSELeft');
 const gameOverSERight = document.getElementById('gameOverSERight');
 const gameOverSEButton = document.querySelector('.configButtons.gameOverSE');
 let currentGameOverSoundState = 'VALID';
@@ -764,12 +818,12 @@ function toggleGameOverSoundState() {
   } else {
     currentGameOverSoundState = 'VALID'
   }
-  gameOverSELeft.textContent = 'GAMEOVER SOUND :';
+  // gameOverSELeft.textContent = 'GAMEOVER SOUND :';
   gameOverSERight.textContent = currentGameOverSoundState;
   return currentGameOverSoundState;
 }
 
-const buttonSELeft = document.getElementById('buttonSELeft');
+// const buttonSELeft = document.getElementById('buttonSELeft');
 const buttonSERight = document.getElementById('buttonSERight');
 const buttonSEButton = document.querySelector('.configButtons.buttonSE');
 let currentButtonSoundState = 'VALID';
@@ -780,7 +834,7 @@ function toggleButtonSoundState() {
   } else {
     currentButtonSoundState = 'VALID'
   }
-  buttonSELeft.textContent = 'BUTTON SOUND :';
+  // buttonSELeft.textContent = 'BUTTON SOUND :';
   buttonSERight.textContent = currentButtonSoundState;
   return currentButtonSoundState;
 }
@@ -789,44 +843,44 @@ function toggleButtonSoundState() {
 // 初期設定
 document.addEventListener('DOMContentLoaded', () => {
 
-  BGMLeft.textContent = 'BGM :';
+  // BGMLeft.textContent = 'BGM :';
   BGMRight.textContent = currentBGMState;
   BGMButton.addEventListener('click', toggleBGMState);
 
-  typeSELeft.textContent = 'TYPE SOUND :';
+  // typeSELeft.textContent = 'TYPE SOUND :';
   typeSERight.textContent = currentTypeSoundState;
   typeSEButton.addEventListener('click', toggleTypeSoundState);
 
-  misstypeSELeft.textContent = 'MISSTYPE SOUND :';
+  // misstypeSELeft.textContent = 'MISSTYPE SOUND :';
   misstypeSERight.textContent = currentMissTypeSoundState;
   missTypeSEButton.addEventListener('click', toggleMissTypeSoundState);
 
-  deleteSELeft.textContent = 'DELETE SOUND :'
+  // deleteSELeft.textContent = 'DELETE SOUND :'
   deleteSERight.textContent = currentDeleteSoundState;
   deleteSEButton.addEventListener('click', toggleDeleteSoundState);
 
-  addWordSELeft.textContent = 'ADDWORD SOUND :'
+  // addWordSELeft.textContent = 'ADDWORD SOUND :'
   addWordSERight.textContent = currentAddWordSoundState;
   addWordSEButton.addEventListener('click', toggleAddWordSoundState);
 
-  attackSELeft.textContent = 'ATTACK SOUND :'
+  // attackSELeft.textContent = 'ATTACK SOUND :'
   attackSERight.textContent = currentAttackSoundState;
   attackSEButton.addEventListener('click', toggleAttackSoundState);
 
 
-  warningSELeft.textContent = 'WARNING SOUND :'
+  // warningSELeft.textContent = 'WARNING SOUND :'
   warningSERight.textContent = currentWarningSoundState;
   warningSEButton.addEventListener('click', toggleWarningSoundState);
 
-  countdownSELeft.textContent = 'COUNTDOWN SOUND :';
+  // countdownSELeft.textContent = 'COUNTDOWN SOUND :';
   countdownSERight.textContent = currentCountdownSoundState;
   countdownSEButton.addEventListener('click', toggleCountdownSoundState);
 
-  gameOverSELeft.textContent = 'GAMEOVER SOUND :';
+  // gameOverSELeft.textContent = 'GAMEOVER SOUND :';
   gameOverSERight.textContent = currentGameOverSoundState;
   gameOverSEButton.addEventListener('click', toggleGameOverSoundState);
 
-  buttonSELeft.textContent = 'BUTTON SOUND :';
+  // buttonSELeft.textContent = 'BUTTON SOUND :';
   buttonSERight.textContent = currentButtonSoundState;
   buttonSEButton.addEventListener('click', toggleButtonSoundState);
 });
@@ -1119,7 +1173,7 @@ function updateAllNextGradients(words, isPlayer = true) {
   return gradientStyles;
 }
 
-// ソケット通信用のグラデーション更新関数
+
 // checkAndRemoveWordからのみ呼び出され、単語を削除後、再描画する
 function updateField(field, fieldWords) {
   console.log("updateField実行");
@@ -1193,6 +1247,8 @@ function updateFieldAfterReceiveOffset(field, fieldWords) {
         field[row][col] = { word: char, isHighlighted: false };
         col++;
       } else if (row < 0) {
+        if (gameState === 'ended') return;
+
         drawField(ctxPlayer, playerField, memorizeLastAttackValue);
 
         // console.log("描写する行が上限を突破したためdrawField");
@@ -1279,6 +1335,11 @@ function getMatchingStartAndEndLetters(combinedWords) {
   return matchingChars;
 }
 
+// 勝利数を管理するグローバル変数
+let playerWins = 0;
+let opponentWins = 0;
+
+let playerIsLoser = false;
 // ゲームオーバー処理
 function handleGameOver(isLoser) {
   soundManager.stop('warning');
@@ -1295,23 +1356,62 @@ function handleGameOver(isLoser) {
     case 'OFF':
       break;
   }
-  if (gameState === 'ended') return; // 既にゲーム終了処理が行われている場合は何もしない
+
+  if (gameState === 'ended') return;
+
   console.log("handleGameOver実行");
+
   gameState = 'ended';
+
   isGameOver = true;
 
-  // 結果表示
-  drawGameOverUI(isLoser ? 'Lose' : 'Win');
+  if (isLoser) {
+    opponentWins++;
+    playerIsLoser = true;
+  } else {
+    playerIsLoser = false;
+  }
 
+
+
+
+  // drawGameOverUI(isLoser ? 'Lose' : 'Win');
+
+  // 勝利数の確認
+  if (playerWins === 2 || opponentWins === 2) {
+    // 最終勝者が決定
+    drawGameOverUI(playerWins === 2 ? 'Win' : 'Lose');
+    setTimeout(() => {
+      resetGameAnimation();
+      setTimeout(() => {
+        playerWins = 0;
+        opponentWins = 0;
+        playerIsLoser = false;
+        showRetryDialog();
+      }, 4000);
+    }, 2000);
+  } else {
+    // 通常のゲーム終了処理
+    drawGameOverUI(isLoser ? 'Lose' : 'Win');
+    setTimeout(() => {
+      resetGameAnimation();
+      setTimeout(() => {
+        startCountdown();
+      }, 4000);
+    }, 2000);
+  }
   // 少し待ってからリトライダイアログを表示
-  setTimeout(() => {
-    showRetryDialog();
-    resetGameAnimation();
-  }, 2000);
+  // setTimeout(() => {
+  //   showRetryDialog();
+  //   resetGameAnimation();
+  // }, 2000);
 }
 
 // リトライレスポンス処理
 function handleRetryResponse(response) {
+  if (!response) {
+    gameState = 'normal';
+  }
   const buttons = retryDialog.querySelectorAll('button');
   buttons.forEach(button => button.disabled = true); // ボタンを無効化
   socket.emit('retryResponse', { response });
@@ -1388,53 +1488,162 @@ function animateGameOver(isLoser) {
 }
 
 // フェードアウト用オーバーレイ
-const fadeOverlay = document.createElement('div');
-fadeOverlay.style.cssText = `
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: black;
-  opacity: 0;
-  z-index: 1000;
-  pointer-events: none;
-`;
+// const fadeOverlay = document.createElement('div');
+// fadeOverlay.style.cssText = `
+//   position: fixed;
+//   top: 0;
+//   left: 0;
+//   width: 100%;
+//   height: 100%;
+//   background: black;
+//   opacity: 0;
+//   z-index: 1000;
+//   pointer-events: none;
+// `;
 
-// 新しいリセット関数を追加
-function resetGameAnimation() {
+// // 新しいリセット関数を追加
+// function resetGameAnimation() {
+//   return new Promise((resolve) => {
+//     document.body.appendChild(fadeOverlay);
+
+//     // フェードアウト
+//     fadeOverlay.style.animation = 'fadeOut 0.5s forwards';
+
+//     setTimeout(() => {
+//       // アニメーション効果のリセット
+//       const playerArea = document.getElementById('playerGameArea');
+//       const opponentArea = document.getElementById('opponentGameArea');
+//       const playerOverlay = document.getElementById('playerChildEffectOverlay');
+//       const opponentOverlay = document.getElementById('opponentChildEffectOverlay');
+
+//       // アニメーションと変形をリセット
+//       playerArea.style.animation = '';
+//       opponentArea.style.animation = '';
+//       playerArea.style.transform = '';
+//       opponentArea.style.transform = '';
+
+//       // オーバーレイのテキストをクリア
+//       playerOverlay.innerHTML = '';
+//       opponentOverlay.innerHTML = '';
+
+//       // フェードイン
+//       fadeOverlay.style.animation = 'fadeIn 0.5s reverse forwards';
+
+//       setTimeout(() => {
+//         document.body.removeChild(fadeOverlay);
+//         resolve();
+//       }, 500);
+//     }, 500);
+//   });
+// }
+
+// HTML から扉要素を取得
+const doorLeft = document.querySelector('.door-left');
+const doorRight = document.querySelector('.door-right');
+
+// 扉を閉じる関数
+function closeDoors() {
   return new Promise((resolve) => {
-    document.body.appendChild(fadeOverlay);
+    // 扉を閉じるクラスを適用
+    doorLeft.classList.remove('open-left');
+    doorRight.classList.remove('open-right');
+    doorLeft.classList.add('closed-left');
+    doorRight.classList.add('closed-right');
 
-    // フェードアウト
-    fadeOverlay.style.animation = 'fadeOut 0.5s forwards';
-
-    setTimeout(() => {
-      // アニメーション効果のリセット
-      const playerArea = document.getElementById('playerGameArea');
-      const opponentArea = document.getElementById('opponentGameArea');
-      const playerOverlay = document.getElementById('playerChildEffectOverlay');
-      const opponentOverlay = document.getElementById('opponentChildEffectOverlay');
-
-      // アニメーションと変形をリセット
-      playerArea.style.animation = '';
-      opponentArea.style.animation = '';
-      playerArea.style.transform = '';
-      opponentArea.style.transform = '';
-
-      // オーバーレイのテキストをクリア
-      playerOverlay.innerHTML = '';
-      opponentOverlay.innerHTML = '';
-
-      // フェードイン
-      fadeOverlay.style.animation = 'fadeIn 0.5s reverse forwards';
-
-      setTimeout(() => {
-        document.body.removeChild(fadeOverlay);
-        resolve();
-      }, 500);
-    }, 500);
+    // アニメーション終了を待つ
+    setTimeout(() => resolve(), 1500);
   });
+}
+
+// 扉を開く関数
+function openDoors() {
+  return new Promise((resolve) => {
+    // 扉を開くクラスを適用
+    doorLeft.classList.remove('closed-left');
+    doorRight.classList.remove('closed-right');
+    doorLeft.classList.add('open-left');
+    doorRight.classList.add('open-right');
+
+    // アニメーション終了を待つ
+    setTimeout(() => resolve(), 500);
+  });
+}
+
+async function resetGameAnimation() {
+  await closeDoors(); // 扉を中央に閉じる
+
+  if (currentGameOverSoundState === 'VALID') {
+    soundManager.playSound('deleteInput', { volume: 1 });
+    if (playerWins === 2) {
+      soundManager.playSound('win', { volume: 0.8 });
+    } else if (opponentWins === 2) {
+      soundManager.playSound('lose', { volume: 1.5 });
+    } else if (!playerIsLoser) {
+      soundManager.playSound('playerMatchPoint', { volume: 1 });
+    } else if (playerIsLoser) {
+      soundManager.playSound('opponentMatchPoint', { volume: 1.2 });
+    }
+  }
+
+  console.log(`相手の勝利数: ${opponentWins}`);
+  console.log(`プレイヤーの勝利数: ${playerWins}`);
+  console.log("resetGameAnimation実行");
+
+  const playerArea = document.getElementById('playerGameArea');
+  const opponentArea = document.getElementById('opponentGameArea');
+  const playerOverlay = document.getElementById('playerChildEffectOverlay');
+  const opponentOverlay = document.getElementById('opponentChildEffectOverlay');
+
+  // アニメーションと変形をリセット
+  playerArea.style.animation = '';
+  opponentArea.style.animation = '';
+  playerArea.style.transform = '';
+  opponentArea.style.transform = '';
+
+  // オーバーレイのテキストをクリア
+  playerOverlay.innerHTML = '';
+  opponentOverlay.innerHTML = '';
+
+  // 背景と文字を描画
+  if (playerWins < 2 && opponentWins < 2) {
+    if (playerWins === 1) {
+      // 左ドア：中央90%は黒、端10%は赤のグラデーション
+      doorLeft.style.background = 'linear-gradient(to right, black 90%, red)';
+      doorLeft.innerHTML = `<div style="color: white; text-align: center; font-family:'zouver'; font-size: 8vh;line-height: 100%; margin-top: 40%;">MatchPoint</div>`;
+    }
+    if (opponentWins === 1) {
+      // 右ドア：中央90%は黒、端10%は青のグラデーション
+      doorRight.style.background = 'linear-gradient(to left, black 90%, blue)';
+      doorRight.innerHTML = `<div style="color: white; text-align: center; font-family:'zouver'; font-size: 8vh; line-height: 100%; margin-top: 40%;">MatchPoint</div>`;
+    }
+  }
+
+  if (playerWins === 2) {
+    // 左ドア：Player
+    doorLeft.style.background = 'black';
+    doorLeft.innerHTML = `<div style="color: white; text-align: center; font-family:'zouver'; font-size: 9vh; line-height: 100%; margin-left: 25%; margin-top: 40%;">Player</div>`;
+    // 右ドア：Win
+    doorRight.style.background = 'black';
+    doorRight.innerHTML = `<div style="color: white; text-align: center; font-family:'zouver'; font-size: 9vh; line-height: 100%; margin-right: 25%; margin-top: 40%;">Win</div>`;
+  }
+
+  if (opponentWins === 2) {
+    // 左ドア：Player
+    doorLeft.style.background = 'black';
+    doorLeft.innerHTML = `<div style="color: white; text-align: center; font-family:'zouver'; font-size: 9vh; line-height: 100%; margin-left: 25%; margin-top: 40%;">Player</div>`;
+    // 右ドア：Lose
+    doorRight.style.background = 'black';
+    doorRight.innerHTML = `<div style="color: white; text-align: center; font-family:'zouver'; font-size: 9vh; line-height: 100%; margin-right: 25%; margin-top: 40%;">Lose</div>`;
+  }
+
+  // 2秒待ってから扉を開く
+  setTimeout(async () => {
+    await openDoors();
+    doorLeft.innerHTML = '';
+    doorRight.innerHTML = '';
+    doorLeft.style.background = '';
+    doorRight.style.background = '';
+  }, 2500);
 }
 
 function drawGameOverUI(text) {
@@ -1459,7 +1668,7 @@ function drawGameOverUI(text) {
 }
 
 function syncFieldUpdate() {
-  if (gameStarted) {
+  if (gameState === "playing") {
     socket.emit('fieldUpdate', {
       field: playerField,
       fieldWords: playerFieldWords,
@@ -1704,7 +1913,7 @@ function applyAuraEffectToCell(y, x, colorObj, overlayDiv) {
 
 function drawField(ctx, field, receivedLastWordLength) {
 
-  if (gameState === 'ended') return;
+  if (gameState !== "playing") return;
   ctx.clearRect(0, 0, ctx.canvas.getBoundingClientRect().width, ctx.canvas.getBoundingClientRect().height);
 
   ctx.fillStyle = "rgba(5, 7, 19, 0.7)";
@@ -2058,13 +2267,22 @@ loadWordList().then(() => {
 let gameStepInterval = 10000; // 初期の間隔（ミリ秒）
 const minInterval = 1000; // 最小の間隔（ミリ秒）
 
-// startGame関数を修正
+
 function startGame() {
-  // if (gameState !== 'playing') return;
+  if (gameState !== 'playing') return;
+
   setWordPool();
+  if (playerFieldWords.length === 0) {
+    for (let x = 0; x < 9; x++) {
+      playerFieldWords.push(getRandomWordForField(playerUsedLengths));
+    }
+  }
+  syncFieldUpdate(playerField);
   drawInfo();
   playerInput = "";
   opponentInput = "";
+  drawInputField(ctxPlayerInput, '', playerInputField);
+  drawInputField(ctxOpponentInput, '', opponentInputField);
 
   function gameStep() {
     if (gameState !== 'playing') return;
@@ -2186,8 +2404,70 @@ function getRandomWordForAttack(characterCount) {
 }
 
 // キー入力リスナー
+let isPlaying = false;
+
 window.addEventListener("keydown", (e) => {
+  if (gameState === 'ended' || isRoomMatch === true) return;
   const key = e.key;
+
+  if (gameState === 'config') {
+    if (e.key === ' ') {
+      if (isPlaying === true) {
+        soundManager.stop('Consecutive Battle');
+        soundManager.stop('Lightning Brain');
+        soundManager.stop('R.E.B.O.R.N');
+        isPlaying = false;
+      }
+      switch (currentBGMState) {
+        case 'Consecutive Battle':
+          soundManager.playSound('Consecutive Battle', { volume: 0.6, loop: true });
+          isPlaying = true;
+          break;
+        case 'Lightning Brain':
+          soundManager.playSound('Lightning Brain', { volume: 0.6, loop: true });
+          isPlaying = true;
+          break;
+        case 'R.E.B.O.R.N':
+          soundManager.playSound('R.E.B.O.R.N', { volume: 0.6, loop: true });
+          isPlaying = true;
+          break;
+        case 'OFF':
+          soundManager.stop('Consecutive Battle');
+          soundManager.stop('Lightning Brain');
+          soundManager.stop('R.E.B.O.R.N');
+          break;
+      }
+    }
+    switch (currentTypeSoundState) {
+      case 'type1':
+        soundManager.playSound('type1');
+        break;
+      case 'type2':
+        soundManager.playSound('type2');
+        break;
+      case 'type3':
+        soundManager.playSound('type3');
+        break;
+      case 'type4':
+        soundManager.playSound('type4');
+        break;
+      case 'type5':
+        soundManager.playSound('type5');
+        break;
+      case 'type6':
+        soundManager.playSound('type6');
+        break;
+      case 'type7':
+        soundManager.playSound('type7');
+        break;
+      case 'type8':
+        soundManager.playSound('type8')
+        break;
+      case 'OFF':
+        break;
+    }
+    return;
+  }
 
   // selectedCategoryがhiraganaの場合、ローマ字をひらがなに変換
   if (selectedCategory === "hiragana") {
@@ -2231,12 +2511,16 @@ window.addEventListener("keydown", (e) => {
       }
 
       if (key === ' ') {
+        if (gameState !== 'playing') return;
+        playerInput = playerInput.trim();
+        convertedInput = wanakana.toHiragana(playerInput);
+        if (playerField.filter(row => row.some(item => item !== null)).length >= 20) {
+          return;
+        }
         if (currentAddWordSoundState === 'VALID') {
           soundManager.playSound('addFieldWord', { volume: 1 });
         }
         updateFieldAfterReceiveOffset(playerField, playerFieldWords);
-        playerInput = playerInput.trim();
-        convertedInput = wanakana.toHiragana(playerInput);
       } else if (key === "n") {
         // 押下キーが「n」の場合、それ以外を日本語に変換
         convertedInput = wanakana.toHiragana(playerInput.slice(0, -1));
@@ -2273,19 +2557,13 @@ window.addEventListener("keydown", (e) => {
       convertedInput = ""
       resetHighlight(playerField);
     } else if (key === 'ArrowUp') {
-
-      soundManager.playSound('Consecutive Battle');
-
     } else if (key === "ArrowDown") {
-
-      soundManager.stop('Consecutive Battle');
-
     } else if (key === "ArrowLeft") {
-    } else if (key === "ArrowRight") { }
+    } else if (key === "ArrowRight") { 
+    }
     else if (key === "Enter") {
+      // gameState = 'playing';
       // startGame();
-      startCountdown();
-      // handleGameOver(true);
     }
 
     playerInput = convertedInput;
@@ -2334,7 +2612,7 @@ document.querySelector('.inputFieldWrapper').addEventListener('animationend', fu
 
 function syncInputUpdate() {
   // 入力状態を同期
-  if (gameStarted) {
+  if (gameState === "playing") {
     socket.emit('inputUpdate', {
       input: playerInput,
       memorizeLastAttackValue: memorizeLastAttackValue
@@ -2406,7 +2684,9 @@ function checkAndRemoveWord(field, fieldWords, input) {
       if (currentMissTypeSoundState === 'VALID') {
         soundManager.playSound('missType');
       }
-      triggerMissColorFlash(playerInputField);
+      if (field === playerField) {
+        triggerMissColorFlash(playerInputField, true);
+      }
     }
     return 0; // 一致しない場合は 0 を返す
   }
@@ -2592,7 +2872,8 @@ function triggerColorFlash(element) {
   setTimeout(() => element.classList.remove('flash-effect'), 300); // アニメーション後に削除
 }
 
-function triggerMissColorFlash(element, isPlayer = true) {
+function triggerMissColorFlash(element, isPlayer) {
+  // console.log(element);
   element.classList.add('playerMissEffect');
   setTimeout(() => element.classList.remove('playerMissEffect'), 300); // アニメーション後に削除
   if (isPlayer) {
@@ -2689,7 +2970,7 @@ function displayAttackValue(element, number) {
 
 // 既存のattack関数を修正
 function attack(attackValue) {
-  if (gameStarted) {
+  if (gameState === "playing") {
     if (nerfValue !== 0) {
       // isNerf = true;
       let nerfAttackValue = attackValue - nerfValue;
@@ -3098,8 +3379,10 @@ function nerfAttackValue() {
 
 // ゲームリセット関数
 function resetGame() {
+  soundManager.stop('warning');
+
   // ゲーム状態のリセット
-  gameState = 'waiting';
+  // gameState = 'waiting';
   isGameOver = false;
   interval = 5000; // 初期インターバルに戻す
 
@@ -3117,15 +3400,23 @@ function resetGame() {
   lastChar = "";
   isWordChain = false;
   nerfValue = 0;
+  memorizeLastAttackValue = 0;
+
+  charColorMap.clear();
+  usedColors.clear();
 
   cancelChain();
+
+  stopDrawInfo()
+  
+  clearProgressBar();
 
   // playerInfoをリセット
   playerKeyValueToKPM = 0;
   playerAtteckValueToAPM = 0;
   playerWordValueToWPM = 0;
   totalTime = 0;
-  time = "0:00.0";
+
 
   // 相手のデータもリセット
   opponentField = Array(FIELD_HEIGHT).fill().map(() => Array(FIELD_WIDTH).fill(null));
@@ -3141,6 +3432,9 @@ function resetGame() {
   drawInputField(ctxOpponentInput, '', opponentInputField);
   drawStatusField(ctxPlayerStatus, true);
   cleanupWarningAnimations();
+  removeAuraEffectFromOverlay(playerOverlayElement);
+  removeAuraEffectFromOverlay(opponentOverlayElement);
+
 }
 
 // マッチング成功UI表示
@@ -3182,6 +3476,7 @@ function showCountdown(count, elementId) {
     color: white;
     font-size: 8vh;
     animation: countdownAnimation 0.9s ease-in forwards;
+     transform-origin: center; 
   `;
 
   // アニメーションのキーフレーム定義を追加
@@ -3206,14 +3501,20 @@ function showCountdown(count, elementId) {
   // アニメーション終了後に要素を削除
   setTimeout(() => {
     overlay.removeChild(countElement);
-    document.head.removeChild(styleSheet);
+    // document.head.removeChild(styleSheet);
   }, 900);
 }
 
 function startCountdown() {
+  console.log(isDisConnect);
+  if (isDisConnect) return;
+
+  resetGame();
   gameState = 'countdown';
   let count = 3;
   const countInterval = setInterval(() => {
+
+
     if (count > 0) {
       // プレイヤーと相手両方の要素にカウントダウンを表示
       showCountdown(count, 'playerChildEffectOverlay');
@@ -3235,6 +3536,7 @@ function startCountdown() {
 
     } else {
       clearInterval(countInterval);
+      if (isDisConnect) return;
       gameState = 'playing';
       startGame();
       switch (currentBGMState) {
@@ -3525,13 +3827,15 @@ Array.from(infoFieldWrappers).forEach((wrapper) => {
 });
 
 // 値を描写する関数
+let drawInfoInterval;
+
 function drawInfo() {
   let emitCounter = 0; // 送信タイミング制御用のカウンタ
 
-  setInterval(() => {
-    // if (gameState !== 'playing') {
-    //   return;
-    // }
+  drawInfoInterval = setInterval(() => {
+    if (gameState !== 'playing') {
+      return;
+    }
 
     // 0.1秒ごとに値を更新
     totalTime++; // 0.1秒追加
@@ -3589,18 +3893,34 @@ function drawInfo() {
   }, 100);
 }
 
+// 停止させたい場合
+function stopDrawInfo() {
+  if (drawInfoInterval) {
+    clearInterval(drawInfoInterval);
+    drawInfoInterval = null;
+  }
+}
 
 // ボタンのイベントリスナー設定
 document.querySelector('.random-match').addEventListener('click', () => {
+  if (gameState !== 'normal') {
+    return;
+  }
+  isDisConnect = false;
   startRandomMatch();
 });
 
 document.querySelector('.room-match').addEventListener('click', () => {
+  if (gameState !== 'normal') {
+    return;
+  }
+  isDisConnect = false;
   showRoomMatchDialog();
 });
 
 // ランダムマッチング開始
 function startRandomMatch() {
+  gameState = "randomMatch";
   if (!socket) {
     initializeSocket();
   }
@@ -3608,6 +3928,60 @@ function startRandomMatch() {
   showLoadingOverlay('対戦相手を探しています...');
 }
 
+// let peerConnection = null;
+// let dataChannel;
+
+// function startRandomMatch() {
+//     // WebRTC接続の再初期化を確実に行う
+//     peerConnection = new RTCPeerConnection({
+//       iceServers: [
+//           { urls: 'stun:stun.l.google.com:19302' },
+//           { urls: 'stun:stun1.l.google.com:19302' }
+//       ]
+//   });
+
+//   // データチャネルの作成
+//   dataChannel = peerConnection.createDataChannel("gameChannel");
+
+//   // イベントリスナーの設定
+//   setupPeerConnectionListeners();
+
+//   // オファーの生成と送信
+//   peerConnection.createOffer()
+//       .then(offer => peerConnection.setLocalDescription(offer))
+//       .then(() => {
+//           socket.emit('webrtc-offer', {
+//               offer: peerConnection.localDescription
+//           });
+//       })
+//       .catch(error => {
+//           console.error('オファー生成エラー:', error);
+//       });
+
+//   showLoadingOverlay('対戦相手を探しています...');
+// }
+
+
+// function setupPeerConnectionListeners() {
+//   if (!peerConnection) return;
+
+//   peerConnection.onicecandidate = (event) => {
+//       if (event.candidate) {
+//           socket.emit('ice-candidate', event.candidate);
+//       }
+//   };
+
+//   peerConnection.ondatachannel = (event) => {
+//       dataChannel = event.channel;
+//       dataChannel.onopen = () => {
+//           gameState = "playing";
+//           showMatchingSuccess();
+//           console.log('P2P接続確立');
+//       };
+//   };
+// }
+
+let isRoomMatch = false;
 // ルームマッチングダイアログ表示
 function showRoomMatchDialog() {
   const dialog = document.createElement('div');
@@ -3625,6 +3999,8 @@ function showRoomMatchDialog() {
   `;
   document.body.appendChild(dialog);
 
+  isRoomMatch = true;
+
   const roomInput = dialog.querySelector('#roomInput');
   const connectButton = dialog.querySelector('#connectButton');
   const cancelButton = dialog.querySelector('#cancelButton');
@@ -3635,6 +4011,8 @@ function showRoomMatchDialog() {
   });
 
   connectButton.addEventListener('click', () => {
+    gameState = "roomMatch";
+    isRoomMatch = false;
     const roomNumber = roomInput.value;
     if (roomNumber.length === 4) {
       joinRoom(roomNumber);
@@ -3643,6 +4021,7 @@ function showRoomMatchDialog() {
   });
 
   cancelButton.addEventListener('click', () => {
+    isRoomMatch = false;
     dialog.remove();
   });
 }
@@ -3663,9 +4042,36 @@ function showLoadingOverlay(message) {
     <div class="loading-content">
       <div class="spinner"></div>
       <p>${message}</p>
+      <button class="cancel-button">キャンセル</button>
     </div>
   `;
   overlay.style.display = 'flex';
+  // キャンセルボタンのイベントリスナーを追加
+  const cancelButton = overlay.querySelector('.cancel-button');
+  cancelButton.addEventListener('click', () => {
+    if (gameState === "randomMatch") {
+      cancelRandomMatch();
+    } else {
+      cancelRoomMatch();
+      isRoomMatch = false;
+    }
+    gameState = "normal";
+  });
+}
+
+function cancelRandomMatch() {
+  if (socket) {
+    socket.emit('cancelMatch');
+  }
+  hideLoadingOverlay();
+}
+
+// ルームマッチングのキャンセル処理
+function cancelRoomMatch() {
+  if (socket) {
+    socket.emit('cancelRoomMatch');
+  }
+  hideLoadingOverlay();
 }
 
 function hideLoadingOverlay() {
@@ -3688,7 +4094,6 @@ function showMatchingSuccess() {
   }, 2000);
 }
 
-// main.jsに追加
 function initializeSocket() {
 
   // ここからRender用追記
@@ -3702,23 +4107,75 @@ function initializeSocket() {
   socket = io(socketUrl);
 
   socket.on('waitingForPlayer', () => {
-    console.log('対戦相手を待っています...');
+    // console.log('対戦相手を待っています...');
   });
+
+  socket.on('matchCancelled', () => {
+    hideLoadingOverlay();
+    // alert('マッチングがキャンセルされました。');
+  });
+
+  //   // WebRTC接続のためのイベントリスナー
+  //   socket.on('webrtc-offer', (data) => {
+  //     if (!peerConnection) {
+  //         peerConnection = new RTCPeerConnection({
+  //             iceServers: [
+  //                 { urls: 'stun:stun.l.google.com:19302' },
+  //                 { urls: 'stun:stun1.l.google.com:19302' }
+  //             ]
+  //         });
+  //         setupPeerConnectionListeners();
+  //     }
+
+  //     peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer))
+  //         .then(() => peerConnection.createAnswer())
+  //         .then(answer => peerConnection.setLocalDescription(answer))
+  //         .then(() => {
+  //             socket.emit('webrtc-answer', {
+  //                 answer: peerConnection.localDescription
+  //             });
+  //         })
+  //         .catch(error => {
+  //             console.error('WebRTC接続エラー:', error);
+  //         });
+  // });
+
+  // socket.on('webrtc-answer', (data) => {
+  //     if (peerConnection) {
+  //         peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer))
+  //             .catch(error => {
+  //                 console.error('リモート記述設定エラー:', error);
+  //             });
+  //     }
+  // });
+
+  // socket.on('ice-candidate', (candidate) => {
+  //     if (peerConnection && peerConnection.remoteDescription) {
+  //         peerConnection.addIceCandidate(new RTCIceCandidate(candidate))
+  //             .catch(error => {
+  //                 console.error('ICEカンディデート追加エラー:', error);
+  //             });
+  //     }
+  // });
 
   // ゲーム開始
   socket.on('gameStart', (data) => {
     playerId = socket.id;
     isPlayer1 = playerId === data.player1Id;
     opponentId = isPlayer1 ? data.player2Id : data.player1Id;
-    gameStarted = true;
+    gameState = "playing";
+    playerWins = 0;
+    opponentWins = 0;
     showMatchingSuccess();
-    console.log(`ゲーム開始: ${isPlayer1 ? 'プレイヤー1' : 'プレイヤー2'}`);
+    // console.log(`ゲーム開始: ${isPlayer1 ? 'プレイヤー1' : 'プレイヤー2'}`);
   });
 
   // socket.on イベントハンドラを追加・修正
   socket.on('gameOver', (data) => {
+    playerWins++;
+    // if()
     handleGameOver(data.loserId === socket.id);
-    console.log(data.loserId === socket.id);
+    // console.log(data.loserId === socket.id);
   });
 
   // ルーム関連のイベント
@@ -3743,14 +4200,15 @@ function initializeSocket() {
         document.body.removeChild(retryDialog);
         retryDialog = null;
       }
-      resetGame();
-      showMatchingSuccess(); // カウントダウンから再開
-    } else if (!data.canRetry) {
+      startCountdown(); // カウントダウンから再開
+      // } else if (!data.canRetry) {
+    } else {
       if (retryDialog) {
+        gameState = 'normal';
         document.body.removeChild(retryDialog);
         retryDialog = null;
+        alert('Noが選択されました');
       }
-      // ゲーム終了、必要に応じて追加の終了処理
     }
   });
 
@@ -3799,9 +4257,22 @@ function initializeSocket() {
     drawStatusField(ctxOpponentStatus, false);
   });
 
+
+
   socket.on('opponentDisconnected', () => {
-    console.log('対戦相手が切断しました');
+    soundManager.stop('Consecutive Battle');
+    soundManager.stop('Lightning Brain');
+    soundManager.stop('R.E.B.O.R.N');
     gameStarted = false;
+    resetGame();
+    playerWins = 0;
+    opponentWins = 0;
+    playerIsLoser = false;
+    isDisConnect = true;
+    gameState = 'normal';
+    // console.log(isDisConnect);
+    // console.log(gameState);
+    alert('対戦相手が切断しました');
   });
 
   // socket.on('receiveAttack')を修正
@@ -4058,8 +4529,8 @@ window.addEventListener('load', async () => {
     'R.E.B.O.R.N': '/sounds/MusMus-BGM-176.mp3',
     'missType': '/sounds/ビープ音4.mp3',
     'type1': '/sounds/9744__horn__typewriter.wav',
-    'type2': '/sounds/meka_ge_nokey_ent02.mp3',
-    'type3': '/sounds/meka_ge_mouse_s02.mp3',
+    'type2': '/sounds/378085__bigmonmulgrew__mechanical-key-hard.wav',
+    'type3': '/sounds/54405__korgms2000b__button-click.wav',
     'type4': '/sounds/カーソル移動2.mp3',
     'type5': '/sounds/194799__jim-ph__keyboard5.wav',
     'type6': '/sounds/277723__magedu__typewriter_electric_turn_off.wav',
@@ -4074,8 +4545,12 @@ window.addEventListener('load', async () => {
     'receiveAttack': '/sounds/577423__morganpurkis__zip-laser.wav',
     'countdown': '/sounds/64119__atari66__beeps.wav',
     'addFieldWord': '/sounds/107156__bubaproducer__button-9-funny.wav',
-    'deleteInput': '/sounds/237421__plasterbrain__hover-2.ogg',
+    'deleteInput': '/sounds/264762__farpro__guiclick.ogg',
     'warning': '/sounds/582986__oysterqueen__low-battery.mp3',
+    'playerMatchPoint': '/sounds/580116__annyew__completeobtained-sound.wav',
+    'win': '/sounds/668436__david819__win.mp3',
+    'opponentMatchPoint': '/sounds/342756__rhodesmas__failure-01.wav',
+    'lose': '/sounds/159399__noirenex__power-down.wav',
   };
 
   // すべての音声ファイルを読み込む
