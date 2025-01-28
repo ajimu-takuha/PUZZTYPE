@@ -12,18 +12,20 @@ const rooms = new Map();
 const roomMatches = new Map(); // ルーム番号とプレイヤーの対応を管理
 let waitingPlayer = null;
 
-// function keepAlive() {
-//   const url = 'https://puzztype.onrender.com'; // あなたのアプリのURLに変更してください
-//   http.get(url, (res) => {
-//     console.log('Self-ping sent. Status:', res.statusCode);
-//   }).on('error', (err) => {
-//     console.error('Self-ping error:', err.message);
-//   });
-// }
+const https = require('https'); // httpではなくhttpsをインポート
 
-// setInterval(keepAlive, 13 * 60 * 1000);
+function keepAlive() {
+  const url = 'https://puzztype.onrender.com';
+  https.get(url, (res) => {
+    console.log('Self-ping sent. Status:', res.statusCode);
+  }).on('error', (err) => {
+    console.error('Self-ping error:', err.message);
+  });
+}
 
-// keepAlive();
+setInterval(keepAlive, 13 * 60 * 1000);
+
+keepAlive();
 
 io.on('connection', (socket) => {
   console.log(`ユーザー接続: ${socket.id}`);
