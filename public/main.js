@@ -1280,8 +1280,8 @@ function updateFieldAfterReceiveOffset(field, fieldWords) {
     moveWordToField(fieldWords)
   }
 
-  const soundCount = playerReceiveValueToOffset.length; // 再生する回数
-  const delayBetweenSounds = 70; // 2回目以降の間隔 (ミリ秒)
+  const soundCount = playerReceiveValueToOffset.length;
+  const delayBetweenSounds = 70;
   if (currentAttackSoundState === 'VALID') {
     for (let i = 0; i < soundCount; i++) {
       setTimeout(() => {
@@ -1414,7 +1414,6 @@ let opponentWins = 0;
 let playerIsLoser = false;
 // ゲームオーバー処理
 function handleGameOver(isLoser) {
-  soundManager.stop('warning');
   switch (currentBGMState) {
     case 'Consecutive Battle':
       soundManager.stop('Consecutive Battle');
@@ -2465,12 +2464,25 @@ function getRandomWordForField(usedLengths) {
 
 // 攻撃用の単語を取得
 function getRandomWordForAttack(characterCount) {
-  // const words = wordList[selectedCategory]["test"];
-  // return words[Math.floor(Math.random() * words.length)];
   let character = ["two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"];
-  if (!wordList || !wordList[selectedCategory]) return '';
-  const words = wordList[selectedCategory][character[characterCount - 2]];
-  return words[Math.floor(Math.random() * words.length)];
+
+  try {
+    if (!wordList || !wordList[selectedCategory]) {
+      console.error('Error: Missing wordList or selectedCategory is undefined.');
+      console.log('wordList:', wordList);
+      console.log('selectedCategory:', selectedCategory);
+      return 'えらーかくにんよう';
+    }
+    const words = wordList[selectedCategory][character[characterCount - 2]];
+    return words[Math.floor(Math.random() * words.length)];
+  } catch (error) {
+    console.error('Unexpected error:', error.message);
+    console.log('characterCount:', characterCount);
+    console.log('character array:', character);
+    console.log('wordList:', wordList);
+    console.log('selectedCategory:', selectedCategory);
+    return 'えらーかくにんよう';
+  }
 }
 
 // キー入力リスナー
@@ -2626,21 +2638,22 @@ window.addEventListener("keydown", (e) => {
 
       convertedInput = ""
       resetHighlight(playerField);
-    } else if (key === 'ArrowUp') {  
-      playerWins ++;    
-      // playerWins = 2;    
-      handleGameOver(false);
-    } else if (key === "ArrowDown") {   
-      handleGameOver(true);
-    } else if (key === "ArrowLeft") {
-      startCountdown();
-    } else if (key === "ArrowRight") {
-    }
-    else if (key === "Enter") {
-      // gameState = 'playing';
-      // startGame();      
-      showRetryDialog();
-    }
+    } 
+    // else if (key === 'ArrowUp') {
+    //   playerWins++;
+    //   // playerWins = 2;    
+    //   handleGameOver(false);
+    // } else if (key === "ArrowDown") {
+    //   handleGameOver(true);
+    // } else if (key === "ArrowLeft") {
+    //   startCountdown();
+    // } else if (key === "ArrowRight") {
+    //   showRetryDialog();
+    // }
+    // else if (key === "Enter") {
+    //   gameState = 'playing';
+    //   startGame();
+    // }
 
     playerInput = convertedInput;
   }
@@ -2770,9 +2783,17 @@ function checkAndRemoveWord(field, fieldWords, input) {
 }
 
 function highlightMatchWords(field, highLightWordIndex, matchedLength) {
-  resetHighlight(field);
-  for (let x = 0; x < matchedLength; x++) {
-    field[field.length - 1 - highLightWordIndex][x].isHighlighted = true;
+  try {
+    resetHighlight(field);
+    for (let x = 0; x < matchedLength; x++) {
+      field[field.length - 1 - highLightWordIndex][x].isHighlighted = true;
+    }
+  } catch (error) {
+    console.error('Error:', error.message);
+    console.log('field:', field);
+    console.log('highLightWordIndex:', highLightWordIndex);
+    console.log('matchedLength:', matchedLength);
+    return;
   }
 }
 
@@ -2869,18 +2890,13 @@ function calcAttackValue(removeWord) {
 
   } else {
     // console.log("通常攻撃！ 攻撃力は:" + playerAttackValue);
+    let calculatedAttackVal = playerAttackValue - nerfValue;
+    if (calculatedAttackVal > 0 && calculatedAttackVal !== 1) {
+      onAttackShake(calculatedAttackVal);
+      displayAttackValue(playerEffectOverlay, calculatedAttackVal);
+    }
     cancelChain();
     attack(playerAttackValue);
-
-    let calculatedAttackVal = playerAttackValue;
-    if (nerfValue !== 0) {
-      calculatedAttackVal = playerAttackValue - nerfValue;
-      if (calculatedAttackVal < 2) {
-        calculatedAttackVal = 0
-      }
-    }
-    onAttackShake(calculatedAttackVal);
-    displayAttackValue(playerEffectOverlay, calculatedAttackVal);
   }
   playerLastAttackValue = memorizeLastAttackValue;
   // 現在の removeWord の最後の文字を記憶
@@ -3046,6 +3062,8 @@ function displayAttackValue(element, number) {
 
 // 既存のattack関数を修正
 function attack(attackValue) {
+  if (attackValue <= 1 || attackValue >= 11) return;
+
   if (gameState === "playing") {
     if (nerfValue !== 0) {
       // isNerf = true;
@@ -3053,7 +3071,7 @@ function attack(attackValue) {
       nerfValue = 0;
 
       if (nerfAttackValue < 2) {
-        console.log("ナーフで攻撃無効 nerfAttackValue:" + nerfAttackValue);
+        // console.log("ナーフで攻撃無効 nerfAttackValue:" + nerfAttackValue);
         updateNerfInfoDisplay();
 
         updateAttackInfoDisplay();
@@ -3061,7 +3079,7 @@ function attack(attackValue) {
         return;
 
       } else {
-        console.log("ナーフ攻撃 nerfAttackValue:" + nerfAttackValue);
+        // console.log("ナーフ攻撃 nerfAttackValue:" + nerfAttackValue);
         playerAttackValueToOffset.push(nerfAttackValue);
         playerAtteckValueToAPM += nerfAttackValue;
         socket.emit('attack', {
@@ -3075,7 +3093,7 @@ function attack(attackValue) {
 
     } else {
       // isNerf = false;
-      console.log("攻撃します攻撃力は:" + attackValue);
+      // console.log("攻撃します攻撃力は:" + attackValue);
       playerAttackValueToOffset.push(attackValue);
       playerAtteckValueToAPM += attackValue;
       socket.emit('attack', {
@@ -3290,13 +3308,18 @@ function connect() {
         toCalcChainBonusAttack -= 10;
       }
       attack(toCalcChainBonusAttack);
-    } else {
+    } else if (chainBonus > 1) {
       attack(chainBonus);
     }
   }
   calculatedAttackVal = calculatedAttackVal + chainBonus;
-  onAttackShake(calculatedAttackVal);
-  displayAttackValue(playerEffectOverlay, calculatedAttackVal);
+  if (chainBonus % 10 === 1) {
+    calculatedAttackVal -= 1; 
+  }
+  if (calculatedAttackVal > 1) {
+    onAttackShake(calculatedAttackVal);
+    displayAttackValue(playerEffectOverlay, calculatedAttackVal);
+  }
 }
 
 function upChainAttack() {
@@ -3339,8 +3362,9 @@ function upChainAttack() {
         attack(10); // 10を減らす
         toCalcChainBonusAttack -= 10;
       }
-      attack(toCalcChainBonusAttack);
-
+      if (toCalcChainBonusAttack > 1) {
+        attack(toCalcChainBonusAttack);
+      }
       console.log("chainBonusによる追加攻撃");
       console.log("連続chainBonusは" + chainBonus);
     } else {
@@ -3350,6 +3374,9 @@ function upChainAttack() {
     }
   }
   calculatedAttackVal = calculatedAttackVal + chainBonus;
+  if (chainBonus % 10 === 1) {
+    calculatedAttackVal -= 1; 
+  }
   onAttackShake(calculatedAttackVal);
   displayAttackValue(playerEffectOverlay, calculatedAttackVal);
 }
@@ -3395,11 +3422,11 @@ function downChainAttack() {
         attack(10); // 10を減らす
         toCalcChainBonusAttack -= 10;
       }
-      attack(toCalcChainBonusAttack);
-
+      if (toCalcChainBonusAttack > 1) {
+        attack(toCalcChainBonusAttack);
+      }
       console.log("chainBonusによる追加攻撃");
       console.log("連続chainBonusは" + chainBonus);
-
     } else {
       attack(playerAttackValue);
       attack(chainBonus);
@@ -3407,6 +3434,9 @@ function downChainAttack() {
     }
   }
   calculatedAttackVal = calculatedAttackVal + chainBonus;
+  if (chainBonus % 10 === 1) {
+    calculatedAttackVal -= 1; 
+  }
   onAttackShake(calculatedAttackVal);
   displayAttackValue(playerEffectOverlay, calculatedAttackVal);
 }
@@ -3439,7 +3469,7 @@ function sameCharAttack() {
       const randomValue = array[Math.floor(Math.random() * array.length)];
       attack(randomValue); // ランダム値を攻撃
       attack(10 - randomValue); // 残りの値を攻撃
-    } else {
+    } else if (playerAttackValue > 1) {
       attack(playerAttackValue); // 10未満の残りの値を攻撃
     }
   } else {
@@ -4367,8 +4397,8 @@ function initializeSocket() {
   // socket.on('receiveAttack')を修正
   socket.on('receiveAttack', (data) => {
     playerReceiveValueToOffset.push(data.attackValue);
-    console.log("playerAttackValueToOffset:" + playerAttackValueToOffset);
-    console.log("playerReceiveValueToOffset:" + playerReceiveValueToOffset);
+    // console.log("playerAttackValueToOffset:" + playerAttackValueToOffset);
+    // console.log("playerReceiveValueToOffset:" + playerReceiveValueToOffset);
 
     calcReceiveOffsetToDisplay();
     drawStatusField(ctxPlayerStatus, true);
