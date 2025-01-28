@@ -163,20 +163,6 @@ window.document.onkeydown = function (evt) {
   }
 }
 
-function main() {
-  var url = 'https://puzztype.onrender.com';
-  var response = UrlFetchApp.fetch(url);
-  Logger.log(response.getContentText());
-}
-
-// トリガーを設定する関数
-function setTrigger() {
-  ScriptApp.newTrigger('main')
-    .timeBased()
-    .everyMinutes(13)
-    .create();
-}
-
 document.addEventListener('DOMContentLoaded', () => {
   const welcomeOverlay = document.querySelector(".welcomeOverlay");
 
@@ -189,8 +175,6 @@ document.addEventListener('DOMContentLoaded', () => {
   welcomeOverlay.addEventListener("animationend", handleAnimationEnd);
 
   const howToPlayContent = document.getElementById('howToPlay');
-
-  // ページコンテンツの定義
   const pages = [
     {
       title: 'ざっくり概要',
@@ -340,7 +324,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <span style="color: rgba(255, 200, 50, 0.9);">CHAINBONUS</span>
         によって送られる攻撃や、
         <span style="color:rgb(255, 255, 255);">DOUBLE ATTACK</span>
-        によって増加した攻撃力は
+        で2倍になった攻撃力のうち10以上の値は
         <span style="color:rgba(180, 200, 255, 0.8);">Nerf</span>
         対象になりません<br>
         ・
@@ -369,21 +353,21 @@ document.addEventListener('DOMContentLoaded', () => {
       content: `
       <div style="font-size:1vw; line-height:3.2vh;">
         ・単語が追加される場所がフィールド、その下が入力フィールドで、プレイヤーは左側、対戦相手は右側です<br>
-        ・フィールドには1行に1つずつ2-10文字の単語が追加され、開始時10個の単語が配置されます<br>
+        ・フィールドには1行に1つずつ2-10文字の単語が追加され、開始時10個の単語が追加されます<br>
         ・タイプすると入力フィールドに打った文字が表示され、BacKSpaceキーで1文字、Deleteキーですべての文字が消せます<br>
         ・フィールド内の単語と同じ文字をタイプするとその単語がフィールドから消えます<br>
         ・消した文字と同じ文字数(攻撃力)の単語が相手フィールドに送られます (攻撃)<br>
+        ・CHAINBUNUSが10以上の場合は10ずつ使って攻撃し、CHAINBUNUSが10未満になった時、その値が1以外の場合は攻撃します<br>
         ・攻撃すると相手フィールド左に、攻撃されると自分のフィールド左に文字数とともに赤で表示されます<br>
         ・攻撃が送られた状態で自分が攻撃するとその攻撃力だけ送られた攻撃力を減らします (相殺)<br>
         ・相殺は送られた攻撃の文字数の多い順に相殺し、相殺後1以下になるとその攻撃を無効化します<br>
         ・スペースキー押下時、もしくはフィールド下のプログレスバーで示す時間経過でフィールドに単語が追加されます<br>
         ・時間経過の場合ゲーム開始後10秒で単語が追加され、追加ごとに0.1秒ずつ加速し、最終1秒ごとに追加されます<br>
         ・スペースキー押下で単語を追加しても、時間経過による追加は加速しません<br>
-        ・攻撃を受けている場合はその文字数の単語が追加され、そうでない場合はフィールド左のNEXTから単語が追加されます<br>
+        ・単語の追加では、攻撃を受けている場合はその単語がすべて追加され、そうでない場合はフィールド左のNEXTから単語が追加されます<br>
         ・NEXTに表示される単語は18回追加されるごとに2-10文字の9種類の長さのランダムな単語が各2回ずつ出現します<br>
-        ・単語がフィールドに21以上追加されたら負けとなります<br>
-        ・攻撃時にはNerf込みの攻撃力がフィールド右上に表示され、相手の攻撃で負けそうな場合フィールドか赤く点滅します<br>
-        ・同時に2人が負けると上手く処理できず回線によって勝敗が決まったりします...<br>
+        ・攻撃時にはNerf込みの攻撃力がフィールド右上に表示され、攻撃されて負けそうな場合フィールドか赤く点滅して音が出ます<br>
+        ・単語がフィールドに21以上追加されたら負けとなり、同時に2人が負けると上手く処理できず回線で勝敗が決まったりします...<br>
       </div>
       `
     },
@@ -428,13 +412,13 @@ document.addEventListener('DOMContentLoaded', () => {
       title: 'あとがき - その他',
       content: `
       <div style="font-size:1vw; line-height:2.8vh;">
-        制作期間は2か月弱で、PUZZTYPEにおけるコードの9割くらいは
+        制作期間は2か月弱で、PUZZTYPEにおけるコード( 約7000行 )の9割くらいは
         <a href="https://chatgpt.com" target="_blank">ChatGPT</a>
         と
         <a href="https://claude.ai/new" target="_blank">Claude</a>
-        と少しだけ
+        と少し
         <a href="https://www.deepseek.com" target="_blank">deepseek</a>
-        が作っています<br>
+        が作ってます<br>
         無料ユーザですが何か頼む際に要点を明確にして、交互に使えば制限を殆ど気にせず使えました<br>
         普段コードを書きませんが、どうしたいかが明確で指示ができれば考えを形にしやすくなったと思います(コード効率は知らない)<br>
         サーバは
@@ -461,8 +445,8 @@ document.addEventListener('DOMContentLoaded', () => {
         <div style="font-size:0.8vw; line-height:2vh;">
         P.S.　 デバッグのために対戦してくれた merishiaru ありがとう!<br>
         P.P.S. 
-        <a href="https://www.ergonomics.co.jp/shopdetail/000000000134" target="_blank">KinesisAdvantage360Professional</a>
-        を使ってますが、いいキーボードを使ってるのに、配列はQWERTYという人は、配列にもこだわってみてください<br>
+        <a href="https://www.ergonomics.co.jp/shopdetail/000000000134" target="_blank">KinesisAdvantage360Pro</a>
+        を使ってますが、せっかくいいキーボードを使ってるのに、配列はそのままという人は、配列にもこだわってみてください<br>
         　　　 既得権益に胡坐をかくQWERTY配列を市場から駆逐しよう! ( ゲームの作成は途中からすべて
         <a href="https://o24.works/layout" target="_blank">大西配列</a>
         を使って記述されています )
@@ -1248,7 +1232,7 @@ function updateAllNextGradients(words, isPlayer = true) {
 
 // checkAndRemoveWordからのみ呼び出され、単語を削除後、再描画する
 function updateField(field, fieldWords) {
-  console.log("updateField実行");
+  // console.log("updateField実行");
   if (gameState !== 'playing') return;
   clearField(field);
 
@@ -1293,7 +1277,7 @@ function updateFieldAfterReceiveOffset(field, fieldWords) {
   for (let x = 0; x < playerReceiveValueToOffset.length; x++) {
     let addFieldWord = getRandomWordForAttack(playerReceiveValueToOffset[x]);
     fieldWords.push(addFieldWord);
-    console.log("addFieldWordは:" + addFieldWord);
+    // console.log("addFieldWordは:" + addFieldWord);
   }
 
   playerAttackValueToOffset = [];
@@ -1644,7 +1628,6 @@ async function resetGameAnimation() {
   await closeDoors(); // 扉を中央に閉じる
 
   if (currentGameOverSoundState === 'VALID') {
-    soundManager.playSound('deleteInput', { volume: 1 });
     if (playerWins === 2) {
       soundManager.playSound('win', { volume: 0.8 });
     } else if (opponentWins === 2) {
@@ -2638,22 +2621,21 @@ window.addEventListener("keydown", (e) => {
 
       convertedInput = ""
       resetHighlight(playerField);
-    } 
-    // else if (key === 'ArrowUp') {
-    //   playerWins++;
-    //   // playerWins = 2;    
-    //   handleGameOver(false);
-    // } else if (key === "ArrowDown") {
-    //   handleGameOver(true);
-    // } else if (key === "ArrowLeft") {
-    //   startCountdown();
-    // } else if (key === "ArrowRight") {
-    //   showRetryDialog();
-    // }
-    // else if (key === "Enter") {
-    //   gameState = 'playing';
-    //   startGame();
-    // }
+    } else if (key === 'ArrowUp') {
+      playerWins++;
+      // playerWins = 2;    
+      handleGameOver(false);
+    } else if (key === "ArrowDown") {
+      handleGameOver(true);
+    } else if (key === "ArrowLeft") {
+      startCountdown();
+    } else if (key === "ArrowRight") {
+      showRetryDialog();
+    }
+    else if (key === "Enter") {
+      gameState = 'playing';
+      startGame();
+    }
 
     playerInput = convertedInput;
   }
@@ -2810,7 +2792,7 @@ function resetHighlight(field) {
 
 function removeWordFromField(field, word) {
   playerWordValueToWPM++;
-  console.log(`単語「${word}」を消去`);
+  // console.log(`単語「${word}」を消去`);
   let remainingWord = word;
   for (let y = FIELD_HEIGHT - 1; y >= 0; y--) { // 下から上へスキャン
     for (let x = 0; x < FIELD_WIDTH; x++) { // 左から右へスキャン
@@ -2853,7 +2835,7 @@ let memorizeLastAttackValue = 0;
 function calcAttackValue(removeWord) {
   playerAttackValue = removeWord.length;
   memorizeLastAttackValue = playerAttackValue;
-  console.log("removeWordの攻撃力は:" + playerAttackValue);
+  // console.log("removeWordの攻撃力は:" + playerAttackValue);
   // console.log("playerLastAttackValueは" + playerLastAttackValue);
   // console.log("playerAttackValueは" + playerAttackValue);
 
@@ -2863,7 +2845,6 @@ function calcAttackValue(removeWord) {
   // 特定の条件: 前回の最後の文字と今回の最初の文字が一致する場合
   if (lastChar === firstChar) {
     isWordChain = true;
-    console.log("isWordChainはtrue")
   } else {
     isWordChain = false;
   }
@@ -3343,16 +3324,16 @@ function upChainAttack() {
     onAttackShake(calculatedAttackVal);
     displayAttackValue(playerEffectOverlay, calculatedAttackVal);
 
-    console.log("upChainAttackに切り替わったのでchainBonusは2");
-    console.log("isDownChainは" + isDownChain);
-    console.log("isUpChainは" + isUpChain);
+    // console.log("upChainAttackに切り替わったのでchainBonusは2");
+    // console.log("isDownChainは" + isDownChain);
+    // console.log("isUpChainは" + isUpChain);
     return;
   }
   if (chainBonus === 0) {
     chainBonus = 2;
     attack(playerAttackValue);
     attack(chainBonus);
-    console.log("初めてのchainBonusは" + chainBonus);
+    // console.log("初めてのchainBonusは" + chainBonus);
   } else {
     chainBonus = chainBonus + 2;
     if (chainBonus > 10) {
@@ -3365,12 +3346,12 @@ function upChainAttack() {
       if (toCalcChainBonusAttack > 1) {
         attack(toCalcChainBonusAttack);
       }
-      console.log("chainBonusによる追加攻撃");
-      console.log("連続chainBonusは" + chainBonus);
+      // console.log("chainBonusによる追加攻撃");
+      // console.log("連続chainBonusは" + chainBonus);
     } else {
       attack(playerAttackValue);
       attack(chainBonus);
-      console.log("連続chainBonusは" + chainBonus);
+      // console.log("連続chainBonusは" + chainBonus);
     }
   }
   calculatedAttackVal = calculatedAttackVal + chainBonus;
@@ -3401,14 +3382,14 @@ function downChainAttack() {
     onAttackShake(calculatedAttackVal);
     displayAttackValue(playerEffectOverlay, calculatedAttackVal);
 
-    console.log("downChainAttackに切り替わったのでボーナスは2");
-    console.log("isDownChainは" + isDownChain);
-    console.log("isUpChainは" + isUpChain);
+    // console.log("downChainAttackに切り替わったのでボーナスは2");
+    // console.log("isDownChainは" + isDownChain);
+    // console.log("isUpChainは" + isUpChain);
     return;
   }
   if (chainBonus === 0) {
     chainBonus = 2;
-    console.log("初めてのchainBonusは" + chainBonus);
+    // console.log("初めてのchainBonusは" + chainBonus);
     attack(playerAttackValue);
     attack(chainBonus);
   } else {
@@ -3425,12 +3406,12 @@ function downChainAttack() {
       if (toCalcChainBonusAttack > 1) {
         attack(toCalcChainBonusAttack);
       }
-      console.log("chainBonusによる追加攻撃");
-      console.log("連続chainBonusは" + chainBonus);
+      // console.log("chainBonusによる追加攻撃");
+      // console.log("連続chainBonusは" + chainBonus);
     } else {
       attack(playerAttackValue);
       attack(chainBonus);
-      console.log("連続chainBonusは" + chainBonus);
+      // console.log("連続chainBonusは" + chainBonus);
     }
   }
   calculatedAttackVal = calculatedAttackVal + chainBonus;
@@ -3457,7 +3438,7 @@ function sameCharAttack() {
 
   playerAttackValue = playerAttackValue * 2 + chainBonus * 2
   chainBonus = 0;
-  console.log("DoubleAttack! 攻撃力は:" + playerAttackValue + "に上昇");
+  // console.log("DoubleAttack! 攻撃力は:" + playerAttackValue + "に上昇");
   if (playerAttackValue > 10) {
     while (playerAttackValue > 10) {
       attack(10); // 10を減らす
@@ -3475,7 +3456,7 @@ function sameCharAttack() {
   } else {
     attack(playerAttackValue);
   }
-  console.log("DoubleAttack! 攻撃力は:" + playerAttackValue);
+  // console.log("DoubleAttack! 攻撃力は:" + playerAttackValue);
 }
 
 function nerfAttackValue() {
@@ -3583,7 +3564,7 @@ function showCountdown(count, elementId) {
     -webkit-text-stroke: 2px white;
     font-size: 8vh;
     animation: countdownAnimation 0.9s ease-in forwards;
-     transform-origin: center; 
+    transform-origin: center; 
   `;
 
   // アニメーションのキーフレーム定義を追加
@@ -4097,8 +4078,7 @@ function showRoomMatchDialog() {
   dialog.innerHTML = `
     <div class="dialog-content">
       <h2>INPUT ROOM NUMBER</h2>
-      <input type="text" id="roomInput" maxlength="4" placeholder="4桁の数字を入力"
-             pattern="[0-9]*" inputmode="numeric">
+      <input type="text" id="roomInput" maxlength="4" placeholder="4桁の数字を入力" pattern="[0-9]*" inputmode="numeric">
       <div class="dialog-buttons">
         <button id="connectButton" class="dialogButton connectButton">CONNECT</button>
         <button id="cancelButton"  class="dialogButton cancelButton">CANCEL</button>
@@ -4220,7 +4200,7 @@ function initializeSocket() {
     ? 'http://localhost:3000'
     : window.location.origin
 
-  console.log('接続先は' + window.location.origin);  // このログで URL を確認
+  console.log('接続先は' + window.location.origin);
 
   // ここまで
   socket = io(socketUrl);
@@ -4356,11 +4336,11 @@ function initializeSocket() {
         if (row === 0) {
           opponentField[row][col] = { word: char, isHighlighted: false };
           col++;
-          console.log("相手のフィールド描画おわり");
+          // console.log("相手のフィールド描画おわり");
         } else if (row < 0) {
           drawField(ctxOpponent, opponentField, data.memorizeLastAttackValue);
 
-          console.log("drawFieldして処理終了");
+          // console.log("drawFieldして処理終了");
           return;
 
         } else {
@@ -4529,7 +4509,6 @@ class SoundManager {
       this.sounds.set(key, {
         buffer: audioBuffer
       });
-
       // console.log(`Loaded sound: ${key}`);
     } catch (error) {
       // console.error(`Error loading sound ${key}:`, error);
