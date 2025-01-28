@@ -164,7 +164,7 @@ window.document.onkeydown = function (evt) {
 }
 
 function main() {
-  var url = 'https://puzztype.onrender.com.onrender.com';
+  var url = 'https://puzztype.onrender.com';
   var response = UrlFetchApp.fetch(url);
   Logger.log(response.getContentText());
 }
@@ -178,6 +178,16 @@ function setTrigger() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  const welcomeOverlay = document.querySelector(".welcomeOverlay");
+
+  const handleAnimationEnd = (event) => {
+    if (event.animationName === 'overlayFadeOut') {
+      welcomeOverlay.remove();
+    }
+  };
+
+  welcomeOverlay.addEventListener("animationend", handleAnimationEnd);
+
   const howToPlayContent = document.getElementById('howToPlay');
 
   // ページコンテンツの定義
@@ -187,25 +197,34 @@ document.addEventListener('DOMContentLoaded', () => {
       content: `
       <div style="font-size:1.5vw; line-height:6vh;">
         ・スペースキーか時間経過で画面に単語が追加<br>
-        ・単語をタイプして相手に単語を送る
+        ・単語をタイプすると相手に単語を送って
+        <span style="color: rgb(255, 255, 255);">攻撃</span>
         <span style="font-size:1vw; color: rgb(255, 255, 255);"> -ATTACK </span><br>
-        ・タイプする単語の文字数を1ずつ減らすか増やせば攻撃力にボーナス
+        ・タイプする単語の文字数を1ずつ減らすか増やせば攻撃力に
+        <span style="color: rgba(255, 200, 50, 0.9);">ボーナス</span>
         <span style="font-size:1vw; color: rgba(255, 200, 50, 0.9);"> -CHAINBONUS </span><br>
-        ・ボーナスは文字数を減らす
+        ・ボーナスは文字数を
+        <span style="color: rgb(0, 255, 255);">減らす</span>
         <span style="font-size:1vw; color: rgb(0, 255, 255);"> -UPCHAIN </span>
-        と増やす
+        と
+        <span style="color: rgb(255, 0, 255);">増やす</span>
         <span style="font-size:1vw; color: rgb(255, 0, 255);"> -DOWNCHAIN </span>
         の各方向で増加<br>
-        ・しりとりのように単語を連続タイプでボーナスを保持したまま方向リセット
+        ・
+        <span style="color: rgb(0, 255, 0);">しりとり</span>
+        のように単語を連続タイプで
+        <span style="color: rgba(255, 200, 50, 0.9);">ボーナス</span>
+        を保持したまま方向リセット
         <span style="font-size:1vw; color: rgb(0, 255, 0);"> -CONNECT </span><br>
-        ・同じ文字数の単語を連続タイプでボーナスは消えるけど攻撃力2倍
+        ・同じ文字数の単語を連続タイプでボーナスは消えるけど
+        <span style="color: rgb(255, 255, 255);">攻撃力2倍</span>
         <span style="font-size:1vw; color: rgb(255, 255, 255);"> -DOUBLE ATTACK </span><br>
         ・単語がフィールドからあふれたら負け
       </div>
       `
     },
     {
-      title: '基本操作',
+      title: '画面操作',
       content: `
       <div style="font-size:1.5vw; line-height:6vh;">
         <span style="font-size:1.8vw; color:rgba(85, 184, 255, 1); margin-bottom: 0.5vh;">Random Match</span><br>
@@ -220,28 +239,6 @@ document.addEventListener('DOMContentLoaded', () => {
       `
     },
     {
-      title: '対戦詳細',
-      content: `
-      <div style="font-size:1vw; line-height:3.5vh;">
-        ・単語が追加される場所がフィールド、その下が入力フィールドで、プレイヤーは左側、対戦相手は右側です<br>
-        ・フィールドには1行に1つずつ2-10文字の単語が追加されます<br>
-        ・タイプすると入力フィールドに打った文字が表示され、BacKSpaceキーで1文字、Deleteキーですべての文字が消せます<br>
-        ・フィールド内の単語と同じ文字をタイプするとその単語がフィールドから消えます<br>
-        ・消した文字と同じ文字数(攻撃力)の単語が相手フィールドに送られます (攻撃)<br>
-        ・攻撃すると相手フィールド左に、攻撃されると自分のフィールド左に文字数とともに赤で表示されます<br>
-        ・攻撃が送られた状態で自分が攻撃するとその攻撃力だけ送られた攻撃力を減らします (相殺)<br>
-        ・相殺は送られた攻撃の文字数の多い順に相殺し、相殺後1以下になるとその攻撃を無効化します<br>
-        ・スペースキー押下時、もしくはフィールド下のプログレスバーで示す時間経過でフィールドに単語が追加されます<br>
-        ・時間経過の場合ゲーム開始後10秒で単語が追加され、追加ごとに0.05秒ずつ加速し、最終1秒ごとに追加されます<br>
-        ・スペースキー押下で単語を追加しても、時間経過による追加は加速しません<br>
-        ・攻撃を受けている場合はその文字数の単語が追加され、そうでない場合はフィールド左のNEXTから単語が追加されます<br>
-        ・NEXTに表示される単語は18回追加されるごとに2-10文字の9種類の長さのランダムな単語が各2回ずつ出現します<br>
-        ・単語がフィールドに21以上追加されたら負けとなります<br>
-        ・攻撃時にNerf込みの攻撃力がフィールド右上に表示され、単語が21以上になりそうな場合フィールドか赤く点滅します<br>
-       </div>
-      `
-    },
-    {
       title: '攻撃の種類',
       content: `
       <div style="font-size:1vw; line-height:2.2vh;">
@@ -252,8 +249,12 @@ document.addEventListener('DOMContentLoaded', () => {
         　・前にタイプした単語より文字数が1少ない単語をタイプすると
         <span style="color: rgba(255, 200, 50, 0.9);">CHAINBONUS</span>
         が得られます<br>
-        　・1回目のボーナスは2で、以降2ずつ増えてゆきます<br>
-        　・画面上で背景色がライトブルーになっている単語が
+        　・1回目のボーナスは2で、以降
+        <span style="color:rgb(0, 255, 255);">2ずつ</span>
+        増えてゆきます<br>
+        　・画面上で背景色が
+        <span style="color:rgb(0, 255, 255);">ライトブルー</span>
+        になっている単語が
         <span style="color:rgb(0, 255, 255);">UPCHAIN</span>
         対象です<br>
         <br>
@@ -261,8 +262,12 @@ document.addEventListener('DOMContentLoaded', () => {
         　・前にタイプした単語より文字数が1多い単語をタイプすると
         <span style="color: rgba(255, 200, 50, 0.9);">CHAINBONUS</span>
         が得られます<br>
-        　・1回目のボーナスは2で、以降は1ずつ増えてゆきます<br>
-        　・画面上で背景色がマゼンタになっている単語が
+        　・1回目のボーナスは2で、以降は
+        <span style="color:rgb(255, 0, 255);">1ずつ</span>
+        増えてゆきます<br>
+        　・画面上で背景色が
+        <span style="color:rgb(255, 0, 255);">マゼンタ</span>
+        になっている単語が
         <span style="color:rgb(255, 0, 255);">DOWNCHAIN</span>
         対象です<br>
         <br>
@@ -273,7 +278,9 @@ document.addEventListener('DOMContentLoaded', () => {
         がある場合は1度だけ2倍の攻撃力で加算され、
         <span style="color: rgba(255, 200, 50, 0.9);">CHAINBONUS</span>
         が0になります<br>
-        　・画面上で背景色がホワイトになっている単語が
+        　・画面上で背景色が
+        <span style="color:rgb(255, 255, 255);">ホワイト</span>
+        になっている単語が
         <span style="color:rgb(255, 255, 255);">DOUBLE ATTACK</span>
         対象です<br>
         <br>
@@ -305,7 +312,9 @@ document.addEventListener('DOMContentLoaded', () => {
         <span style="color:rgb(0, 255, 0);">CONNECT</span>
         可能な単語の文字に同じ色のエフェクトが、現在
         <span style="color:rgb(0, 255, 0);">CONNECT</span>
-        可能な単語にホワイトのエフェクトがつきます<br>
+        可能な単語に
+        <span style="color:rgb(255, 255, 255);">ホワイト</span>
+        のエフェクトがつきます<br>
       </div>
       `
     },
@@ -356,9 +365,32 @@ document.addEventListener('DOMContentLoaded', () => {
       `
     },
     {
+      title: '対戦の詳細仕様',
+      content: `
+      <div style="font-size:1vw; line-height:3.2vh;">
+        ・単語が追加される場所がフィールド、その下が入力フィールドで、プレイヤーは左側、対戦相手は右側です<br>
+        ・フィールドには1行に1つずつ2-10文字の単語が追加され、開始時10個の単語が配置されます<br>
+        ・タイプすると入力フィールドに打った文字が表示され、BacKSpaceキーで1文字、Deleteキーですべての文字が消せます<br>
+        ・フィールド内の単語と同じ文字をタイプするとその単語がフィールドから消えます<br>
+        ・消した文字と同じ文字数(攻撃力)の単語が相手フィールドに送られます (攻撃)<br>
+        ・攻撃すると相手フィールド左に、攻撃されると自分のフィールド左に文字数とともに赤で表示されます<br>
+        ・攻撃が送られた状態で自分が攻撃するとその攻撃力だけ送られた攻撃力を減らします (相殺)<br>
+        ・相殺は送られた攻撃の文字数の多い順に相殺し、相殺後1以下になるとその攻撃を無効化します<br>
+        ・スペースキー押下時、もしくはフィールド下のプログレスバーで示す時間経過でフィールドに単語が追加されます<br>
+        ・時間経過の場合ゲーム開始後10秒で単語が追加され、追加ごとに0.1秒ずつ加速し、最終1秒ごとに追加されます<br>
+        ・スペースキー押下で単語を追加しても、時間経過による追加は加速しません<br>
+        ・攻撃を受けている場合はその文字数の単語が追加され、そうでない場合はフィールド左のNEXTから単語が追加されます<br>
+        ・NEXTに表示される単語は18回追加されるごとに2-10文字の9種類の長さのランダムな単語が各2回ずつ出現します<br>
+        ・単語がフィールドに21以上追加されたら負けとなります<br>
+        ・攻撃時にはNerf込みの攻撃力がフィールド右上に表示され、相手の攻撃で負けそうな場合フィールドか赤く点滅します<br>
+        ・同時に2人が負けると上手く処理できず回線によって勝敗が決まったりします...<br>
+      </div>
+      `
+    },
+    {
       title: 'あとがき - ゲームについて',
       content: `        
-      <div style="font-size:1vw; line-height:3.5vh;">
+      <div style="font-size:1vw; line-height:3.2vh;">
         なぜこのゲームを作ったかというと、まず
         <a href="https://ja.wikipedia.org/wiki/QWERTY%E9%85%8D%E5%88%97" target="_blank">QWERTY配列</a>
         をやめて自作配列のタイピング練習をしていたら<br>
@@ -367,64 +399,73 @@ document.addEventListener('DOMContentLoaded', () => {
         <a href="https://tetr.io/" target="_blank">TETR.IO</a>
         」をモチーフにゲームが作れそうだと思ったからです<br>
         初めは高速で攻撃を送りあうゲームを考えていたのですが、途中からタイピングのためのタイピングゲームではなく<br>
-        相殺するか、どの単語をタイプするか、タイプしないという選択肢、それらの最適解
-        を探すというのがこのゲームの本質になりました<br>
-        モチーフがパズルゲームなのもありますが、パズル的思考
-        が本質だと思ったためゲーム名を PUZZTYPE としました<br>
-        テトリスにおける40LINEが早いプレイヤーが必ず勝つわけではないという対戦ゲーム的な駆け引きは必要だと思い<br>
-        当初考えていなかったのですが、パズル的思考を主軸とするため CONNECT システムを作りました<br>
-        (しりとりは英語で「WORD CHAIN」ともいうので名前はそれでもよかったかも)<br>
-        思い描いていたゲームスピードから離れるとは思いましたが、対戦ゲームとしてはこれでよかったと思います<br>
-        だれか入力量を生かしたよりゲームスピードの早いタイピングゲームを作ってください...<br>
-        ゲームは1人で作っていたのでプレイ感が全然わからず、こうすればより面白いだろうというのでシステムは作りました<br>
-        出題単語は一般性を欠き完全に趣味ですが、「タイピングはプロパガンダにピッタリ」という
-        <a href="https://taisoku.com/" target="_blank">某タイピングゲーム</a>
+        相殺するか、どの単語をタイプするか、タイプしない選択肢、それらの最適解
+        を探すというのをこのゲームの本質にしようと思いました<br>
+        モチーフがパズルゲームなのもありますが、パズル的思考が重要だと思ったためゲーム名を PUZZTYPE としました<br>
+        当初考えていなかったのですが、その思考をより主軸とするため CONNECT システムを作りました<br>
+        ( しりとりは英語で「WORD CHAIN」ともいうらしいので、それでもよかったなあ )<br>
+        思い描いていたゲームスピードから離れるとは思いましたが、対戦ゲームとしてはあるほうがよかったと思います<br>
+        ただ、フィールドサイズや出現する単語の文字数、追加時間、追加方法、相殺システム、何が最適なのか...<br>
+        配色に関しても、同じ文字に同じ色のエフェクトをつけ、それが浮かないようにしたら変にカラフルになりました...<br>
+        音声も、
+        <a href="https://freesound.org" target="_blank">freesound</a>
+        のサンプルを数千は聞きましたが、イメージと異なる、納得できてないSEがいくつかあります...<br>
+        システムに関しては、1人で作っていたのでプレイ感が全然わからず、こうすればより面白いだろうというので全部作りました<br>
+        出題単語は一般性を欠き趣味ですが、「タイピングはプロパガンダにピッタリ」という
+        <a href="https://taisoku.com" target="_blank">某タイピングゲーム</a>
         の例題を見て<br>
-        よくわからない単語でも、ある日、ふと現実で見つけた際に「このことか」となるのを期待してマニアックにしています<br>
+        よくわからない単語でも、ふと現実で見つけた際に笑ってくれるのを期待してマニアックにしています<br>
         作者は
         <a href="https://sushida.net/play.html" target="_blank">寿司打</a>
         2万円/ 
         <a href="https://mikatype.github.io/MIKATYPE_JAVASCRIPT/index2.html" target="_blank">MIKATYPE</a>
-        300文字がやっとのタイパーなのでこのゲームに最適化されたプロタイパーの戦いが見てみたいです<br>
+        300文字がやっとのタイパーなのでこのゲームに適応したプロタイパーの戦いが見てみたいです<br>
         <br>
       </div>
-       `
+      `
     },
     {
       title: 'あとがき - その他',
       content: `
-      <div style="font-size:1vw; line-height:3vh;">
+      <div style="font-size:1vw; line-height:2.8vh;">
         制作期間は2か月弱で、PUZZTYPEにおけるコードの9割くらいは
-        <a href="https://chatgpt.com/" target="_blank">ChatGPT</a>
+        <a href="https://chatgpt.com" target="_blank">ChatGPT</a>
         と
         <a href="https://claude.ai/new" target="_blank">Claude</a>
+        と少しだけ
+        <a href="https://www.deepseek.com" target="_blank">deepseek</a>
         が作っています<br>
         無料ユーザですが何か頼む際に要点を明確にして、交互に使えば制限を殆ど気にせず使えました<br>
-        普段コードを書きませんが、明確なヴィジョンがあり指示ができれば考えを形にするのが簡単な時代になったと感じます<br>
-        サーバはRenderの無料枠を使っていますが(15分使わなかったらスリープ)、P2Pならサーバ不要で作れるらしいので作り方間違えたかも...<br>
+        普段コードを書きませんが、どうしたいかが明確で指示ができれば考えを形にしやすくなったと思います(コード効率は知らない)<br>
+        サーバは
+        <a href="https://render.com" target="_blank">Render</a>
+        の無料枠を使っていますが、P2Pならサーバ不要で作れるらしいので作り方間違えたかも...<br>
         <br>
-        テトリスを多く参考にしましたが、作者は上手い人のプレイを見るだけです...<br>
+        テトリスを多く参考にしましたが、作者は上手い人のプレイを見るだけです<br>
         最も参考にした
-        <a href="https://tetr.io/" target="_blank">TETR.IO</a>
+        <a href="https://tetr.io" target="_blank">TETR.IO</a>
         は無料で遊べますが、あまりゲームの才能があると思ってないのでプレイはしてません...<br><br>
         フォントについて、日本語の丸みがパズル的な世界観と一致せず選ぶのに難儀しました<br>
         この文にも使っているフォントの
         <a href="https://moji-waku.com/kenq/index.html" target="_blank">制作者がどういうことを考えて作っているのか</a>
         がとても面白かったので読んでみてください<br><br>
-        それと、使用BGM作曲者watson氏が音楽を担当するフリーゲーム
-        <a href="https://katatema.main.jp/mu/" target="_blank">ムラサキ</a>
+        それと、BGM作曲者watson氏が音楽を担当するフリーゲーム
+        <a href="https://katatema.main.jp/mu" target="_blank">ムラサキ</a>
         、みんなもやろう! ( 
         <a href="https://store.steampowered.com/app/392030/Murasaki/?l=japanese" target="_blank">Steam</a>
-        で有償購入もできます )<br>
+        でも購入できます )<br>
         あと
         <a href="https://plicy.net/GamePlay/175820" target="_blank">10パズル</a>
-        というゲームを以前作っているので算数が好きなら遊んでみてください<br><br>
+        というゲームを以前作っているので「さんすう」が好きなら遊んでみてください ( ダイマ )<br><br>
         このゲームを楽しんでいただけたら幸いです<br><br>
         <div style="font-size:0.8vw; line-height:2vh;">
-        P.S.キーボードにはこだわるのに、キー配列はそのままQWERTYを使っているという人は、配列にもこだわってみてください<br>
-        　　QWERTY配列を市場から駆逐しよう! (このゲームのコードは途中から
-        <a href="https://o24.works/layout/" target="_blank">大西配列</a>
-        を使ってすべて記述されています)
+        P.S.　 デバッグのために対戦してくれた merishiaru ありがとう!<br>
+        P.P.S. 
+        <a href="https://www.ergonomics.co.jp/shopdetail/000000000134" target="_blank">KinesisAdvantage360Professional</a>
+        を使ってますが、いいキーボードを使ってるのに、配列はQWERTYという人は、配列にもこだわってみてください<br>
+        　　　 既得権益に胡坐をかくQWERTY配列を市場から駆逐しよう! ( ゲームの作成は途中からすべて
+        <a href="https://o24.works/layout" target="_blank">大西配列</a>
+        を使って記述されています )
       </div>      
         `
     },
@@ -433,43 +474,42 @@ document.addEventListener('DOMContentLoaded', () => {
       content: `
       <div style="font-size:0.8vw; line-height:2vh;">   
       使用BGM:      
-      <a href="https://musmus.main.jp/" target="_blank">MusMus (waston)</a><br>
-      使用フォント:
-      <a href="https://modi.jpn.org/font_senobi.php" target="_blank">せのびゴシック</a>
-      /
-      <a href="https://moji-waku.com/makinas/index.html" target="_blank">マキナス</a>
-      /
-      <a href="https://www.dafont.com/digitalism.font" target="_blank">digitalism</a>
+      <a href="https://musmus.main.jp/" target="_blank"> MusMus (waston)</a><br>
+      使用Font:
+      <a href="https://modi.jpn.org/font_senobi.php" target="_blank"> せのびゴシック</a>
       /
       <a href="https://pm85122.onamae.jp/851Gkktt.html" target="_blank">851ゴチカクット</a>
+      /
+      <a href="https://moji-waku.com/makinas/index.html" target="_blank">マキナス4Flat・Spuare</a>
+      /
+      <a href="https://www.lazypolarbear.com/entry/kirin" target="_blank">キリンフォント</a>
       /
       <a href="https://www.lazypolarbear.com/zou" target="_blank">ゾウフォント</a>
       /
       <a href="https://apkadmin.com/3jl3bokx90dz/MADE_Evolve.mtz.html" target="_blank">MADE_Evolve</a><br>
-      使用SE:<br>      
-      <a href="https://freesound.org/people/Horn/sounds/9744" target="_blank">typewriter.wav by Horn -- https://freesound.org/s/9744/ -- License: Attribution NonCommercial 3.0</a><br>
-      <a href="https://freesound.org/people/KorgMS2000B/sounds/54405/" target="_blank">Button Click.wav by KorgMS2000B -- https://freesound.org/s/54405/ -- License: Creative Commons 0</a><br>
-      <a href="https://freesound.org/people/atari66/sounds/64119" target="_blank">beeps.wav by atari66 -- https://freesound.org/s/64119/ -- License: Sampling+</a><br>
-      <a href="https://freesound.org/people/bubaproducer/sounds/107156" target="_blank">button 9 funny.wav by bubaproducer -- https://freesound.org/s/107156/ -- License: Attribution 4.0</a><br>
-      <a href="https://freesound.org/people/noirenex/sounds/159399" target="_blank">Power Down by noirenex -- https://freesound.org/s/159399/ -- License: Creative Commons 0</a><br>
-      <a href="https://freesound.org/people/jim-ph/sounds/194799" target="_blank">keyboard5.wav by jim-ph -- https://freesound.org/s/194799/ -- License: Creative Commons 0</a><br>
-      <a href="https://freesound.org/people/unfa/sounds/240875" target="_blank">Anime jump / Loud Short SMS signal by unfa -- https://freesound.org/s/240875/ -- License: Creative Commons 0</a><br>
-      <a href="https://freesound.org/people/farpro/sounds/264762" target="_blank">guiclick.ogg by farpro -- https://freesound.org/s/264762/ -- License: Creative Commons 0</a><br>
-      <a href="https://freesound.org/people/LittleRobotSoundFactory/sounds/270548" target="_blank">Laser_04.wav by LittleRobotSoundFactory -- https://freesound.org/s/270548/ -- License: Attribution 4.0</a><br>
-      <a href="https://freesound.org/people/LittleRobotSoundFactory/sounds/270551" target="_blank">Laser_07.wav by LittleRobotSoundFactory -- https://freesound.org/s/270551/ -- License: Attribution 4.0</a><br>
-      <a href="https://freesound.org/people/magedu/sounds/277723" target="_blank">typewriter_electric_turn_off.wav by magedu -- https://freesound.org/s/277723/ -- License: Attribution 4.0</a><br>
-      <a href="https://freesound.org/people/rhodesmas/sounds/342756" target="_blank">Failure 01 by rhodesmas -- https://freesound.org/s/342756/ -- License: Attribution 3.0</a><br>
-      <a href="https://freesound.org/people/Julien_Matthey/sounds/346918/" target="_blank">JM_NOIZ_Laser 04.wav by Julien_Matthey -- https://freesound.org/s/346918/ -- License: Creative Commons 0</a><br>
-      <a href="https://freesound.org/people/cabled_mess/sounds/360602" target="_blank">Typewriter snippet 02 by cabled_mess -- https://freesound.org/s/360602/ -- License: Creative Commons 0</a><br>
-      <a href="https://freesound.org/people/bigmonmulgrew/sounds/378085/" target="_blank">mechanical key hard.wav by bigmonmulgrew -- https://freesound.org/s/378085/ -- License: Creative Commons 0</a><br>
-      <a href="https://freesound.org/people/copyc4t/sounds/533257" target="_blank">Screen Lettering by copyc4t -- https://freesound.org/s/533257/ -- License: Attribution 4.0</a><br>
-      <a href="https://freesound.org/people/mango777/sounds/547441" target="_blank">LazerCannon.ogg by mango777 -- https://freesound.org/s/547441/ -- License: Creative Commons 0</a><br>
-      <a href="https://freesound.org/people/morganpurkis/sounds/577423" target="_blank">Zip Laser.wav by morganpurkis -- https://freesound.org/s/577423/ -- License: Creative Commons 0</a><br>
-      <a href="https://freesound.org/people/Annyew/sounds/580116" target="_blank">Complete/obtained sound by Annyew -- https://freesound.org/s/580116/ -- License: Attribution 3.0</a><br>
-      <a href="https://freesound.org/people/oysterqueen/sounds/582986" target="_blank">Low-battery.mp3 by oysterqueen -- https://freesound.org/s/582986/ -- License: Creative Commons 0</a><br>
-      <a href="https://freesound.org/people/David819/sounds/668436/" target="_blank">win.mp3 by David819 -- https://freesound.org/s/668436/ -- License: Creative Commons 0</a><br>
-      <a href="https://freesound.org/people/kreha/sounds/773604/" target="_blank">SmallClick by kreha -- https://freesound.org/s/773604/ -- License: Creative Commons 0</a><br>
-      <a href="https://soundeffect-lab.info/sound/button/">効果音ラボ: カーソル移動2 / ビープ音4</a><br>
+      使用SE: <a href="https://freesound.org/people/Horn/sounds/9744" target="_blank">typewriter.wav by Horn -- https://freesound.org/s/9744/ -- License: Attribution NonCommercial 3.0</a><br>
+      　　　　<a href="https://freesound.org/people/KorgMS2000B/sounds/54405/" target="_blank">Button Click.wav by KorgMS2000B -- https://freesound.org/s/54405/ -- License: Creative Commons 0</a><br>
+      　　　　<a href="https://freesound.org/people/atari66/sounds/64119" target="_blank">beeps.wav by atari66 -- https://freesound.org/s/64119/ -- License: Sampling+</a><br>
+      　　　　<a href="https://freesound.org/people/bubaproducer/sounds/107156" target="_blank">button 9 funny.wav by bubaproducer -- https://freesound.org/s/107156/ -- License: Attribution 4.0</a><br>
+      　　　　<a href="https://freesound.org/people/noirenex/sounds/159399" target="_blank">Power Down by noirenex -- https://freesound.org/s/159399/ -- License: Creative Commons 0</a><br>
+      　　　　<a href="https://freesound.org/people/jim-ph/sounds/194799" target="_blank">keyboard5.wav by jim-ph -- https://freesound.org/s/194799/ -- License: Creative Commons 0</a><br>
+      　　　　<a href="https://freesound.org/people/unfa/sounds/240875" target="_blank">Anime jump / Loud Short SMS signal by unfa -- https://freesound.org/s/240875/ -- License: Creative Commons 0</a><br>
+      　　　　<a href="https://freesound.org/people/farpro/sounds/264762" target="_blank">guiclick.ogg by farpro -- https://freesound.org/s/264762/ -- License: Creative Commons 0</a><br>
+      　　　　<a href="https://freesound.org/people/LittleRobotSoundFactory/sounds/270548" target="_blank">Laser_04.wav by LittleRobotSoundFactory -- https://freesound.org/s/270548/ -- License: Attribution 4.0</a><br>
+      　　　　<a href="https://freesound.org/people/LittleRobotSoundFactory/sounds/270551" target="_blank">Laser_07.wav by LittleRobotSoundFactory -- https://freesound.org/s/270551/ -- License: Attribution 4.0</a><br>
+      　　　　<a href="https://freesound.org/people/magedu/sounds/277723" target="_blank">typewriter_electric_turn_off.wav by magedu -- https://freesound.org/s/277723/ -- License: Attribution 4.0</a><br>
+      　　　　<a href="https://freesound.org/people/rhodesmas/sounds/342756" target="_blank">Failure 01 by rhodesmas -- https://freesound.org/s/342756/ -- License: Attribution 3.0</a><br>
+      　　　　<a href="https://freesound.org/people/Julien_Matthey/sounds/346918/" target="_blank">JM_NOIZ_Laser 04.wav by Julien_Matthey -- https://freesound.org/s/346918/ -- License: Creative Commons 0</a><br>
+      　　　　<a href="https://freesound.org/people/cabled_mess/sounds/360602" target="_blank">Typewriter snippet 02 by cabled_mess -- https://freesound.org/s/360602/ -- License: Creative Commons 0</a><br>
+      　　　　<a href="https://freesound.org/people/bigmonmulgrew/sounds/378085/" target="_blank">mechanical key hard.wav by bigmonmulgrew -- https://freesound.org/s/378085/ -- License: Creative Commons 0</a><br>
+      　　　　<a href="https://freesound.org/people/copyc4t/sounds/533257" target="_blank">Screen Lettering by copyc4t -- https://freesound.org/s/533257/ -- License: Attribution 4.0</a><br>
+      　　　　<a href="https://freesound.org/people/mango777/sounds/547441" target="_blank">LazerCannon.ogg by mango777 -- https://freesound.org/s/547441/ -- License: Creative Commons 0</a><br>
+      　　　　<a href="https://freesound.org/people/morganpurkis/sounds/577423" target="_blank">Zip Laser.wav by morganpurkis -- https://freesound.org/s/577423/ -- License: Creative Commons 0</a><br>
+      　　　　<a href="https://freesound.org/people/Annyew/sounds/580116" target="_blank">Complete/obtained sound by Annyew -- https://freesound.org/s/580116/ -- License: Attribution 3.0</a><br>
+      　　　　<a href="https://freesound.org/people/oysterqueen/sounds/582986" target="_blank">Low-battery.mp3 by oysterqueen -- https://freesound.org/s/582986/ -- License: Creative Commons 0</a><br>
+      　　　　<a href="https://freesound.org/people/David819/sounds/668436/" target="_blank">win.mp3 by David819 -- https://freesound.org/s/668436/ -- License: Creative Commons 0</a><br>
+      　　　　<a href="https://freesound.org/people/kreha/sounds/773604/" target="_blank">SmallClick by kreha -- https://freesound.org/s/773604/ -- License: Creative Commons 0</a><br>
+      　　　　<a href="https://soundeffect-lab.info/sound/button/" target="_blank">効果音ラボ: カーソル移動2 / ビープ音4</a><br>
       </div>      
       `
     },
@@ -501,6 +541,24 @@ document.addEventListener('DOMContentLoaded', () => {
       <button class="page-button next-button" ${currentPage === pages.length - 1 ? 'disabled' : ''}>Next</button>
     `;
     howToPlayContent.appendChild(buttonsContainer);
+
+    const pageButtons = document.querySelectorAll('.page-button');
+
+    pageButtons.forEach(button => {
+      // ホバー時の処理
+      button.addEventListener('mouseenter', () => {
+        if (currentButtonSoundState === 'VALID') {
+          soundManager.playSound('buttonHover', { volume: 0.8 });
+        }
+      });
+
+      // クリック時の処理
+      button.addEventListener('click', () => {
+        if (currentButtonSoundState === 'VALID') {
+          soundManager.playSound('buttonClick', { volume: 0.6 });
+        }
+      });
+    });
 
     // ページインジケーターを追加
     const indicatorContainer = document.createElement('div');
@@ -1373,7 +1431,7 @@ function handleGameOver(isLoser) {
 
   if (gameState === 'ended') return;
 
-  console.log("handleGameOver実行");
+  // console.log("handleGameOver実行");
 
   gameState = 'ended';
 
@@ -1402,8 +1460,8 @@ function handleGameOver(isLoser) {
         opponentWins = 0;
         playerIsLoser = false;
         showRetryDialog();
-      }, 4000);
-    }, 2000);
+      }, 5000);
+    }, 1500);
   } else {
     // 通常のゲーム終了処理
     drawGameOverUI(isLoser ? 'Lose' : 'Win');
@@ -1412,7 +1470,7 @@ function handleGameOver(isLoser) {
       setTimeout(() => {
         startCountdown();
       }, 4000);
-    }, 2000);
+    }, 1500);
   }
   // 少し待ってからリトライダイアログを表示
   // setTimeout(() => {
@@ -1599,9 +1657,9 @@ async function resetGameAnimation() {
     }
   }
 
-  console.log(`相手の勝利数: ${opponentWins}`);
-  console.log(`プレイヤーの勝利数: ${playerWins}`);
-  console.log("resetGameAnimation実行");
+  // console.log(`相手の勝利数: ${opponentWins}`);
+  // console.log(`プレイヤーの勝利数: ${playerWins}`);
+  // console.log("resetGameAnimation実行");
 
   const playerArea = document.getElementById('playerGameArea');
   const opponentArea = document.getElementById('opponentGameArea');
@@ -1621,33 +1679,31 @@ async function resetGameAnimation() {
   // 背景と文字を描画
   if (playerWins < 2 && opponentWins < 2) {
     if (playerWins === 1) {
-      // 左ドア：中央90%は黒、端10%は赤のグラデーション
-      doorLeft.style.background = 'linear-gradient(to right, black 90%, red)';
-      doorLeft.innerHTML = `<div style="color: white; text-align: center; font-family:'zouver'; font-size: 8vh;line-height: 100%; margin-top: 40%;">MatchPoint</div>`;
+      setTimeout(() => {
+        doorLeft.style.background = 'linear-gradient(to right, black 80%, red)';
+      }, 350);
+      doorLeft.innerHTML = `<div class="door-text matchpoint-text" style="-webkit-text-stroke: 2px white; color: black; text-align: center; font-family:'zouver'; font-size: 10vh;line-height: 100%; margin-top: 40%;">MatchPoint</div>`;
     }
     if (opponentWins === 1) {
-      // 右ドア：中央90%は黒、端10%は青のグラデーション
-      doorRight.style.background = 'linear-gradient(to left, black 90%, blue)';
-      doorRight.innerHTML = `<div style="color: white; text-align: center; font-family:'zouver'; font-size: 8vh; line-height: 100%; margin-top: 40%;">MatchPoint</div>`;
+      setTimeout(() => {
+        doorRight.style.background = 'linear-gradient(to left, black 80%, blue)';
+      }, 350);
+      doorRight.innerHTML = `<div class="door-text matchpoint-text" style="-webkit-text-stroke: 2px white; color: black; text-align: center; font-family:'zouver'; font-size: 10vh; line-height: 100%; margin-top: 40%;">MatchPoint</div>`;
     }
   }
 
   if (playerWins === 2) {
-    // 左ドア：Player
-    doorLeft.style.background = 'black';
-    doorLeft.innerHTML = `<div style="color: white; text-align: center; font-family:'zouver'; font-size: 9vh; line-height: 100%; margin-left: 25%; margin-top: 40%;">Player</div>`;
-    // 右ドア：Win
-    doorRight.style.background = 'black';
-    doorRight.innerHTML = `<div style="color: white; text-align: center; font-family:'zouver'; font-size: 9vh; line-height: 100%; margin-right: 25%; margin-top: 40%;">Win</div>`;
+    doorLeft.innerHTML = `<div class="door-text win-text" style="
+  margin-top: 40%; color: white; text-align: center; font-family:'zouver'; font-size: 12vh; line-height: 100%; margin-left: 25%; margin-top: 40%;">Player</div>`;
+    doorRight.innerHTML = `<div class="door-text win-text" style="
+  margin-top: 40%; color: white; text-align: center; font-family:'zouver'; font-size: 12vh; line-height: 100%; margin-right: 25%; margin-top: 40%;">Win</div>`;
   }
 
   if (opponentWins === 2) {
-    // 左ドア：Player
-    doorLeft.style.background = 'black';
-    doorLeft.innerHTML = `<div style="color: white; text-align: center; font-family:'zouver'; font-size: 9vh; line-height: 100%; margin-left: 25%; margin-top: 40%;">Player</div>`;
-    // 右ドア：Lose
-    doorRight.style.background = 'black';
-    doorRight.innerHTML = `<div style="color: white; text-align: center; font-family:'zouver'; font-size: 9vh; line-height: 100%; margin-right: 25%; margin-top: 40%;">Lose</div>`;
+    doorLeft.innerHTML = `<div class="door-text lose-text" style="
+  margin-top: 40%; color: white; text-align: center; font-family:'zouver'; font-size: 12vh; line-height: 100%; margin-left: 25%; margin-top: 40%;">Player</div>`;
+    doorRight.innerHTML = `<div class="door-text lose-text" style="
+  margin-top: 40%; color: white; text-align: center; font-family:'zouver'; font-size: 12vh; line-height: 100%; margin-right: 25%; margin-top: 40%;">Lose</div>`;
   }
 
   // 2秒待ってから扉を開く
@@ -2303,9 +2359,9 @@ function startGame() {
     updateFieldAfterReceiveOffset(playerField, playerFieldWords);
     checkAndRemoveWord(playerField, playerFieldWords, playerInput);
     drawField(ctxPlayer, playerField, memorizeLastAttackValue);
-
+    syncFieldUpdate();
     // インターバルを更新し、プログレスバーを開始
-    gameStepInterval = Math.max(minInterval, gameStepInterval - 50);
+    gameStepInterval = Math.max(minInterval, gameStepInterval - 100);
     updateProgressBar(gameStepInterval);
     setTimeout(gameStep, gameStepInterval);
   }
@@ -2570,14 +2626,20 @@ window.addEventListener("keydown", (e) => {
 
       convertedInput = ""
       resetHighlight(playerField);
-    } else if (key === 'ArrowUp') {
-    } else if (key === "ArrowDown") {
+    } else if (key === 'ArrowUp') {  
+      playerWins ++;    
+      // playerWins = 2;    
+      handleGameOver(false);
+    } else if (key === "ArrowDown") {   
+      handleGameOver(true);
     } else if (key === "ArrowLeft") {
-    } else if (key === "ArrowRight") { 
+      startCountdown();
+    } else if (key === "ArrowRight") {
     }
     else if (key === "Enter") {
       // gameState = 'playing';
-      // startGame();
+      // startGame();      
+      showRetryDialog();
     }
 
     playerInput = convertedInput;
@@ -3422,7 +3484,7 @@ function resetGame() {
   cancelChain();
 
   stopDrawInfo()
-  
+
   clearProgressBar();
 
   // playerInfoをリセット
@@ -3487,7 +3549,8 @@ function showCountdown(count, elementId) {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    color: white;
+    color: black;
+    -webkit-text-stroke: 2px white;
     font-size: 8vh;
     animation: countdownAnimation 0.9s ease-in forwards;
      transform-origin: center; 
@@ -3520,7 +3583,7 @@ function showCountdown(count, elementId) {
 }
 
 function startCountdown() {
-  console.log(isDisConnect);
+  // console.log(isDisConnect);
   if (isDisConnect) return;
 
   resetGame();
@@ -3595,10 +3658,10 @@ function showRetryDialog() {
     <div class="retryDialog dialog-content">
       <h2>もう一度プレイしますか？</h2>
       <div class="dialog-buttons">
-        <button id="yesButton" class="retryDialogButton" onclick="handleRetryResponse(true)">
+        <button id="yesButton" class="retryDialogButton dialogButton" onclick="handleRetryResponse(true)">
           Yes
         </button>
-        <button id="noButton" class="retryDialogButton" onclick="handleRetryResponse(false)">
+        <button id="noButton" class="retryDialogButton dialogButton" onclick="handleRetryResponse(false)">
           No
         </button>
       </div>
@@ -3739,6 +3802,7 @@ function drawWarningOverlay(isPlayer) {
 
 // drawStatusField関数を修正
 function drawStatusField(ctx, isPlayer = true) {
+  if (gameState !== 'playing') return;
   // 既存のステータス描画処理
   ctx.fillStyle = "#13172c";
   ctx.fillRect(0, 0, CELL_SIZE / 2, CELL_SIZE * FIELD_HEIGHT);
@@ -3782,7 +3846,7 @@ function drawStatusField(ctx, isPlayer = true) {
       ctx.fillRect(0, cellY, CELL_SIZE / 2, CELL_SIZE);
 
       ctx.fillStyle = "white";
-      ctx.font = `${CELL_SIZE * 0.65}px 'digitalism'`;
+      ctx.font = `${CELL_SIZE * 0.5}px 'kirin'`;
       ctx.textBaseline = "middle";
       ctx.textAlign = "center";
       ctx.letterSpacing = "0.05em"
@@ -4003,11 +4067,11 @@ function showRoomMatchDialog() {
   dialog.innerHTML = `
     <div class="dialog-content">
       <h2>INPUT ROOM NUMBER</h2>
-      <input type="text" id="roomInput" maxlength="4" placeholder="4桁の番号を入力"
+      <input type="text" id="roomInput" maxlength="4" placeholder="4桁の数字を入力"
              pattern="[0-9]*" inputmode="numeric">
       <div class="dialog-buttons">
-        <button id="connectButton">CONNECT</button>
-        <button id="cancelButton">CANCEL</button>
+        <button id="connectButton" class="dialogButton connectButton">CONNECT</button>
+        <button id="cancelButton"  class="dialogButton cancelButton">CANCEL</button>
       </div>
     </div>
   `;
@@ -4022,6 +4086,17 @@ function showRoomMatchDialog() {
   roomInput.addEventListener('input', (e) => {
     e.target.value = e.target.value.replace(/[^0-9]/g, '');
     connectButton.disabled = e.target.value.length !== 4;
+    if (e.target.value.length === 4) {
+      // connectButton.style.backgroundColor = 'rgba(0, 255, 0, 0.5)';
+      connectButton.style.border = "solid 1px rgb(0, 255, 0)";
+      connectButton.style.color = "rgb(0, 255, 0)";
+      connectButton.style.cursor = 'pointer';
+    } else {
+      connectButton.style.border = 'solid 1px rgba(204, 204, 204, 0.5)';
+      connectButton.style.color = "rgba(204, 204, 204, 0.5)";
+      connectButton.style.cursor = 'not-allowed';
+    }
+
   });
 
   connectButton.addEventListener('click', () => {
@@ -4056,12 +4131,12 @@ function showLoadingOverlay(message) {
     <div class="loading-content">
       <div class="spinner"></div>
       <p>${message}</p>
-      <button class="cancel-button">キャンセル</button>
+      <button class="dialogButton cancelButton">CANCEL</button>
     </div>
   `;
   overlay.style.display = 'flex';
   // キャンセルボタンのイベントリスナーを追加
-  const cancelButton = overlay.querySelector('.cancel-button');
+  const cancelButton = overlay.querySelector('.cancelButton');
   cancelButton.addEventListener('click', () => {
     if (gameState === "randomMatch") {
       cancelRandomMatch();
@@ -4298,7 +4373,7 @@ function initializeSocket() {
     calcReceiveOffsetToDisplay();
     drawStatusField(ctxPlayerStatus, true);
 
-    console.log("攻撃を受けました:" + playerReceiveValueToOffset);
+    // console.log("攻撃を受けました:" + playerReceiveValueToOffset);
   });
 
   socket.on('syncAttackValue', (data) => {
@@ -4425,16 +4500,16 @@ class SoundManager {
         buffer: audioBuffer
       });
 
-      console.log(`Loaded sound: ${key}`);
+      // console.log(`Loaded sound: ${key}`);
     } catch (error) {
-      console.error(`Error loading sound ${key}:`, error);
+      // console.error(`Error loading sound ${key}:`, error);
     }
   }
 
   playSound(key, options = {}) {
     const sound = this.sounds.get(key);
     if (!sound) {
-      console.error(`Sound not found: ${key}`);
+      // console.error(`Sound not found: ${key}`);
       return null;
     }
 
@@ -4502,6 +4577,7 @@ class SoundManager {
         try {
           source.stop();
         } catch (e) {
+          return;
           console.warn('Sound already stopped');
         }
       },

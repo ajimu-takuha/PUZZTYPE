@@ -4,6 +4,55 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link 
+  rel="preload" 
+  href="/fonts/Senobi-Gothic-Regular.ttf" 
+  as="font" 
+  type="font/ttf" 
+  crossorigin
+>
+<link 
+  rel="preload" 
+  href="/fonts/Makinas-4-Square.otf" 
+  as="font" 
+  type="font/otf" 
+  crossorigin
+>
+<link 
+  rel="preload" 
+  href="/fonts/Makinas-4-Flat.otf" 
+  as="font" 
+  type="font/otf" 
+  crossorigin
+>
+<link 
+  rel="preload" 
+  href="/fonts/kirin-Regular.ttf" 
+  as="font" 
+  type="font/ttf" 
+  crossorigin
+>
+<link 
+  rel="preload" 
+  href="/fonts/851Gkktt_005.ttf" 
+  as="font" 
+  type="font/ttf" 
+  crossorigin
+>
+<link 
+  rel="preload" 
+  href="/fonts/002zouver.2-Regular.ttf" 
+  as="font" 
+  type="font/ttf" 
+  crossorigin
+>
+<link 
+  rel="preload" 
+  href="/fonts/MADE_Evolve_Sans_Regular_EVO__PERSONAL_USE_.otf" 
+  as="font" 
+  type="font/otf" 
+  crossorigin
+>
   <script src="https://unpkg.com/wanakana"></script>
   <script src="/socket.io/socket.io.js"></script>
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -13,6 +62,30 @@
 </head>
 
 <body>
+  <div class="welcomeOverlay">
+    <div class="welcome">
+      <span> </span>
+      <span>W</span>
+      <span>e</span>
+      <span>l</span>
+      <span>c</span>
+      <span>o</span>
+      <span>m</span>
+      <span>e</span>
+      <span> </span>
+      <span>t</span>
+      <span>o</span>
+      <span> </span>
+      <span>P</span>
+      <span>U</span>
+      <span>Z</span>
+      <span>Z</span>
+      <span>T</span>
+      <span>Y</span>
+      <span>P</span>
+      <span>E</span>
+    </div>
+  </div>
   <div id="howToPlayWrapper">
     <div id="howToPlay">
     </div>
@@ -21,14 +94,14 @@
   <div id="configWrapper">
     <button class="configButtons BGM toUseSE">
       <p id="BGMLeft">BGM
-        <span style="font-size:1.5vh;">[ play with space ]</span>
+        <span style="font-size:1.5vh;">[ listen with space ]</span>
         :
       </p>
       <p id="BGMRight"></p>
     </button>
     <button class="configButtons typeSE toUseSE">
       <p id="typeSELeft">TYPE SOUND
-        <span style="font-size:1.5vh;">[ type here to play ]</span>
+        <span style="font-size:1.5vh;">[ listen with typeing ]</span>
         :
       </p>
       <p id="typeSERight"></p>
@@ -181,14 +254,6 @@
     <div class="gradationBackground"></div>
     <div class="overlay"></div>
   </div>
-
-  <script>
-    window.GameConfig = {
-      FIELD_WIDTH: 10,
-      FIELD_HEIGHT: 20,
-      CELL_SIZE: 30,
-    };
-  </script>
   <script src="./globals.js"></script>
   <script src="./main.js"></script>
 
