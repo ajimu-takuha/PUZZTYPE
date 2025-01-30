@@ -51,8 +51,10 @@ let playerLastAttackValue = 0;
 let opponentLastAttackValue = 0;
 
 // 攻撃清算用
-let playerAttackValueToOffset = [];
+let playerAttackValueToOffset = 0;
 let playerReceiveValueToOffset = [];
+
+let isAttackShake = false;
 
 let lastChar = "";
 let isWordChain = false;
@@ -123,6 +125,7 @@ window.GameConfig = {
   opponentLastAttackValue,
   playerAttackValueToOffset,
   playerReceiveValueToOffset,
+  isAttackShake,
   playerKeyValueToKPM,
   playerAtteckValueToAPM,
   playerWordValueToWPM,

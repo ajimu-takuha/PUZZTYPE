@@ -360,7 +360,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ・CHAINBUNUSが10以上の場合は10ずつ使って攻撃し、CHAINBUNUSが10未満になった時、その値が1以外の場合は攻撃します<br>
         ・攻撃すると相手フィールド左に、攻撃されると自分のフィールド左に文字数とともに赤で表示されます<br>
         ・攻撃が送られた状態で自分が攻撃するとその攻撃力だけ送られた攻撃力を減らします (相殺)<br>
-        ・相殺は送られた攻撃の文字数の多い順に相殺し、相殺後1以下になるとその攻撃を無効化します<br>
+        ・相殺は送られた同じ攻撃力があればそれを、なければ攻撃高い順に相殺し、相殺後1以下になるとその攻撃を無効化します<br>
         ・スペースキー押下時、もしくはフィールド下のプログレスバーで示す時間経過でフィールドに単語が追加されます<br>
         ・時間経過の場合ゲーム開始後10秒で単語が追加され、追加ごとに0.1秒ずつ加速し、最終1秒ごとに追加されます<br>
         ・スペースキー押下で単語を追加しても、時間経過による追加は加速しません<br>
@@ -387,7 +387,7 @@ document.addEventListener('DOMContentLoaded', () => {
         を探すというのをこのゲームの本質にしようと思いました<br>
         モチーフがパズルゲームなのもありますが、パズル的思考が重要だと思ったためゲーム名を PUZZTYPE としました<br>
         当初考えていなかったのですが、その思考をより主軸とするため CONNECT システムを作りました<br>
-        ( しりとりは英語で「WORD CHAIN」ともいうらしいので、それでもよかったなあ )<br>
+        ( 余談ですが、しりとりは英語で「WORD CHAIN」ともいうらしい )<br>
         思い描いていたゲームスピードから離れるとは思いましたが、対戦ゲームとしてはあるほうがよかったと思います<br>
         ただ、フィールドサイズや出現する単語の文字数、追加時間、追加方法、相殺システム、何が最適なのか...<br>
         配色に関しても、同じ文字に同じ色のエフェクトをつけ、それが浮かないようにしたら変にカラフルになりました...<br>
@@ -397,7 +397,7 @@ document.addEventListener('DOMContentLoaded', () => {
         システムに関しては、1人で作っていたのでプレイ感が全然わからず、こうすればより面白いだろうというので全部作りました<br>
         出題単語は一般性を欠き趣味ですが、「タイピングはプロパガンダにピッタリ」という
         <a href="https://taisoku.com" target="_blank">某タイピングゲーム</a>
-        の例題を見て<br>
+        の例題に影響を受け<br>
         よくわからない単語でも、ふと現実で見つけた際に笑ってくれるのを期待してマニアックにしています<br>
         作者は
         <a href="https://sushida.net/play.html" target="_blank">寿司打</a>
@@ -429,10 +429,10 @@ document.addEventListener('DOMContentLoaded', () => {
         最も参考にした
         <a href="https://tetr.io" target="_blank">TETR.IO</a>
         は無料で遊べますが、あまりゲームの才能があると思ってないのでプレイはしてません...<br><br>
-        フォントについて、日本語の丸みがパズル的な世界観と一致せず選ぶのに難儀しました<br>
-        この文にも使っているフォントの
-        <a href="https://moji-waku.com/kenq/index.html" target="_blank">制作者がどういうことを考えて作っているのか</a>
-        がとても面白かったので読んでみてください<br><br>
+        フォントについて、日本語の丸みがパズル的な世界観と一致せず、四角いと可読性が下がるため、選ぶのに難儀しました<br>
+        ここの文章でも使っているフォントの制作者が
+        <a href="https://moji-waku.com/kenq/index.html" target="_blank">どういうことを考えてフォントを作っているのか</a>
+        がとても面白かったです<br><br>
         それと、BGM作曲者watson氏が音楽を担当するフリーゲーム
         <a href="https://katatema.main.jp/mu" target="_blank">ムラサキ</a>
         、みんなもやろう! ( 
@@ -447,7 +447,7 @@ document.addEventListener('DOMContentLoaded', () => {
         P.P.S. 
         <a href="https://www.ergonomics.co.jp/shopdetail/000000000134" target="_blank">KinesisAdvantage360Pro</a>
         を使ってますが、せっかくいいキーボードを使ってるのに、配列はそのままという人は、配列にもこだわってみてください<br>
-        　　　 既得権益に胡坐をかくQWERTY配列を市場から駆逐しよう! ( ゲームの作成は途中からすべて
+        　　　 既得権益に胡坐をかくQWERTY配列を市場から駆逐しよう! ( この文やゲームの作成は途中からすべて
         <a href="https://o24.works/layout" target="_blank">大西配列</a>
         を使って記述されています )
       </div>      
@@ -1257,7 +1257,7 @@ function updateFieldAfterReceiveOffset(field, fieldWords) {
   // console.log("与えた攻撃:" + playerAttackValueToOffset);
   // console.log("受けた攻撃:" + playerReceiveValueToOffset);
 
-  calcReceiveOffset();
+  // calcReceiveOffset();
   // console.log("相殺後は:" + playerReceiveValueToOffset);
 
   if (playerReceiveValueToOffset.length === 0) {
@@ -1280,7 +1280,7 @@ function updateFieldAfterReceiveOffset(field, fieldWords) {
     // console.log("addFieldWordは:" + addFieldWord);
   }
 
-  playerAttackValueToOffset = [];
+  playerAttackValueToOffset = 0;
   playerReceiveValueToOffset = [];
   calcReceiveOffsetToDisplay();
   drawStatusField(ctxPlayerStatus, true);
@@ -1732,88 +1732,140 @@ function syncFieldUpdate() {
 
 function calcReceiveOffset() {
   // 共通する値を削除
-  for (let i = playerAttackValueToOffset.length - 1; i >= 0; i--) {
-    const value = playerAttackValueToOffset[i];
-    if (playerReceiveValueToOffset.includes(value)) {
-      // playerAttackValueToOffset から削除
-      playerAttackValueToOffset.splice(i, 1);
-      // playerReceiveValueToOffset から削除
-      playerReceiveValueToOffset.splice(playerReceiveValueToOffset.indexOf(value), 1);
-    }
+  // for (let i = playerAttackValueToOffset.length - 1; i >= 0; i--) {
+  //   const value = playerAttackValueToOffset[i];
+  //   if (playerReceiveValueToOffset.includes(value)) {
+  //     // playerAttackValueToOffset から削除
+  //     playerAttackValueToOffset.splice(i, 1);
+  //     // playerReceiveValueToOffset から削除
+  //     playerReceiveValueToOffset.splice(playerReceiveValueToOffset.indexOf(value), 1);
+  //   }
+  // }
+
+  if (playerReceiveValueToOffset.length === 0) {
+    return playerAttackValueToOffset;
+  };
+
+  if (playerReceiveValueToOffset.includes(playerAttackValueToOffset)) {
+    playerReceiveValueToOffset.splice(playerReceiveValueToOffset.indexOf(playerAttackValueToOffset), 1);
+    playerAttackValueToOffset = 0;
   }
 
   // 合算する
-  let attackSum = playerAttackValueToOffset.reduce((sum, value) => sum + value, 0);
+  // let attackSum = playerAttackValueToOffset.reduce((sum, value) => sum + value, 0);
+  if (playerAttackValueToOffset === 0) return 0;
 
-  // playerReceiveValueToOffset の最も大きい値から順に引いていく
-  while (attackSum > 0 && playerReceiveValueToOffset.length > 0) {
-    // 最大値を探す
+  while (playerAttackValueToOffset > 0 && playerReceiveValueToOffset.length > 0) {
+
     let maxIndex = playerReceiveValueToOffset.indexOf(Math.max(...playerReceiveValueToOffset));
     let maxValue = playerReceiveValueToOffset[maxIndex];
 
-    if (attackSum >= maxValue) {
-      // 合算値が最大値を超える場合、最大値を削除
-      attackSum -= maxValue;
+    if (playerAttackValueToOffset >= maxValue) {
+      playerAttackValueToOffset -= maxValue;
       playerReceiveValueToOffset.splice(maxIndex, 1);
     } else {
-      // 合算値が最大値未満の場合、最大値を減らす
-      playerReceiveValueToOffset[maxIndex] -= attackSum;
-      attackSum = 0; // 合算値を使い切る
-
-      // 残った値が2未満なら削除
+      playerReceiveValueToOffset[maxIndex] -= playerAttackValueToOffset;
+      playerAttackValueToOffset = 0;
       if (playerReceiveValueToOffset[maxIndex] < 2) {
         playerReceiveValueToOffset.splice(maxIndex, 1);
       }
     }
   }
+
+  return playerAttackValueToOffset > 1 ? playerAttackValueToOffset : 0;
+
+  // playerReceiveValueToOffset の最も大きい値から順に引いていく
+  // while (attackSum > 0 && playerReceiveValueToOffset.length > 0) {
+  //   // 最大値を探す
+  //   let maxIndex = playerReceiveValueToOffset.indexOf(Math.max(...playerReceiveValueToOffset));
+  //   let maxValue = playerReceiveValueToOffset[maxIndex];
+
+  //   if (attackSum >= maxValue) {
+  //     // 合算値が最大値を超える場合、最大値を削除
+  //     attackSum -= maxValue;
+  //     playerReceiveValueToOffset.splice(maxIndex, 1);
+  //   } else {
+  //     // 合算値が最大値未満の場合、最大値を減らす
+  //     playerReceiveValueToOffset[maxIndex] -= attackSum;
+  //     attackSum = 0; // 合算値を使い切る
+
+  //     // 残った値が2未満なら削除
+  //     if (playerReceiveValueToOffset[maxIndex] < 2) {
+  //       playerReceiveValueToOffset.splice(maxIndex, 1);
+  //     }
+  //   }
+  // }
 }
 
-let playerAttackValueToDisplay = [];
+let playerAttackValueToDisplay = 0;
 let playerReceiveValueToDisplay = [];
 
 function calcReceiveOffsetToDisplay() {
 
-  playerAttackValueToDisplay = [...playerAttackValueToOffset];
+  playerAttackValueToDisplay = playerAttackValueToOffset;
   playerReceiveValueToDisplay = [...playerReceiveValueToOffset];
 
   // 共通する値を削除
-  for (let i = playerAttackValueToDisplay.length - 1; i >= 0; i--) {
-    const value = playerAttackValueToDisplay[i];
-    if (playerReceiveValueToDisplay.includes(value)) {
-      // playerAttackValueToDisplay から削除
-      playerAttackValueToDisplay.splice(i, 1);
-      // playerReceiveValueToDisplay から削除
-      playerReceiveValueToDisplay.splice(playerReceiveValueToDisplay.indexOf(value), 1);
-    }
+  // for (let i = playerAttackValueToDisplay.length - 1; i >= 0; i--) {
+  //   const value = playerAttackValueToDisplay[i];
+  //   if (playerReceiveValueToDisplay.includes(value)) {
+  //     // playerAttackValueToDisplay から削除
+  //     playerAttackValueToDisplay.splice(i, 1);
+  //     // playerReceiveValueToDisplay から削除
+  //     playerReceiveValueToDisplay.splice(playerReceiveValueToDisplay.indexOf(value), 1);
+  //   }
+  // }
+
+  if (playerReceiveValueToDisplay.includes(playerAttackValueToDisplay)) {
+    playerReceiveValueToDisplay.splice(playerReceiveValueToDisplay.indexOf(playerAttackValueToDisplay), 1);
+    playerAttackValueToDisplay = 0;
   }
 
-  // 合算する
-  let attackSum = playerAttackValueToDisplay.reduce((sum, value) => sum + value, 0);
+  if (playerAttackValueToDisplay === 0) return 0;
 
-  // playerReceiveValueToDisplay の最も大きい値から順に引いていく
-  while (attackSum > 0 && playerReceiveValueToDisplay.length > 0) {
-    // 最大値を探す
+  while (playerAttackValueToDisplay > 0 && playerReceiveValueToDisplay.length > 0) {
+
     let maxIndex = playerReceiveValueToDisplay.indexOf(Math.max(...playerReceiveValueToDisplay));
     let maxValue = playerReceiveValueToDisplay[maxIndex];
 
-    if (attackSum >= maxValue) {
-      // 合算値が最大値を超える場合、最大値を削除
-      attackSum -= maxValue;
+    if (playerAttackValueToDisplay >= maxValue) {
+      playerAttackValueToDisplay -= maxValue;
       playerReceiveValueToDisplay.splice(maxIndex, 1);
     } else {
-      // 合算値が最大値未満の場合、最大値を減らす
-      playerReceiveValueToDisplay[maxIndex] -= attackSum;
-      attackSum = 0; // 合算値を使い切る
-
-      // 残った値が2未満なら削除
+      playerReceiveValueToDisplay[maxIndex] -= playerAttackValueToDisplay;
+      playerAttackValueToDisplay = 0;
       if (playerReceiveValueToDisplay[maxIndex] < 2) {
         playerReceiveValueToDisplay.splice(maxIndex, 1);
       }
     }
   }
 
+  // 合算する
+  // let attackSum = playerAttackValueToDisplay.reduce((sum, value) => sum + value, 0);
+
+  // while (attackSum > 0 && playerReceiveValueToDisplay.length > 0) {
+  //   // 最大値を探す
+  //   let maxIndex = playerReceiveValueToDisplay.indexOf(Math.max(...playerReceiveValueToDisplay));
+  //   let maxValue = playerReceiveValueToDisplay[maxIndex];
+
+  //   if (attackSum >= maxValue) {
+  //     // 合算値が最大値を超える場合、最大値を削除
+  //     attackSum -= maxValue;
+  //     playerReceiveValueToDisplay.splice(maxIndex, 1);
+  //   } else {
+  //     // 合算値が最大値未満の場合、最大値を減らす
+  //     playerReceiveValueToDisplay[maxIndex] -= attackSum;
+  //     attackSum = 0; // 合算値を使い切る
+
+  //     // 残った値が2未満なら削除
+  //     if (playerReceiveValueToDisplay[maxIndex] < 2) {
+  //       playerReceiveValueToDisplay.splice(maxIndex, 1);
+  //     }
+  //   }
+  // }
+
   // 降順にソート
-  playerAttackValueToDisplay.sort((a, b) => a - b);
+  // playerAttackValueToDisplay.sort((a, b) => a - b);
   playerReceiveValueToDisplay.sort((a, b) => a - b);
 
   // console.log("playerReceiveValueToDisplay:" + playerReceiveValueToDisplay);
@@ -2343,9 +2395,9 @@ function startGame() {
     drawField(ctxPlayer, playerField, memorizeLastAttackValue);
     syncFieldUpdate();
     // インターバルを更新し、プログレスバーを開始
-    gameStepInterval = Math.max(minInterval, gameStepInterval - 100);
-    updateProgressBar(gameStepInterval);
-    setTimeout(gameStep, gameStepInterval);
+    // gameStepInterval = Math.max(minInterval, gameStepInterval - 100);
+    // updateProgressBar(gameStepInterval);
+    // setTimeout(gameStep, gameStepInterval);
   }
 
   gameStep();
@@ -2618,24 +2670,26 @@ window.addEventListener("keydown", (e) => {
       if (currentDeleteSoundState === 'VALID') {
         soundManager.playSound('deleteInput', { volume: 1 });
       }
-
       convertedInput = ""
       resetHighlight(playerField);
-    } else if (key === 'ArrowUp') {
-      playerWins++;
-      // playerWins = 2;    
-      handleGameOver(false);
-    } else if (key === "ArrowDown") {
-      handleGameOver(true);
-    } else if (key === "ArrowLeft") {
-      startCountdown();
-    } else if (key === "ArrowRight") {
-      showRetryDialog();
-    }
-    else if (key === "Enter") {
-      gameState = 'playing';
-      startGame();
-    }
+    } 
+    // else if (key === 'ArrowUp') {
+    //   // playerWins++;
+    //   playerWins = 2;
+    //   handleGameOver(false);
+    // } else if (key === "ArrowDown") {
+    //   opponentWins++;
+    //   handleGameOver(true);
+    // } else if (key === "ArrowLeft") {
+    //   chainBonus++;
+    //   updateChainInfoDisplay();
+    // } else if (key === "ArrowRight") {
+    //   showRetryDialog();
+    // }
+    // else if (key === "Enter") {
+    //   gameState = 'playing';
+    //   startGame();
+    // }
 
     playerInput = convertedInput;
   }
@@ -2872,12 +2926,12 @@ function calcAttackValue(removeWord) {
   } else {
     // console.log("通常攻撃！ 攻撃力は:" + playerAttackValue);
     let calculatedAttackVal = playerAttackValue - nerfValue;
+    cancelChain();
+    attack(playerAttackValue);
     if (calculatedAttackVal > 0 && calculatedAttackVal !== 1) {
       onAttackShake(calculatedAttackVal);
       displayAttackValue(playerEffectOverlay, calculatedAttackVal);
     }
-    cancelChain();
-    attack(playerAttackValue);
   }
   playerLastAttackValue = memorizeLastAttackValue;
   // 現在の removeWord の最後の文字を記憶
@@ -2935,9 +2989,11 @@ function triggerShakeOnReceive(data) {
 
 // 攻撃イベントの送信
 function onAttackShake(attackValue) {
-  socket.emit('attackShake', { attackValue }); // サーバーに攻撃値を送信
-  triggerPlayerVerticalShake(attackValue);    // 自分の画面を縦に揺らす
-  triggerOpponentHorizontalShake(attackValue); // 相手のフィールドを横に揺らす
+  triggerPlayerVerticalShake(attackValue);
+  if (isAttackShake) {
+    socket.emit('attackShake', { attackValue });
+    triggerOpponentHorizontalShake(attackValue);
+  }
 }
 
 function triggerColorFlash(element) {
@@ -3054,18 +3110,27 @@ function attack(attackValue) {
       if (nerfAttackValue < 2) {
         // console.log("ナーフで攻撃無効 nerfAttackValue:" + nerfAttackValue);
         updateNerfInfoDisplay();
-
         updateAttackInfoDisplay();
         emitAttackInfo();
         return;
 
       } else {
         // console.log("ナーフ攻撃 nerfAttackValue:" + nerfAttackValue);
-        playerAttackValueToOffset.push(nerfAttackValue);
+        playerAttackValueToOffset = nerfAttackValue;
         playerAtteckValueToAPM += nerfAttackValue;
-        socket.emit('attack', {
-          attackValue: nerfAttackValue
-        });
+        calcReceiveOffsetToDisplay();
+        attackValue = calcReceiveOffset();
+        playerAttackValueToOffset = 0;
+        if (playerReceiveValueToOffset.length === 0) {
+          if (attackValue > 1) {
+            isAttackShake = true;
+            socket.emit('attack', {
+              attackValue: attackValue
+            });
+          }
+        } else {
+          isAttackShake = false;
+        }
         updateAttackInfoDisplay();
         emitAttackInfo();
       }
@@ -3075,16 +3140,24 @@ function attack(attackValue) {
     } else {
       // isNerf = false;
       // console.log("攻撃します攻撃力は:" + attackValue);
-      playerAttackValueToOffset.push(attackValue);
+      playerAttackValueToOffset = attackValue;
       playerAtteckValueToAPM += attackValue;
-      socket.emit('attack', {
-        attackValue: attackValue
-      });
+      calcReceiveOffsetToDisplay();
+      attackValue = calcReceiveOffset();
+      playerAttackValueToOffset = 0;      isAttackShake = false;
+      if (playerReceiveValueToOffset.length === 0) {
+        console.log("攻撃します、攻撃力は" + attackValue);
+        if (attackValue > 1) {
+          isAttackShake = true;
+          socket.emit('attack', {
+            attackValue: attackValue
+          });
+        }
+      }
       updateAttackInfoDisplay();
       emitAttackInfo();
     }
 
-    calcReceiveOffsetToDisplay();
     drawStatusField(ctxPlayerStatus, true);
   }
 }
@@ -3295,7 +3368,7 @@ function connect() {
   }
   calculatedAttackVal = calculatedAttackVal + chainBonus;
   if (chainBonus % 10 === 1) {
-    calculatedAttackVal -= 1; 
+    calculatedAttackVal -= 1;
   }
   if (calculatedAttackVal > 1) {
     onAttackShake(calculatedAttackVal);
@@ -3356,7 +3429,7 @@ function upChainAttack() {
   }
   calculatedAttackVal = calculatedAttackVal + chainBonus;
   if (chainBonus % 10 === 1) {
-    calculatedAttackVal -= 1; 
+    calculatedAttackVal -= 1;
   }
   onAttackShake(calculatedAttackVal);
   displayAttackValue(playerEffectOverlay, calculatedAttackVal);
@@ -3416,7 +3489,7 @@ function downChainAttack() {
   }
   calculatedAttackVal = calculatedAttackVal + chainBonus;
   if (chainBonus % 10 === 1) {
-    calculatedAttackVal -= 1; 
+    calculatedAttackVal -= 1;
   }
   onAttackShake(calculatedAttackVal);
   displayAttackValue(playerEffectOverlay, calculatedAttackVal);
@@ -3433,8 +3506,6 @@ function sameCharAttack() {
   }
 
   calculatedAttackVal = calculatedAttackVal + playerAttackValue + chainBonus * 2;
-  onAttackShake(calculatedAttackVal);
-  displayAttackValue(playerEffectOverlay, calculatedAttackVal);
 
   playerAttackValue = playerAttackValue * 2 + chainBonus * 2
   chainBonus = 0;
@@ -3457,6 +3528,8 @@ function sameCharAttack() {
     attack(playerAttackValue);
   }
   // console.log("DoubleAttack! 攻撃力は:" + playerAttackValue);
+  onAttackShake(calculatedAttackVal);
+  displayAttackValue(playerEffectOverlay, calculatedAttackVal);
 }
 
 function nerfAttackValue() {
@@ -3480,7 +3553,7 @@ function resetGame() {
   playerUsedLengths = [];
   playerAttackValue = 0;
   playerLastAttackValue = 0;
-  playerAttackValueToOffset = [];
+  playerAttackValueToOffset = 0;
   playerReceiveValueToOffset = [];
   playerAttackValueToDisplay = [];
   playerReceiveValueToDisplay = [];
@@ -4374,16 +4447,20 @@ function initializeSocket() {
     alert('対戦相手が切断しました');
   });
 
-  // socket.on('receiveAttack')を修正
   socket.on('receiveAttack', (data) => {
     playerReceiveValueToOffset.push(data.attackValue);
-    // console.log("playerAttackValueToOffset:" + playerAttackValueToOffset);
-    // console.log("playerReceiveValueToOffset:" + playerReceiveValueToOffset);
-
-    calcReceiveOffsetToDisplay();
-    drawStatusField(ctxPlayerStatus, true);
 
     // console.log("攻撃を受けました:" + playerReceiveValueToOffset);
+    // calcReceiveOffsetToDisplay();
+
+    playerReceiveValueToDisplay = [...playerReceiveValueToOffset];
+    playerReceiveValueToDisplay.sort((a, b) => a - b);
+    drawStatusField(ctxPlayerStatus, true);
+
+
+    // console.log("playerAttackValueToDisplay:" + playerAttackValueToDisplay);
+    // console.log("playerReceiveValueToDisplay:" + playerReceiveValueToDisplay);
+
   });
 
   socket.on('syncAttackValue', (data) => {
@@ -4623,33 +4700,33 @@ const soundManager = new SoundManager();
 // 画面ロード時に音声ファイルを読み込む
 window.addEventListener('load', async () => {
   const soundFiles = {
-    'Consecutive Battle': '/sounds/MusMus-CT-NV-23.mp3',
-    'Lightning Brain': '/sounds/MusMus-BGM-172.mp3',
-    'R.E.B.O.R.N': '/sounds/MusMus-BGM-176.mp3',
-    'missType': '/sounds/ビープ音4.mp3',
-    'type1': '/sounds/9744__horn__typewriter.wav',
-    'type2': '/sounds/378085__bigmonmulgrew__mechanical-key-hard.wav',
-    'type3': '/sounds/54405__korgms2000b__button-click.wav',
-    'type4': '/sounds/カーソル移動2.mp3',
-    'type5': '/sounds/194799__jim-ph__keyboard5.wav',
-    'type6': '/sounds/277723__magedu__typewriter_electric_turn_off.wav',
-    'type7': '/sounds/360602__cabled_mess__typewriter-snippet-02.wav',
-    'type8': '/sounds/773604__kreha__smallclick.wav',
-    'attackWeak': '/sounds/346918__julien_matthey__jm_noiz_laser-04.wav',
-    'attackNormal': '/sounds/270548__littlerobotsoundfactory__laser_04.wav',
-    'attackStrong': '/sounds/270551__littlerobotsoundfactory__laser_07.wav',
-    'attackOP': '/sounds/547441__mango777__lazercannon.ogg',
-    'buttonHover': '/sounds/533257__copyc4t__screen-lettering.wav',
-    'buttonClick': '/sounds/240875__unfa__anime-jump-loud-short-sms-signal.flac',
-    'receiveAttack': '/sounds/577423__morganpurkis__zip-laser.wav',
-    'countdown': '/sounds/64119__atari66__beeps.wav',
-    'addFieldWord': '/sounds/107156__bubaproducer__button-9-funny.wav',
-    'deleteInput': '/sounds/264762__farpro__guiclick.ogg',
-    'warning': '/sounds/582986__oysterqueen__low-battery.mp3',
-    'playerMatchPoint': '/sounds/580116__annyew__completeobtained-sound.wav',
-    'win': '/sounds/668436__david819__win.mp3',
-    'opponentMatchPoint': '/sounds/342756__rhodesmas__failure-01.wav',
-    'lose': '/sounds/159399__noirenex__power-down.wav',
+    'Consecutive Battle': 'sounds/MusMus-CT-NV-23.mp3',
+    'Lightning Brain': 'sounds/MusMus-BGM-172.mp3',
+    'R.E.B.O.R.N': 'sounds/MusMus-BGM-176.mp3',
+    'missType': 'sounds/ビープ音4.mp3',
+    'type1': 'sounds/9744__horn__typewriter.wav',
+    'type2': 'sounds/378085__bigmonmulgrew__mechanical-key-hard.wav',
+    'type3': 'sounds/54405__korgms2000b__button-click.wav',
+    'type4': 'sounds/カーソル移動2.mp3',
+    'type5': 'sounds/194799__jim-ph__keyboard5.wav',
+    'type6': 'sounds/277723__magedu__typewriter_electric_turn_off.wav',
+    'type7': 'sounds/360602__cabled_mess__typewriter-snippet-02.wav',
+    'type8': 'sounds/773604__kreha__smallclick.wav',
+    'attackWeak': 'sounds/346918__julien_matthey__jm_noiz_laser-04.wav',
+    'attackNormal': 'sounds/270548__littlerobotsoundfactory__laser_04.wav',
+    'attackStrong': 'sounds/270551__littlerobotsoundfactory__laser_07.wav',
+    'attackOP': 'sounds/547441__mango777__lazercannon.ogg',
+    'buttonHover': 'sounds/533257__copyc4t__screen-lettering.wav',
+    'buttonClick': 'sounds/240875__unfa__anime-jump-loud-short-sms-signal.flac',
+    'receiveAttack': 'sounds/577423__morganpurkis__zip-laser.wav',
+    'countdown': 'sounds/64119__atari66__beeps.wav',
+    'addFieldWord': 'sounds/107156__bubaproducer__button-9-funny.wav',
+    'deleteInput': 'sounds/264762__farpro__guiclick.ogg',
+    'warning': 'sounds/582986__oysterqueen__low-battery.mp3',
+    'playerMatchPoint': 'sounds/580116__annyew__completeobtained-sound.wav',
+    'win': 'sounds/668436__david819__win.mp3',
+    'opponentMatchPoint': 'sounds/342756__rhodesmas__failure-01.wav',
+    'lose': 'sounds/159399__noirenex__power-down.wav',
   };
 
   // すべての音声ファイルを読み込む
