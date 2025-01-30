@@ -1411,7 +1411,8 @@ function handleGameOver(isLoser) {
     case 'OFF':
       break;
   }
-
+  soundManager.stop('warning');
+  
   if (gameState === 'ended') return;
 
   // console.log("handleGameOver実行");
@@ -2394,10 +2395,9 @@ function startGame() {
     checkAndRemoveWord(playerField, playerFieldWords, playerInput);
     drawField(ctxPlayer, playerField, memorizeLastAttackValue);
     syncFieldUpdate();
-    // インターバルを更新し、プログレスバーを開始
-    // gameStepInterval = Math.max(minInterval, gameStepInterval - 100);
-    // updateProgressBar(gameStepInterval);
-    // setTimeout(gameStep, gameStepInterval);
+    gameStepInterval = Math.max(minInterval, gameStepInterval - 100);
+    updateProgressBar(gameStepInterval);
+    setTimeout(gameStep, gameStepInterval);
   }
 
   gameStep();
@@ -4274,13 +4274,6 @@ function initializeSocket() {
   //   : 'https://puzztype.onrender.com';
   
   const socketUrl = 'https://puzztype.onrender.com';
-  socket = io(socketUrl, {
-    transports: ['websocket', 'polling'],
-    withCredentials: true,
-    extraHeaders: {
-      "my-custom-header": "abcd"
-    }
-  });
 
   socket = io(socketUrl, {
     transports: ['websocket', 'polling'],
@@ -4290,7 +4283,6 @@ function initializeSocket() {
   socket.on('connect_error', (error) => {
     console.error('Connection Error:', error);
   });
-
 
   console.log('接続先は' + window.location.origin);
 
