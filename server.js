@@ -28,7 +28,7 @@ app.use(cors({
 // Socket.IOサーバーの設定にCORSオプションを追加
 const io = new Server(server, {
   cors: {
-    origin: "http://127.0.0.1:5500",
+    origin: allowedOrigins,
     methods: ["GET", "POST"],
     credentials: true,
     allowedHeaders: ["my-custom-header"],
