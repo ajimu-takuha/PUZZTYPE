@@ -1,6 +1,6 @@
 @font-face {
   font-family: 'Senobi-Gothic-Regular';
-  src: url('/fonts/Senobi-Gothic-Regular.ttf') format('truetype');
+  src: url('fonts/Senobi-Gothic-Regular.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
   font-display: swap;
@@ -8,7 +8,7 @@
 
 @font-face {
   font-family: 'Makinas';
-  src: url('/fonts/Makinas-4-Square.otf') format('truetype');
+  src: url('fonts/Makinas-4-Square.otf') format('truetype');
   font-weight: normal;
   font-style: normal;
   font-display: swap;
@@ -16,7 +16,7 @@
 
 @font-face {
   font-family: 'MakinasF';
-  src: url('/fonts/Makinas-4-Flat.otf') format('truetype');
+  src: url('fonts/Makinas-4-Flat.otf') format('truetype');
   font-weight: normal;
   font-style: normal;
   font-display: swap;
@@ -25,14 +25,14 @@
 
 @font-face {
   font-family: 'kirin';
-  src: url('/fonts/kirin-Regular.ttf') format('truetype');
+  src: url('fonts/kirin-Regular.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
   font-family: '851Gkktt';
-  src: url('/fonts/851Gkktt_005.ttf') format('truetype');
+  src: url('fonts/851Gkktt_005.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
   font-display: swap;
@@ -40,7 +40,7 @@
 
 @font-face {
   font-family: 'zouver';
-  src: url('/fonts/002zouver.2-Regular.ttf') format('truetype');
+  src: url('fonts/002zouver.2-Regular.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
   font-display: swap;
@@ -48,7 +48,7 @@
 
 @font-face {
   font-family: 'MADE_Evolve';
-  src: url('/fonts/MADE_Evolve_Sans_Regular_EVO__PERSONAL_USE_.otf') format('truetype');
+  src: url('fonts/MADE_Evolve_Sans_Regular_EVO__PERSONAL_USE_.otf') format('truetype');
   font-weight: normal;
   font-style: normal;
   font-display: swap;

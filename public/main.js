@@ -2672,7 +2672,7 @@ window.addEventListener("keydown", (e) => {
       }
       convertedInput = ""
       resetHighlight(playerField);
-    } 
+    }
     // else if (key === 'ArrowUp') {
     //   // playerWins++;
     //   playerWins = 2;
@@ -3144,7 +3144,7 @@ function attack(attackValue) {
       playerAtteckValueToAPM += attackValue;
       calcReceiveOffsetToDisplay();
       attackValue = calcReceiveOffset();
-      playerAttackValueToOffset = 0;      isAttackShake = false;
+      playerAttackValueToOffset = 0; isAttackShake = false;
       if (playerReceiveValueToOffset.length === 0) {
         console.log("攻撃します、攻撃力は" + attackValue);
         if (attackValue > 1) {
@@ -4269,9 +4269,28 @@ function showMatchingSuccess() {
 function initializeSocket() {
 
   // ここからRender用追記
-  const socketUrl = window.location.hostname === 'localhost'
-    ? 'http://localhost:3000'
-    : window.location.origin
+  // const socketUrl = window.location.hostname === 'localhost'
+  //   ? 'http://localhost:3000'
+  //   : 'https://puzztype.onrender.com';
+  
+  const socketUrl = 'https://puzztype.onrender.com';
+  socket = io(socketUrl, {
+    transports: ['websocket', 'polling'],
+    withCredentials: true,
+    extraHeaders: {
+      "my-custom-header": "abcd"
+    }
+  });
+
+  socket = io(socketUrl, {
+    transports: ['websocket', 'polling'],
+    withCredentials: true
+  });
+
+  socket.on('connect_error', (error) => {
+    console.error('Connection Error:', error);
+  });
+
 
   console.log('接続先は' + window.location.origin);
 

@@ -4,10 +4,40 @@ const { Server } = require('socket.io');
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server);
+
+
+const cors = require('cors');
+
+const allowedOrigins = [
+  'http://127.0.0.1:5500',
+  'https://puzztype.onrender.com',
+  'https://plicy.net'
+];
+
+app.use(cors({
+  origin: function(origin, callback) {
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('CORS not allowed'));
+    }
+  },
+  credentials: true
+}));
+
+// Socket.IOサーバーの設定にCORSオプションを追加
+const io = new Server(server, {
+  cors: {
+    origin: "http://127.0.0.1:5500",
+    methods: ["GET", "POST"],
+    credentials: true,
+    allowedHeaders: ["my-custom-header"],
+  }
+});
 
 app.use(express.static(__dirname + '/public'));
 
+// const io = new Server(server);
 const rooms = new Map();
 const roomMatches = new Map(); // ルーム番号とプレイヤーの対応を管理
 let waitingPlayer = null;
