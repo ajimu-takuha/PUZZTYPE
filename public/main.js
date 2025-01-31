@@ -2507,7 +2507,7 @@ function startGame() {
     updateFieldAfterReceiveOffset(playerField, playerFieldWords);
     checkAndRemoveWord(playerField, playerFieldWords, playerInput);
     drawField(ctxPlayer, playerField, memorizeLastAttackValue);
-    syncFieldUpdate();
+    syncInputUpdate();
     gameStepInterval = Math.max(minInterval, gameStepInterval - 100);
     updateProgressBar(gameStepInterval);
     setTimeout(gameStep, gameStepInterval);
@@ -2771,7 +2771,7 @@ window.addEventListener("keydown", (e) => {
           convertedInput = convertedInput.slice(0, -2) + "ny";
         }
 
-      } else if (key.match(/^[a-zA-Z]$/)) {
+      } else if (key.match(/^[a-zA-Z-]$/)) {
         convertedInput = wanakana.toHiragana(playerInput);
       } else {
         if (currentDeleteSoundState === 'VALID') {
@@ -3280,7 +3280,6 @@ function attack(attackValue) {
       updateAttackInfoDisplay();
       emitAttackInfo();
     }
-
     drawStatusField(ctxPlayerStatus, true);
   }
 }
