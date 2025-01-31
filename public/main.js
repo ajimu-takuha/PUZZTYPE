@@ -4444,9 +4444,6 @@ function initializeSocket() {
 
   console.log('接続先は' + window.location.origin);
 
-  // ここまで
-  socket = io(socketUrl);
-
   socket.on('waitingForPlayer', () => {
     // console.log('対戦相手を待っています...');
   });
