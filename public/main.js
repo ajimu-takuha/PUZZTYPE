@@ -203,7 +203,8 @@ document.addEventListener('DOMContentLoaded', () => {
         ・同じ文字数の単語を連続タイプでボーナスは消えるけど
         <span style="color: rgb(255, 255, 255);">攻撃力2倍</span>
         <span style="font-size:1vw; color: rgb(255, 255, 255);"> -DOUBLE ATTACK </span><br>
-        ・単語がフィールドからあふれたら負け
+        ・単語がフィールドからあふれたら負け<br>
+        ・これだけ知ってれば対戦できます！
       </div>
       `
     },
@@ -259,7 +260,7 @@ document.addEventListener('DOMContentLoaded', () => {
         　・同じ文字数の単語を連続でタイプすると、攻撃力が2倍になります<br>
         　・
         <span style="color: rgba(255, 200, 50, 0.9);">CHAINBONUS</span>
-        がある場合は1度だけ2倍の攻撃力で加算され、
+        がある場合は1度だけ2倍の数値として攻撃力と合算され、その後
         <span style="color: rgba(255, 200, 50, 0.9);">CHAINBONUS</span>
         が0になります<br>
         　・画面上で背景色が
@@ -341,7 +342,7 @@ document.addEventListener('DOMContentLoaded', () => {
         されます<br>
         ・
         <span style="color: rgba(255, 200, 50, 0.9);">CHAINBONUS</span>
-        も減ってしまうので、2文字以上タイプミスした場合はDELETEキーを使うのがいいかもしれません<br>
+        も減ってしまうので、2文字以上タイプミスした場合は文字をクリアするのがいいかもしれません<br>
         ・スペースキーや時間制限によってフィールドに文字が追加された際にもその時点の入力に対して
         <span style="color:rgba(180, 200, 255, 0.8);">Nerf</span>
         判定が行われます<br>
@@ -351,23 +352,136 @@ document.addEventListener('DOMContentLoaded', () => {
     {
       title: '対戦の詳細仕様',
       content: `
-      <div style="font-size:1vw; line-height:3.2vh;">
-        ・単語が追加される場所がフィールド、その下が入力フィールドで、プレイヤーは左側、対戦相手は右側です<br>
-        ・フィールドには1行に1つずつ2-10文字の単語が追加され、開始時10個の単語が追加されます<br>
-        ・タイプすると入力フィールドに打った文字が表示され、BacKSpaceキーで1文字、Deleteキーですべての文字が消せます<br>
-        ・フィールド内の単語と同じ文字をタイプするとその単語がフィールドから消えます<br>
-        ・消した文字と同じ文字数(攻撃力)の単語が相手フィールドに送られます (攻撃)<br>
-        ・CHAINBUNUSが10以上の場合は10ずつ使って攻撃し、CHAINBUNUSが10未満になった時、その値が1以外の場合は攻撃します<br>
-        ・攻撃すると相手フィールド左に、攻撃されると自分のフィールド左に文字数とともに赤で表示されます<br>
-        ・攻撃が送られた状態で自分が攻撃するとその攻撃力だけ送られた攻撃力を減らします (相殺)<br>
-        ・相殺は送られた同じ攻撃力があればそれを、なければ攻撃高い順に相殺し、相殺後1以下になるとその攻撃を無効化します<br>
-        ・スペースキー押下時、もしくはフィールド下のプログレスバーで示す時間経過でフィールドに単語が追加されます<br>
+      <div style="font-size:1vw; line-height:3vh;">
+        ・単語が追加される場所が
+        フィールド
+        、その下が
+        入力フィールド
+        で、プレイヤーは左側、対戦相手は右側です<br>
+        ・
+        フィールド
+        には1行に1つずつ
+        2-10文字の単語
+        が追加され、開始時10個の単語が追加されます<br>
+        ・タイプすると
+        入力フィールド
+        に文字が表示され、
+        BacKSpaceキー
+        で1文字、ほかのキーで
+        全ての文字がクリア
+        されます<br>
+        ・
+        フィールド
+        の単語をタイプするとその単語が消え、消した文字と同じ文字数(
+        攻撃力
+        )の単語が
+        相手フィールド
+        に送られます (
+        攻撃
+        )<br>
+        ・
+        CHAINBONUS
+        は
+        DOUBLE ATTACK
+        以外では
+        攻撃力
+        に合算されず、個別の
+        攻撃
+        となります<br>
+        ・
+        DOUBLE ATTACK
+        /
+        CHAINBONUS
+        が10以上なら10ずつ使って攻撃し、
+        攻撃力
+        が10未満になった時の値が2以上の場合は
+        攻撃
+        します<br>
+        ・
+        攻撃
+        すると
+        相手フィールド
+        左に、
+        攻撃
+        されると自分の
+        フィールド
+        左に送られた
+        攻撃力
+        が文字数とともに
+        赤
+        で表示されます<br>
+        ・
+        攻撃
+        が送られた状態で自分が
+        攻撃
+        するとその
+        攻撃力
+        だけ送られた
+        攻撃力
+        を減らします(
+        相殺
+        )<br>
+        ・
+        相殺
+        は同じ
+        攻撃力
+        があればそれを、なければ
+        攻撃力
+        が高い順に
+        相殺
+        し、
+        相殺
+        後1以下になるとその
+        攻撃
+        を無効化します<br>
+        ・
+        相殺
+        後に
+        攻撃力
+        が2以上残っていれば
+        攻撃
+        しますが、そうでなければ
+        相殺
+        によって相手に
+        攻撃
+        は送られません<br>
+        ・
+        スペースキー
+        押下時、もしくは
+        フィールド
+        下の
+        プログレスバー
+        で示す時間経過でフィールドに単語が追加されます<br>
+        ・単語の追加は、
+        攻撃
+        を受けている場合はそれがすべて追加され、そうでない場合は、
+        フィールド
+        左の
+        NEXT
+        から単語が追加されます<br>
         ・時間経過の場合ゲーム開始後10秒で単語が追加され、追加ごとに0.1秒ずつ加速し、最終1秒ごとに追加されます<br>
-        ・スペースキー押下で単語を追加しても、時間経過による追加は加速しません<br>
-        ・単語の追加では、攻撃を受けている場合はその単語がすべて追加され、そうでない場合はフィールド左のNEXTから単語が追加されます<br>
-        ・NEXTに表示される単語は18回追加されるごとに2-10文字の9種類の長さのランダムな単語が各2回ずつ出現します<br>
-        ・攻撃時にはNerf込みの攻撃力がフィールド右上に表示され、攻撃されて負けそうな場合フィールドか赤く点滅して音が出ます<br>
-        ・単語がフィールドに21以上追加されたら負けとなり、同時に2人が負けると上手く処理できず回線で勝敗が決まったりします...<br>
+        ・
+        スペースキー
+        押下で単語を追加しても、時間経過による追加は加速しません<br>
+        ・
+        NEXT
+        に表示される単語は
+        18回追加
+        されるごとに2-10文字の9種類の長さのランダムな単語が
+        各2回
+        ずつ出現します<br>
+        ・
+        攻撃
+        時にはNerf込みの
+        攻撃力
+        がフィールド右上に表示され、攻撃されて負けそうな場合フィールドか
+        赤く
+        点滅して音が出ます<br>
+        ・単語が
+        フィールド
+        に
+        21以上
+        追加されたら負けとなり、同時に2人が負けると上手く処理できず回線で勝敗が決まったりします...<br>
       </div>
       `
     },
@@ -387,7 +501,7 @@ document.addEventListener('DOMContentLoaded', () => {
         を探すというのをこのゲームの本質にしようと思いました<br>
         モチーフがパズルゲームなのもありますが、パズル的思考が重要だと思ったためゲーム名を PUZZTYPE としました<br>
         当初考えていなかったのですが、その思考をより主軸とするため CONNECT システムを作りました<br>
-        ( 余談ですが、しりとりは英語で「WORD CHAIN」ともいうらしい )<br>
+        ( 余談ですが、しりとりは英語で「WORD CHAIN」ともいわれるらしい )<br>
         思い描いていたゲームスピードから離れるとは思いましたが、対戦ゲームとしてはあるほうがよかったと思います<br>
         ただ、フィールドサイズや出現する単語の文字数、追加時間、追加方法、相殺システム、何が最適なのか...<br>
         配色に関しても、同じ文字に同じ色のエフェクトをつけ、それが浮かないようにしたら変にカラフルになりました...<br>
@@ -395,7 +509,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <a href="https://freesound.org" target="_blank">freesound</a>
         のサンプルを数千は聞きましたが、イメージと異なる、納得できてないSEがいくつかあります...<br>
         システムに関しては、1人で作っていたのでプレイ感が全然わからず、こうすればより面白いだろうというので全部作りました<br>
-        出題単語は一般性を欠き趣味ですが、「タイピングはプロパガンダにピッタリ」という
+        出題単語は8割趣味で一般性を欠きますが、「タイピングはプロパガンダにピッタリ」という
         <a href="https://taisoku.com" target="_blank">某タイピングゲーム</a>
         の例題に影響を受け<br>
         よくわからない単語でも、ふと現実で見つけた際に笑ってくれるのを期待してマニアックにしています<br>
@@ -457,9 +571,9 @@ document.addEventListener('DOMContentLoaded', () => {
       title: '使用素材',
       content: `
       <div style="font-size:0.8vw; line-height:2vh;">   
-      使用BGM:      
+      BGM　:      
       <a href="https://musmus.main.jp/" target="_blank"> MusMus (waston)</a><br>
-      使用Font:
+      FONT :
       <a href="https://modi.jpn.org/font_senobi.php" target="_blank"> せのびゴシック</a>
       /
       <a href="https://pm85122.onamae.jp/851Gkktt.html" target="_blank">851ゴチカクット</a>
@@ -471,7 +585,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <a href="https://www.lazypolarbear.com/zou" target="_blank">ゾウフォント</a>
       /
       <a href="https://apkadmin.com/3jl3bokx90dz/MADE_Evolve.mtz.html" target="_blank">MADE_Evolve</a><br>
-      使用SE: <a href="https://freesound.org/people/Horn/sounds/9744" target="_blank">typewriter.wav by Horn -- https://freesound.org/s/9744/ -- License: Attribution NonCommercial 3.0</a><br>
+      SE　　: <a href="https://freesound.org/people/Horn/sounds/9744" target="_blank">typewriter.wav by Horn -- https://freesound.org/s/9744/ -- License: Attribution NonCommercial 3.0</a><br>
       　　　　<a href="https://freesound.org/people/KorgMS2000B/sounds/54405/" target="_blank">Button Click.wav by KorgMS2000B -- https://freesound.org/s/54405/ -- License: Creative Commons 0</a><br>
       　　　　<a href="https://freesound.org/people/atari66/sounds/64119" target="_blank">beeps.wav by atari66 -- https://freesound.org/s/64119/ -- License: Sampling+</a><br>
       　　　　<a href="https://freesound.org/people/bubaproducer/sounds/107156" target="_blank">button 9 funny.wav by bubaproducer -- https://freesound.org/s/107156/ -- License: Attribution 4.0</a><br>
@@ -539,7 +653,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // クリック時の処理
       button.addEventListener('click', () => {
         if (currentButtonSoundState === 'VALID') {
-          soundManager.playSound('buttonClick', { volume: 0.6 });
+          soundManager.playSound('buttonClick', { volume: 0.5 });
         }
       });
     });
@@ -646,7 +760,7 @@ gameButtons.forEach(button => {
   // クリック時の処理
   button.addEventListener('click', () => {
     if (currentButtonSoundState === 'VALID') {
-      soundManager.playSound('buttonClick', { volume: 0.6 });
+      soundManager.playSound('buttonClick', { volume: 0.5 });
     }
   });
 });
@@ -1412,7 +1526,7 @@ function handleGameOver(isLoser) {
       break;
   }
   soundManager.stop('warning');
-  
+
   if (gameState === 'ended') return;
 
   // console.log("handleGameOver実行");
@@ -1476,7 +1590,6 @@ function handleRetryResponse(response) {
 function showGameOverEffect(elementId, isLoser) {
   const overlay = document.getElementById(elementId);
   const resultElement = document.createElement('div');
-
   resultElement.style.cssText = `
     position: absolute;
     top: 50%;
@@ -2658,38 +2771,48 @@ window.addEventListener("keydown", (e) => {
           convertedInput = convertedInput.slice(0, -2) + "ny";
         }
 
-      } else {
+      } else if (key.match(/^[a-zA-Z]$/)) {
         convertedInput = wanakana.toHiragana(playerInput);
+      } else {
+        if (currentDeleteSoundState === 'VALID') {
+          soundManager.playSound('deleteInput', { volume: 1 });
+        }
+        convertedInput = ""
+        resetHighlight(playerField);
       }
     } else if (key === "Backspace") {
+      if (currentDeleteSoundState === 'VALID') {
+        soundManager.playSound('deleteInput', { volume: 1 });
+      }
       convertedInput = playerInput.slice(0, -1); // バックスペースで最後の文字を削除
       if (convertedInput === "") {
         resetHighlight(playerField);
       }
-    } else if (key === "Delete") {
-      if (currentDeleteSoundState === 'VALID') {
-        soundManager.playSound('deleteInput', { volume: 1 });
-      }
-      convertedInput = ""
-      resetHighlight(playerField);
+    } 
+    // else {
+    //   if (currentDeleteSoundState === 'VALID') {
+    //     soundManager.playSound('deleteInput', { volume: 1 });
+    //   }
+    //   convertedInput = ""
+    //   resetHighlight(playerField);
+    // }
+    else if (key === 'ArrowUp') {
+      // playerWins++;
+      playerWins = 2;
+      handleGameOver(false);
+    } else if (key === "ArrowDown") {
+      opponentWins++;
+      handleGameOver(true);
+    } else if (key === "ArrowLeft") {
+      chainBonus++;
+      updateChainInfoDisplay();
+    } else if (key === "ArrowRight") {
+      showRetryDialog();
     }
-    // else if (key === 'ArrowUp') {
-    //   // playerWins++;
-    //   playerWins = 2;
-    //   handleGameOver(false);
-    // } else if (key === "ArrowDown") {
-    //   opponentWins++;
-    //   handleGameOver(true);
-    // } else if (key === "ArrowLeft") {
-    //   chainBonus++;
-    //   updateChainInfoDisplay();
-    // } else if (key === "ArrowRight") {
-    //   showRetryDialog();
-    // }
-    // else if (key === "Enter") {
-    //   gameState = 'playing';
-    //   startGame();
-    // }
+    else if (key === "Enter") {
+      gameState = 'playing';
+      startGame();
+    }
 
     playerInput = convertedInput;
   }
@@ -3751,8 +3874,20 @@ function showRetryDialog() {
       </div>
     </div>
   `;
-
   document.body.appendChild(retryDialog);
+  const dialogButton = document.querySelectorAll('.retryDialogButton');
+  dialogButton.forEach(button => {
+    button.addEventListener('mouseenter', () => {
+      if (currentButtonSoundState === 'VALID') {
+        soundManager.playSound('buttonHover', { volume: 0.8 });
+      }
+    });
+    button.addEventListener('click', () => {
+      if (currentButtonSoundState === 'VALID') {
+        soundManager.playSound('buttonClick', { volume: 0.5 });
+      }
+    });
+  });
 }
 
 // 追加のJavaScript
@@ -4159,6 +4294,22 @@ function showRoomMatchDialog() {
     </div>
   `;
   document.body.appendChild(dialog);
+  const dialogButton = document.querySelectorAll('.dialogButton');
+  dialogButton.forEach(button => {
+    // ホバー時の処理
+    button.addEventListener('mouseenter', () => {
+      if (currentButtonSoundState === 'VALID') {
+        soundManager.playSound('buttonHover', { volume: 0.8 });
+      }
+    });
+
+    // クリック時の処理
+    button.addEventListener('click', () => {
+      if (currentButtonSoundState === 'VALID') {
+        soundManager.playSound('buttonClick', { volume: 0.5 });
+      }
+    });
+  });
 
   isRoomMatch = true;
 
@@ -4220,7 +4371,15 @@ function showLoadingOverlay(message) {
   overlay.style.display = 'flex';
   // キャンセルボタンのイベントリスナーを追加
   const cancelButton = overlay.querySelector('.cancelButton');
+  cancelButton.addEventListener('mouseenter', () => {
+    if (currentButtonSoundState === 'VALID') {
+      soundManager.playSound('buttonHover', { volume: 0.8 });
+    }
+  });
   cancelButton.addEventListener('click', () => {
+    if (currentButtonSoundState === 'VALID') {
+      soundManager.playSound('buttonClick', { volume: 0.5 });
+    }
     if (gameState === "randomMatch") {
       cancelRandomMatch();
     } else {
@@ -4272,7 +4431,7 @@ function initializeSocket() {
   // const socketUrl = window.location.hostname === 'localhost'
   //   ? 'http://localhost:3000'
   //   : 'https://puzztype.onrender.com';
-  
+
   const socketUrl = 'https://puzztype.onrender.com';
 
   socket = io(socketUrl, {
