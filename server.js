@@ -83,7 +83,7 @@ io.on('connection', (socket) => {
     if (!waitingPlayer) {
       waitingPlayer = socket;
       socket.emit('waitingForPlayer');
-      console.log(socket + "が試合を待っています");
+      console.log(socket.id + " が待機中");
     } else {
       const room = `room_${Date.now()}`;
       waitingPlayer.join(room);
@@ -102,7 +102,7 @@ io.on('connection', (socket) => {
           player2Field: [],
         }
       });
-      // console.log(room);
+      console.log( room + 'で' + waitingPlayer.id + 'と' + socket.id + "が試合開始");
       waitingPlayer = null;
     }
   });
@@ -119,6 +119,7 @@ io.on('connection', (socket) => {
     if (!roomMatches.has(roomNumber)) {
       roomMatches.set(roomNumber, socket);
       socket.emit('roomJoined', roomNumber);
+      console.log(socket.id + ' が ROOM ' + roomNumber + " で待機中");
     } else {
       const waitingSocket = roomMatches.get(roomNumber);
 
@@ -140,7 +141,7 @@ io.on('connection', (socket) => {
             player2Field: [],
           }
         });
-
+        console.log( roomNumber + ' で ' + waitingSocket.id + ' と ' + socket.id + " が試合開始");
         roomMatches.delete(roomNumber);
       } else {
         socket.emit('invalidRoom');
