@@ -10,13 +10,14 @@ const cors = require('cors');
 
 const allowedOrigins = [
   'http://127.0.0.1:5500',
+  'http://localhost:3000',
   'https://puzztype.onrender.com',
   'https://plicy.net',
   'https://html5.plicy.net'
 ];
 
 app.use(cors({
-  origin: function(origin, callback) {
+  origin: function (origin, callback) {
     if (!origin || allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
@@ -82,6 +83,7 @@ io.on('connection', (socket) => {
     if (!waitingPlayer) {
       waitingPlayer = socket;
       socket.emit('waitingForPlayer');
+      console.log(socket + "が試合を待っています");
     } else {
       const room = `room_${Date.now()}`;
       waitingPlayer.join(room);
@@ -100,9 +102,7 @@ io.on('connection', (socket) => {
           player2Field: [],
         }
       });
-      // console.log(rooms);
       // console.log(room);
-
       waitingPlayer = null;
     }
   });
