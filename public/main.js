@@ -180,6 +180,9 @@ document.addEventListener('DOMContentLoaded', () => {
       title: 'ざっくり概要',
       content: `
       <div style="font-size:1.5vw; line-height:6vh;">
+        <span style="text-decoration: underline; color:rgb(255, 100, 100);">
+        ・Enterキーでプラクティス / Escキーでプラクティス終了 ( 2月2日追記 )
+        </span><br>
         ・スペースキーか時間経過で画面に単語が追加<br>
         ・単語をタイプすると相手に単語を送って
         <span style="color: rgb(255, 255, 255);">攻撃</span>
@@ -459,7 +462,7 @@ document.addEventListener('DOMContentLoaded', () => {
         左の
         NEXT
         から単語が追加されます<br>
-        ・時間経過の場合ゲーム開始後10秒で単語が追加され、追加ごとに0.1秒ずつ加速し、最終1秒ごとに追加されます<br>
+        ・時間経過の場合ゲーム開始後10秒で単語が追加され、追加ごとに0.2秒ずつ加速し、最終1秒ごとに追加されます<br>
         ・
         スペースキー
         押下で単語を追加しても、時間経過による追加は加速しません<br>
@@ -1218,6 +1221,7 @@ function updateNextDisplay(words, isPlayer = true) {
   for (const [key] of charColorMap) {
     if (!matchingChars.includes(key)) {
       charColorMap.delete(key);
+      usedColors.delete(baseColor);
     }
   }
 
@@ -2508,7 +2512,7 @@ function startGame() {
     checkAndRemoveWord(playerField, playerFieldWords, playerInput);
     drawField(ctxPlayer, playerField, memorizeLastAttackValue);
     syncInputUpdate();
-    gameStepInterval = Math.max(minInterval, gameStepInterval - 100);
+    gameStepInterval = Math.max(minInterval, gameStepInterval - 200);
     updateProgressBar(gameStepInterval);
     setTimeout(gameStep, gameStepInterval);
   }
@@ -2788,7 +2792,7 @@ window.addEventListener("keydown", (e) => {
       if (convertedInput === "") {
         resetHighlight(playerField);
       }
-    } 
+    }
     // else {
     //   if (currentDeleteSoundState === 'VALID') {
     //     soundManager.playSound('deleteInput', { volume: 1 });
@@ -2920,19 +2924,19 @@ function checkAndRemoveWord(field, fieldWords, input) {
     if (playerInput.length !== 0) {
       // console.log("playerInput" + playerInput);
       // cancelChain();
-      if (chainBonus === 3) {
-        chainBonus = 2
-      } else if (chainBonus <= 2) {
-        chainBonus = 0;
-      } else {
-        chainBonus = chainBonus - 2;
-      }
-      updateChainInfoDisplay();
-      nerfAttackValue();
-      if (currentMissTypeSoundState === 'VALID') {
-        soundManager.playSound('missType');
-      }
-      if (field === playerField) {
+      if (input === playerInput) {
+        if (chainBonus === 3) {
+          chainBonus = 2
+        } else if (chainBonus <= 2) {
+          chainBonus = 0;
+        } else {
+          chainBonus = chainBonus - 2;
+        }
+        updateChainInfoDisplay();
+        nerfAttackValue();
+        if (currentMissTypeSoundState === 'VALID') {
+          soundManager.playSound('missType');
+        }
         triggerMissColorFlash(playerInputField, true);
       }
     }
@@ -3666,7 +3670,7 @@ function resetGame() {
   // ゲーム状態のリセット
   // gameState = 'waiting';
   isGameOver = false;
-  interval = 5000; // 初期インターバルに戻す
+  gameStepInterval = 10000;
 
   // プレイヤーデータのリセット
   playerField = Array(FIELD_HEIGHT).fill().map(() => Array(FIELD_WIDTH).fill(null));
