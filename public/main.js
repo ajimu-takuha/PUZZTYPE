@@ -1218,10 +1218,21 @@ function updateNextDisplay(words, isPlayer = true) {
   });
 
   // charColorMap を更新：matchingChars に含まれない文字を削除
-  for (const [key] of charColorMap) {
-    if (!matchingChars.includes(key)) {
-      charColorMap.delete(key);
+  // for (const [key] of charColorMap) {
+  //   if (!matchingChars.includes(key)) {
+  //     charColorMap.delete(key);
+  //   }
+  // }
+
+  // charColorMap を更新：matchingChars に含まれない文字を削除し、その色を解放
+  const existingKeys = new Set(matchingChars);
+
+  for (const [key, { baseColor }] of charColorMap.entries()) {
+    if (!existingKeys.has(key)) {
+      // 使っていた色を解放
       usedColors.delete(baseColor);
+      // charColorMap から削除
+      charColorMap.delete(key);
     }
   }
 
