@@ -11,9 +11,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 let cpuLevelSelectValue;
 let customSettingsValue;
-let inputSpeedToCalc;
-let missRateToCalc;
-let missWaitTimeToCalc;
+let inputSpeedToCalc = 5;
+let missRateToCalc = 3;
+let missWaitTimeToCalc = 1;
 
 function showCpuDialog() {
     const cpuDialog = document.createElement('div');
@@ -70,9 +70,9 @@ function showCpuDialog() {
     inputSpeed.value = predefinedLevels[4].speed;
     inputSpeedToCalc = predefinedLevels[4].speed;
     missRate.value = predefinedLevels[4].miss;
+    missRateToCalc = predefinedLevels[4].miss;
     inputSpeedValue.textContent = predefinedLevels[4].speed;
     missRateValue.textContent = predefinedLevels[4].miss;
-    missRateToCalc = predefinedLevels[4].miss;
 
     cpuLevelSelect.addEventListener('change', () => {
         if (cpuLevelSelect.value === 'custom') {
@@ -192,8 +192,8 @@ function getInputWord() {
 
         if (longestContinuous.length > 0) {
             let maxLength = Math.max(...longestContinuous);
-            console.log(longestContinuous);
-            console.log(maxLength);
+            // console.log(longestContinuous);
+            // console.log(maxLength);
             return opponentFieldWords.find(word => word.length === maxLength);
         }
     }
@@ -204,7 +204,6 @@ let opponentWordToInput = '';
 
 function CPUstartInput() {
     if (gameState !== "CPUmatch") return;
-    let wordIndex = 0;
     let speed = 1000 / parseInt(inputSpeedToCalc, 10);
     function typeWord() {
         function typeCharacter() {
@@ -225,7 +224,10 @@ function CPUstartInput() {
                 CPUtriggerMissColorFlash(opponentInputField);
                 setTimeout(() => {
                     setTimeout(typeCharacter, speed);
-                }, missWaitTimeToCalc * 100);
+                }, missWaitTimeToCalc * 1000);
+                // console.log(missWaitTimeToCalc);
+                // console.log(missRateToCalc);
+                // console.log(inputSpeedToCalc);
             } else {
                 if (!isWordDecided) {
                     opponentWordToInput = getInputWord();
@@ -239,6 +241,10 @@ function CPUstartInput() {
                         }
                     }
                     opponentKeyValueToKPM++;
+                    if(opponentInput.length > 10) {
+                        opponentInput = '';
+                        isWordDecided = false;
+                    }
                 }
                 // console.log(opponentWordToInput);
                 CPUdrawInputField(ctxOpponentInput, opponentInput, opponentInputField);
@@ -1001,11 +1007,6 @@ function CPUopponentUpdateChainInfoDisplay() {
     }
 }
 
-function CPUnerfAttackValue() {
-    nerfValue = nerfValue + 1;
-    CPUupdateNerfInfoDisplay();
-}
-
 function CPUOpponentNerfAttackValue() {
     CPUnerfValue = CPUnerfValue + 1;
     CPUopponentUpdateNerfInfoDisplay();
@@ -1379,8 +1380,8 @@ function CPUopponentAttack(attackValue) {
                     playerReceiveValueToDisplay = [...playerReceiveValueToOffset];
                     playerReceiveValueToDisplay.sort((a, b) => a - b);
                     CPUdrawStatusField(ctxPlayerStatus, true);
-                    console.log(opponentAttackValueToOffset);
-                    console.log(playerReceiveValueToDisplay);
+                    // console.log(opponentAttackValueToOffset);
+                    // console.log(playerReceiveValueToDisplay);
                 }
             }
             CPUopponentUpdateAttackInfoDisplay();
@@ -1475,6 +1476,8 @@ function CPUopponentCalcReceiveOffset() {
 }
 
 function CPUopponentHandleGameOver() {
+    stopDrawInfo();
+    clearProgressBar();
     switch (currentBGMState) {
         case 'Consecutive Battle':
             soundManager.stop('Consecutive Battle');

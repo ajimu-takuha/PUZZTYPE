@@ -189,6 +189,11 @@ function CPUcheckAndRemoveWord() {
     }
 }
 
+function CPUnerfAttackValue() {
+    nerfValue = nerfValue + 1;
+    CPUupdateNerfInfoDisplay();
+}
+
 function CPUcalcAttackValue(removeWord) {
     playerAttackValue = removeWord.length;
     playerAttackValue = removeWord.length;
@@ -525,6 +530,8 @@ function CPUupdateChainInfoDisplay() {
 }
 
 function CPUhandleGameOver() {
+    stopDrawInfo();
+    clearProgressBar();
     switch (currentBGMState) {
         case 'Consecutive Battle':
             soundManager.stop('Consecutive Battle');
