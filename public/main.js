@@ -164,15 +164,15 @@ window.document.onkeydown = function (evt) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  const welcomeOverlay = document.querySelector(".welcomeOverlay");
+  // const welcomeOverlay = document.querySelector(".welcomeOverlay");
 
-  const handleAnimationEnd = (event) => {
-    if (event.animationName === 'overlayFadeOut') {
-      welcomeOverlay.remove();
-    }
-  };
+  // const handleAnimationEnd = (event) => {
+  //   if (event.animationName === 'overlayFadeOut') {
+  //     welcomeOverlay.remove();
+  //   }
+  // };
 
-  welcomeOverlay.addEventListener("animationend", handleAnimationEnd);
+  // welcomeOverlay.addEventListener("animationend", handleAnimationEnd);
 
   const howToPlayContent = document.getElementById('howToPlay');
   const pages = [
@@ -181,7 +181,7 @@ document.addEventListener('DOMContentLoaded', () => {
       content: `
       <div style="font-size:1.5vw; line-height:6vh;">
         <span style="text-decoration: underline; color:rgb(255, 100, 100);">
-        ・Enterキーでプラクティス / Escキーでプラクティス終了 ( 2月2日追記 )
+        ・CPU対戦/Configでのフォント変更を実装 ( 2月8日追記 )
         </span><br>
         ・スペースキーか時間経過で画面に単語が追加<br>
         ・単語をタイプすると相手に単語を送って
@@ -207,7 +207,20 @@ document.addEventListener('DOMContentLoaded', () => {
         <span style="color: rgb(255, 255, 255);">攻撃力2倍</span>
         <span style="font-size:1vw; color: rgb(255, 255, 255);"> -DOUBLE ATTACK </span><br>
         ・単語がフィールドからあふれたら負け<br>
-        ・これだけ知ってれば対戦できます！
+      </div>
+      `
+    },
+    {
+      title: 'CPU対戦',
+      content: `
+      <div style="font-size:1.5vw; line-height:6vh;">
+        　・各レベルで以下のCPUステータスが変わり、Customでは自由に設定できます<br>
+        　・INPUT RATE - CPUの1秒間の入力文字数<br>
+        　・MISS&nbsp&nbsp&nbspRATE - CPUのミス率( % )<br>
+        　・MISS&nbsp&nbsp&nbspWAIT - CPUのミス時の待機時間( 秒 )<br>
+        　・作ってすぐなのでバグ等あるかもしれません<br>
+        　・アルゴリズムは洗練されておらず、そのうち変更予定です<br>
+
       </div>
       `
     },
@@ -557,8 +570,8 @@ document.addEventListener('DOMContentLoaded', () => {
         でも購入できます )<br>
         あと
         <a href="https://plicy.net/GamePlay/175820" target="_blank">10パズル</a>
-        というゲームを以前作っているので「さんすう」が好きなら遊んでみてください ( ダイマ )<br><br>
-        このゲームを楽しんでいただけたら幸いです<br><br>
+        というゲームを以前作っているので「さんすう」が好きなら遊んでみてください<br><br>
+        このゲームを楽しんでいただけたら幸いです --- 機能等について要望があればコメントください<br><br>
         <div style="font-size:0.8vw; line-height:2vh;">
         P.S.　 デバッグのために対戦してくれた merishiaru ありがとう!<br>
         P.P.S. 
@@ -573,15 +586,25 @@ document.addEventListener('DOMContentLoaded', () => {
     {
       title: '使用素材',
       content: `
-      <div style="font-size:0.8vw; line-height:2vh;">   
+      <div style="font-size:0.75vw; line-height:2vh;">   
       BGM　:      
       <a href="https://musmus.main.jp/" target="_blank"> MusMus (waston)</a><br>
       FONT :
-      <a href="https://modi.jpn.org/font_senobi.php" target="_blank"> せのびゴシック</a>
+      <a href="https://modi.jpn.org/font_senobi.php" target="_blank">せのびゴシック</a>
+      /
+      <a href="https://www.flopdesign.com/freefont/smartfont.html" target="_blank">スマートフォントUI</a>
+      /
+      <a href="https://www.flopdesign.com/syotai/yohaku.html" target="_blank">ヨハク</a>
+      /
+      <a href="https://fonts.google.com/specimen/Sawarabi+Mincho" target="_blank">さわらび明朝</a>
+      /
+      <a href="https://moji-waku.com/mamelon/index.html" target="_blank">マメロン</a>
+      /
+      <a href="https://yokutobanaitori.web.fc2.com/tegakifont.html#tegakifont4" target="_blank">にゃしぃフォント改二</a>
       /
       <a href="https://pm85122.onamae.jp/851Gkktt.html" target="_blank">851ゴチカクット</a>
       /
-      <a href="https://moji-waku.com/makinas/index.html" target="_blank">マキナス4Flat・Spuare</a>
+      <a href="https://moji-waku.com/makinas/index.html" target="_blank">マキナス4</a>
       /
       <a href="https://www.lazypolarbear.com/entry/kirin" target="_blank">キリンフォント</a>
       /
@@ -811,6 +834,38 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // BGMの状態を管理するグローバル変数
+const fontRight = document.getElementById('fontRight');
+const fontButton = document.querySelector('.configButtons.font');
+let currentfontState = 'せのびゴシック';
+
+// フォント切り替え用の関数
+function togglefontState() {
+  // fontの状態を切り替え
+  switch (currentfontState) {
+    case 'せのびゴシック':
+      currentfontState = 'スマートフォントUI';
+      break;
+    case 'スマートフォントUI':
+      currentfontState = 'ヨハク';
+      break;
+    case 'ヨハク':
+      currentfontState = 'さわらび明朝';
+      break;
+    case 'さわらび明朝':
+      currentfontState = 'マメロン';
+      break;
+    case 'マメロン':
+      currentfontState = 'にゃしぃフォント改二';
+      break;
+    case 'にゃしぃフォント改二':
+      currentfontState = 'せのびゴシック';
+      break;
+  }
+  document.documentElement.style.setProperty("--font-family-next", currentfontState);
+  fontRight.textContent = currentfontState;
+  return currentfontState;
+}
+
 
 // const BGMLeft = document.getElementById('BGMLeft');
 const BGMRight = document.getElementById('BGMRight');
@@ -1016,6 +1071,9 @@ function toggleButtonSoundState() {
 // 初期設定
 document.addEventListener('DOMContentLoaded', () => {
 
+  fontRight.textContent = currentfontState;
+  fontButton.addEventListener('click', togglefontState);
+
   // BGMLeft.textContent = 'BGM :';
   BGMRight.textContent = currentBGMState;
   BGMButton.addEventListener('click', toggleBGMState);
@@ -1207,7 +1265,7 @@ function updateNextDisplay(words, isPlayer = true) {
     if (!charColorMap.has(char)) {
       // 未使用の色を選択
       const availableColors = colors.filter((color) => !usedColors.has(color));
-      const baseColor = availableColors[0] || colors[0]; // 未使用がなければ最初の色を再利用
+      const baseColor = availableColors[0] || colors[0];
       const rgbaMatch = baseColor.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*[\d.]+)?\)/);
       const [r, g, b] = rgbaMatch.slice(1).map(Number);
       const borderColor = `rgba(${Math.max(r - 20, 0)}, ${Math.max(g - 20, 0)}, ${Math.max(b - 20, 0)}, 1)`;
@@ -1221,10 +1279,10 @@ function updateNextDisplay(words, isPlayer = true) {
   // for (const [key] of charColorMap) {
   //   if (!matchingChars.includes(key)) {
   //     charColorMap.delete(key);
+  //     usedColors.delete(baseColor);
   //   }
   // }
 
-  // charColorMap を更新：matchingChars に含まれない文字を削除し、その色を解放
   const existingKeys = new Set(matchingChars);
 
   for (const [key, { baseColor }] of charColorMap.entries()) {
@@ -1235,6 +1293,7 @@ function updateNextDisplay(words, isPlayer = true) {
       charColorMap.delete(key);
     }
   }
+
 
   // 5つのNextを表示
   for (let i = 1; i <= 5; i++) {
@@ -2240,7 +2299,7 @@ function drawField(ctx, field, receivedLastWordLength) {
 
         ctx.fillStyle = gradient;
         ctx.fillRect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
-        ctx.font = `${CELL_SIZE * 0.7}px "Senobi-Gothic-Regular", "851Gkktt", serif`;
+        ctx.font = `${CELL_SIZE * 0.7}px "${currentfontState}", "せのびゴシック", serif`;
         ctx.textBaseline = 'middle';
         ctx.textAlign = 'center';
         ctx.lineWidth = 0.5;
@@ -2471,7 +2530,7 @@ async function loadWordList() {
 // ゲーム開始
 // 初期化時の処理に追加
 loadWordList().then(() => {
-  initializeSocket();
+  // initializeSocket();
 
   resizeField(playerFieldElement);
   resizeField(opponentFieldElement);
@@ -2650,9 +2709,10 @@ function getRandomWordForAttack(characterCount) {
 
 // キー入力リスナー
 let isPlaying = false;
+let isPractice = false;
 
 window.addEventListener("keydown", (e) => {
-  if (gameState === 'ended' || isRoomMatch === true) return;
+  if (gameState === 'ended' || isRoomMatch === true || gameState === 'CPUmatch') return;
   const key = e.key;
 
   if (gameState === 'config') {
@@ -2804,31 +2864,81 @@ window.addEventListener("keydown", (e) => {
         resetHighlight(playerField);
       }
     }
-    // else {
-    //   if (currentDeleteSoundState === 'VALID') {
-    //     soundManager.playSound('deleteInput', { volume: 1 });
-    //   }
-    //   convertedInput = ""
-    //   resetHighlight(playerField);
-    // }
-    else if (key === 'ArrowUp') {
-      // playerWins++;
-      playerWins = 2;
-      handleGameOver(false);
-    } else if (key === "ArrowDown") {
-      opponentWins++;
-      handleGameOver(true);
-    } else if (key === "ArrowLeft") {
-      chainBonus++;
-      updateChainInfoDisplay();
-    } else if (key === "ArrowRight") {
-      showRetryDialog();
-    }
     else if (key === "Enter") {
-      gameState = 'playing';
-      startGame();
+      if (gameState !== 'normal') return;
+      if (gameState === 'normal') {
+        gameState = 'playing';
+        isPractice = true;
+        setWordPool();
+        if (playerFieldWords.length === 0) {
+          for (let x = 0; x < 9; x++) {
+            playerFieldWords.push(getRandomWordForField(playerUsedLengths));
+          }
+        }
+        drawInfo();
+        playerInput = "";
+        opponentInput = "";
+        drawInputField(ctxPlayerInput, '', playerInputField);
+
+        updateFieldAfterReceiveOffset(playerField, playerFieldWords);
+        checkAndRemoveWord(playerField, playerFieldWords, playerInput);
+        drawField(ctxPlayer, playerField, memorizeLastAttackValue);
+
+        switch (currentBGMState) {
+          case 'Consecutive Battle':
+            soundManager.playSound('Consecutive Battle', { volume: 0.6, loop: true });
+            break;
+          case 'Lightning Brain':
+            soundManager.playSound('Lightning Brain', { volume: 0.6, loop: true });
+            break;
+          case 'R.E.B.O.R.N':
+            soundManager.playSound('R.E.B.O.R.N', { volume: 0.6, loop: true });
+            break;
+          case 'OFF':
+            break;
+        }
+      }
+    } else if (key === "Escape") {
+      if (isPractice !== true) return;
+      soundManager.stop('Consecutive Battle');
+      soundManager.stop('Lightning Brain');
+      soundManager.stop('R.E.B.O.R.N');
+      gameStarted = false;
+      resetGame();
+      opponentReceiveValueToDisplay = [];
+      drawStatusField(ctxOpponentStatus, false);
+      playerWins = 0;
+      opponentWins = 0;
+      playerIsLoser = false;
+      isDisConnect = true;
+      gameState = 'normal';
     }
 
+    // else if (key === 'ArrowUp') {
+    //   // playerWins++;
+    //   playerWins = 2;
+    //   handleGameOver(false);
+    // } else if (key === "ArrowDown") {
+    //   opponentWins++;
+    //   handleGameOver(true);
+    // } else if (key === "ArrowLeft") {
+    //   chainBonus++;
+    //   updateChainInfoDisplay();
+    // } 
+    // else if (key === "ArrowRight") {
+    //   showRetryDialog();
+    // }
+    // else if (key === "Enter") {
+    //   gameState = 'playing';
+    //   startGame();
+    // }
+    else {
+      if (currentDeleteSoundState === 'VALID') {
+        soundManager.playSound('deleteInput', { volume: 1 });
+      }
+      convertedInput = ""
+      resetHighlight(playerField);
+    }
     playerInput = convertedInput;
   }
 
@@ -2890,7 +3000,6 @@ function extractLeadingJapanese(input) {
 }
 
 function checkAndRemoveWord(field, fieldWords, input) {
-
 
   // 入力された単語が fieldWords に存在するか確認
   if (input.length !== 0) {
@@ -3012,14 +3121,12 @@ function clearField(field) {
 }
 
 function drawInputField(ctx, inputText, inputField) {
-  // 入力文字を描画する領域をキャンバス内に設定
-  const textY = CELL_SIZE; // キャンバス内に少し余裕を持たせた高さに描画
+  const textY = CELL_SIZE;
   ctx.clearRect(0, 0, inputField.getBoundingClientRect().width, inputField.getBoundingClientRect().height);
   ctx.fillStyle = '#fff';
-  ctx.font = `${CELL_SIZE * 1}px "Senobi-Gothic-Regular", "851Gkktt", serif`;
+  ctx.font = `${CELL_SIZE * 1}px "${currentfontState}", "せのびゴシック", serif`;
   ctx.textBaseline = 'middle';
   ctx.textAlign = 'center';
-  // 入力文字をキャンバスの中央に描画
   ctx.fillText(inputText, inputField.getBoundingClientRect().width / 2, textY);
 }
 
@@ -3235,9 +3342,14 @@ function displayAttackValue(element, number) {
 }
 
 
-// 既存のattack関数を修正
 function attack(attackValue) {
   if (attackValue <= 1 || attackValue >= 11) return;
+
+  if (isPractice === true) {
+    opponentReceiveValueToDisplay.push(attackValue);
+    opponentReceiveValueToDisplay.sort((a, b) => a - b);
+    drawStatusField(ctxOpponentStatus, false);
+  }
 
   if (gameState === "playing") {
     if (nerfValue !== 0) {
@@ -3282,7 +3394,8 @@ function attack(attackValue) {
       playerAtteckValueToAPM += attackValue;
       calcReceiveOffsetToDisplay();
       attackValue = calcReceiveOffset();
-      playerAttackValueToOffset = 0; isAttackShake = false;
+      playerAttackValueToOffset = 0;
+      isAttackShake = false;
       if (playerReceiveValueToOffset.length === 0) {
         console.log("攻撃します、攻撃力は" + attackValue);
         if (attackValue > 1) {
@@ -3326,7 +3439,6 @@ function emitAttackInfo() {
 // 攻撃情報の表示を更新する関数
 function updateAttackInfoDisplay() {
 
-  // 攻撃タイプの判定
   let attackType = 'Attack';
   let colorClass = 'attack-normal';
   if (isWordChain) {
@@ -3347,10 +3459,7 @@ function updateAttackInfoDisplay() {
   // playerAttackKind.textContent = attackType;
   animateAttackInfo(playerAttackKind, attackType, colorClass);
   updateChainInfoDisplay();
-
-
   // playerChainBonus.textContent = chainBonus !== 0 ? `Chain: ${chainBonus}` : '';
-
 }
 
 function updateOpponentAttackInfoDisplay(attackType) {
@@ -3703,7 +3812,6 @@ function resetGame() {
   usedColors.clear();
 
   cancelChain();
-
   stopDrawInfo()
 
   clearProgressBar();
@@ -3713,7 +3821,6 @@ function resetGame() {
   playerAtteckValueToAPM = 0;
   playerWordValueToWPM = 0;
   totalTime = 0;
-
 
   // 相手のデータもリセット
   opponentField = Array(FIELD_HEIGHT).fill().map(() => Array(FIELD_WIDTH).fill(null));
@@ -3857,7 +3964,7 @@ function startCountdown() {
 
 // リトライダイアログ表示
 function showRetryDialog() {
-  if (retryDialog) return; // 既に表示されている場合は何もしない
+  if (retryDialog) return;
 
   retryDialog = document.createElement('div');
   // retryDialog.style.cssText = `
@@ -4448,10 +4555,7 @@ function initializeSocket() {
 
   const socketUrl = 'https://puzztype.onrender.com';
 
-  socket = io(socketUrl, {
-    transports: ['websocket', 'polling'],
-    withCredentials: true
-  });
+  socket = io(socketUrl);
 
   socket.on('connect_error', (error) => {
     console.error('Connection Error:', error);

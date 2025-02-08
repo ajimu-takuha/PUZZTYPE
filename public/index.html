@@ -21,7 +21,7 @@
 </head>
 
 <body>
-  <div class="welcomeOverlay">
+  <!-- <div class="welcomeOverlay">
     <div class="welcome">
       <span> </span>
       <span>W</span>
@@ -44,13 +44,19 @@
       <span>P</span>
       <span>E</span>
     </div>
-  </div>
+  </div> -->
   <div id="howToPlayWrapper">
     <div id="howToPlay">
     </div>
     <button class="closeHowToPlay toUseSE">CLOSE HOWTOPLAY</button>
   </div>
   <div id="configWrapper">
+    <button class="configButtons font toUseSE">
+      <p id="fontLeft">FONT
+        :
+      </p>
+      <p id="fontRight"></p>
+    </button>
     <button class="configButtons BGM toUseSE">
       <p id="BGMLeft">BGM
         <span style="font-size:1.5vh;">[ listen with space ]</span>
@@ -203,6 +209,7 @@
     </div>
     <!-- intervalProgressBarの後に以下を追加 -->
     <div id="gameButtons" class="game-buttons">
+      <button class="game-button cpu-match toUseSE">CPU Match</button>
       <button class="game-button random-match toUseSE">Random Match</button>
       <button class="game-button room-match toUseSE">Room Match</button>
       <button class="game-button config toUseSE">Config</button>
@@ -214,6 +221,8 @@
   </div>
   <script src="./globals.js"></script>
   <script src="./main.js"></script>
+  <script src="./cpu.js"></script>
+  <script src="./player.js"></script>
 
 </body>
 

@@ -29,6 +29,7 @@ let selectedCategory = "hiragana";
 
 // 各プレイヤーのフィールド単語リスト
 let wordPool = [];
+let opponentWordPool = [];
 let playerFieldWords = [];
 let opponentFieldWords = [];
 
@@ -46,6 +47,8 @@ let playerAttackValue = 0;
 let opponentAttackValue = 0;
 let nerfValue = 0;
 
+let CPUnerfValue = 0;
+
 // 攻撃スコア算出のため、最後に消去した文字数
 let playerLastAttackValue = 0;
 let opponentLastAttackValue = 0;
@@ -54,15 +57,26 @@ let opponentLastAttackValue = 0;
 let playerAttackValueToOffset = 0;
 let playerReceiveValueToOffset = [];
 
+let opponentAttackValueToOffset = 0;
+let opponentReceiveValueToOffset = [];
+
 let isAttackShake = false;
 
 let lastChar = "";
+let CPUlastChar = "";
 let isWordChain = false;
+let CPUisWordChain = false;
 let isUpChain = false;
+let CPUisUpChain = false;
 let isDownChain = false;
+let CPUisDownChain = false;
 let SameChar = false;
+let CPUSameChar = false;
 let chainBonus = 0;
-let isNerf = false;
+let CPUchainBonus = 0;
+
+// let isNerf = false;
+// let CPUisNerf = false;
 
 let playerKeyValueToKPM = 0;
 let playerAtteckValueToAPM = 0;
@@ -114,6 +128,7 @@ window.GameConfig = {
   playerField,
   opponentField,
   wordPool,
+  opponentWordPool,
   playerFieldWords,
   opponentFieldWords,
   playerInput,
@@ -121,10 +136,13 @@ window.GameConfig = {
   playerAttackValue,
   opponentAttackValue,
   nerfValue,
+  CPUnerfValue,
   playerLastAttackValue,
   opponentLastAttackValue,
   playerAttackValueToOffset,
+  opponentAttackValueToOffset,
   playerReceiveValueToOffset,
+  opponentReceiveValueToOffset,
   isAttackShake,
   playerKeyValueToKPM,
   playerAtteckValueToAPM,
@@ -135,12 +153,19 @@ window.GameConfig = {
   time,
   totalTime,
   lastChar,
+  CPUlastChar,
   isWordChain,
+  CPUisWordChain,
   isUpChain,
+  CPUisUpChain,
   isDownChain,
+  CPUisDownChain,
   SameChar,
-  isNerf,
+  CPUSameChar,
+  // isNerf,
+  // CPUisNerf,
   chainBonus,
+  CPUchainBonus,
   ctxPlayer,
   ctxOpponent,
   ctxPlayerInput,
