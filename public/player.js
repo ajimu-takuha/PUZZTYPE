@@ -578,6 +578,7 @@ function CPUresetGame() {
     soundManager.stop('warning');
     lastInputWordLength = 0;
     isWordDecided = false;
+    lastInputWordLength = 0;
     isGameOver = false;
     gameStepInterval = 10000;
 

@@ -1,19 +1,33 @@
 
+const cpuButton = document.querySelector('.cpu-match');
 document.addEventListener('DOMContentLoaded', () => {
-    const cpuButton = document.querySelector('.cpu-match');
     cpuButton.addEventListener('click', () => {
         if (gameState === 'normal') {
-            // gameState = "cpuDialog";
             showCpuDialog();
+        } else if ( gameState === "CPUmatch") {
+            CPUquitMatch();
+            cpuButton.textContent = "CPU MATCH";
         }
     });
 });
 
+function CPUquitMatch() {
+    soundManager.stop('Consecutive Battle');
+    soundManager.stop('Lightning Brain');
+    soundManager.stop('R.E.B.O.R.N');
+    gameStarted = false;
+    CPUresetGame();
+    playerWins = 0;
+    opponentWins = 0;
+    playerIsLoser = false;
+    gameState = 'normal';
+}
+
 let cpuLevelSelectValue;
 let customSettingsValue;
-let inputSpeedToCalc = 5;
-let missRateToCalc = 3;
-let missWaitTimeToCalc = 1;
+let inputSpeedToCalc = 4;
+let missRateToCalc = 2;
+let missWaitTimeToCalc = 2;
 
 function showCpuDialog() {
     const cpuDialog = document.createElement('div');
@@ -50,29 +64,36 @@ function showCpuDialog() {
     const customSettings = document.getElementById('customSettings');
     const inputSpeed = document.getElementById('inputSpeed');
     const missRate = document.getElementById('missRate');
+    const missWaitTime = document.getElementById('missWaitTime');
     const inputSpeedValue = document.getElementById('inputSpeedValue');
     const missRateValue = document.getElementById('missRateValue');
+    const missWaitTimeValue = document.getElementById('missWaitTimeValue');
 
     const predefinedLevels = [
         { speed: 1, miss: 1, missWait: 3 },
-        { speed: 2, miss: 1, missWait: 3 },
-        { speed: 3, miss: 1, missWait: 3 },
-        { speed: 4, miss: 2, missWait: 3 },
-        { speed: 5, miss: 3, missWait: 2 },
-        { speed: 6, miss: 4, missWait: 2 },
-        { speed: 7, miss: 4, missWait: 2 },
-        { speed: 8, miss: 3, missWait: 2 },
-        { speed: 9, miss: 3, missWait: 2 },
-        { speed: 10, miss: 2, missWait: 1 }
+        { speed: 2, miss: 2, missWait: 3 },
+        { speed: 3, miss: 2, missWait: 3 },
+        { speed: 4, miss: 3, missWait: 3 },
+        { speed: 4, miss: 2, missWait: 2 },
+        { speed: 5, miss: 5, missWait: 3 },
+        { speed: 5.5, miss: 4, missWait: 3 },
+        { speed: 6, miss: 3, missWait: 2 },
+        { speed: 7, miss: 3, missWait: 2 },
+        { speed: 8, miss: 2, missWait: 2 }
     ];
 
     cpuLevelSelect.value = "5";
+
     inputSpeed.value = predefinedLevels[4].speed;
     inputSpeedToCalc = predefinedLevels[4].speed;
     missRate.value = predefinedLevels[4].miss;
     missRateToCalc = predefinedLevels[4].miss;
+    missWaitTime.value = predefinedLevels[4].missWait;
+    missWaitTimeToCalc = predefinedLevels[4].missWait;
+
     inputSpeedValue.textContent = predefinedLevels[4].speed;
     missRateValue.textContent = predefinedLevels[4].miss;
+    missWaitTimeValue.textContent = predefinedLevels[4].missWait;
 
     cpuLevelSelect.addEventListener('change', () => {
         if (cpuLevelSelect.value === 'custom') {
@@ -80,12 +101,16 @@ function showCpuDialog() {
         } else {
             customSettings.style.display = 'none';
             const level = parseInt(cpuLevelSelect.value) - 1;
+
             inputSpeed.value = predefinedLevels[level].speed;
             inputSpeedToCalc = predefinedLevels[level].speed;
+
             missRate.value = predefinedLevels[level].miss;
             missRateToCalc = predefinedLevels[level].miss;
+
             missWaitTime.value = predefinedLevels[level].missWait;
             missWaitTimeToCalc = predefinedLevels[level].missWait;
+
             inputSpeedValue.textContent = predefinedLevels[level].speed;
             missRateValue.textContent = predefinedLevels[level].miss;
             missWaitTimeValue.textContent = predefinedLevels[level].missWait;
@@ -118,6 +143,7 @@ function showCpuDialog() {
         if (gameState === 'normal') {
             cpuDialog.remove();
             CPUstartCountdown();
+            cpuButton.textContent = "QUIT MATCH"
             // CPUstartGame();
         }
     });
@@ -163,17 +189,12 @@ function getInputWord() {
         while (opponentFieldWords.length < 10) {
             CPUopponentUpdateFieldAfterReceiveOffset();
         }
-    } else if (opponentFieldWords.length + opponentReceiveValueToDisplay.length < 12) {
+    } else if (opponentFieldWords.length + opponentReceiveValueToDisplay.length < 13) {
         CPUopponentUpdateFieldAfterReceiveOffset();
     }
 
-    if (opponentFieldWords.find(word => word.length === lastInputWordLength - 1)) {
-        lastInputWordLength--;
-        return opponentFieldWords.find(word => word.length === lastInputWordLength);
-    }
-    else if (lastInputWordLength === 0) {
+    if (opponentFieldWords.length + opponentReceiveValueToDisplay.length > 20) {
         let wordLengths = opponentFieldWords.map(word => word.length).sort((a, b) => a - b);
-
         let longestContinuous = [];
         let currentSeq = [];
         for (let i = 0; i < wordLengths.length; i++) {
@@ -189,18 +210,55 @@ function getInputWord() {
         if (currentSeq.length > longestContinuous.length) {
             longestContinuous = currentSeq;
         }
+        if (longestContinuous.length > 0) {
+            let minLength = Math.min(...longestContinuous);
+            return opponentFieldWords.find(word => word.length === minLength);
+        }
+    }
 
+    if (CPUchainBonus > 3 && opponentFieldWords.find(word => word[0] === CPUlastChar)) {
+        let matchingWord = opponentFieldWords.find(word => word[0] === CPUlastChar);
+        lastInputWordLength = matchingWord.length;
+        return matchingWord;
+    }
+
+    if (opponentFieldWords.find(word => word.length === lastInputWordLength - 1)) {
+        lastInputWordLength--;
+        return opponentFieldWords.find(word => word.length === lastInputWordLength);
+    } else if (opponentFieldWords.find(word => word.length === lastInputWordLength)) {
+        return opponentFieldWords.find(word => word.length === lastInputWordLength);
+    } else if (opponentFieldWords.find(word => word.length === lastInputWordLength + 1)) {
+        lastInputWordLength++;
+        return opponentFieldWords.find(word => word.length === lastInputWordLength);
+    } else {
+        let wordLengths = [...new Set(opponentFieldWords.map(word => word.length))].sort((a, b) => a - b);
+        let longestContinuous = [];
+        let currentSeq = [];
+        for (let i = 0; i < wordLengths.length; i++) {
+            if (i === 0 || wordLengths[i] === wordLengths[i - 1] + 1) {
+                currentSeq.push(wordLengths[i]);
+            } else {
+                if (currentSeq.length > longestContinuous.length) {
+                    longestContinuous = currentSeq;
+                }
+                currentSeq = [wordLengths[i]];
+            }
+        }
+        if (currentSeq.length > longestContinuous.length) {
+            longestContinuous = currentSeq;
+        }
         if (longestContinuous.length > 0) {
             let maxLength = Math.max(...longestContinuous);
-            // console.log(longestContinuous);
-            // console.log(maxLength);
-            return opponentFieldWords.find(word => word.length === maxLength);
+            let returnWord = opponentFieldWords.find(word => word.length === maxLength);
+            lastInputWordLength = returnWord.length;
+            return returnWord;
         }
     }
     console.log(opponentFieldWords);
 }
 
 let opponentWordToInput = '';
+let decidedWordLength = 0
 
 function CPUstartInput() {
     if (gameState !== "CPUmatch") return;
@@ -232,6 +290,7 @@ function CPUstartInput() {
                 if (!isWordDecided) {
                     opponentWordToInput = getInputWord();
                     isWordDecided = true;
+                    decidedWordLength = opponentWordToInput.length;
                 } else {
                     if (opponentWordToInput) {
                         opponentInput += opponentWordToInput[0];
@@ -241,7 +300,7 @@ function CPUstartInput() {
                         }
                     }
                     opponentKeyValueToKPM++;
-                    if(opponentInput.length > 10) {
+                    if (opponentInput.length > decidedWordLength) {
                         opponentInput = '';
                         isWordDecided = false;
                     }

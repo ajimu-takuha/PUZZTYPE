@@ -219,7 +219,7 @@ document.addEventListener('DOMContentLoaded', () => {
         　・MISS&nbsp&nbsp&nbspRATE - CPUのミス率( % )<br>
         　・MISS&nbsp&nbsp&nbspWAIT - CPUのミス時の待機時間( 秒 )<br>
         　・作ってすぐなのでバグ等あるかもしれません<br>
-        　・アルゴリズムは洗練されておらず、そのうち変更予定です<br>
+        　・対戦中は CPU MATCH ボタンが QUIT MATCH ボタンとなり、それを押すとCPU対戦を中止します<br>
 
       </div>
       `
