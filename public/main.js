@@ -164,15 +164,15 @@ window.document.onkeydown = function (evt) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  // const welcomeOverlay = document.querySelector(".welcomeOverlay");
+  const welcomeOverlay = document.querySelector(".welcomeOverlay");
 
-  // const handleAnimationEnd = (event) => {
-  //   if (event.animationName === 'overlayFadeOut') {
-  //     welcomeOverlay.remove();
-  //   }
-  // };
+  const handleAnimationEnd = (event) => {
+    if (event.animationName === 'overlayFadeOut') {
+      welcomeOverlay.remove();
+    }
+  };
 
-  // welcomeOverlay.addEventListener("animationend", handleAnimationEnd);
+  welcomeOverlay.addEventListener("animationend", handleAnimationEnd);
 
   const howToPlayContent = document.getElementById('howToPlay');
   const pages = [
@@ -180,9 +180,6 @@ document.addEventListener('DOMContentLoaded', () => {
       title: 'ざっくり概要',
       content: `
       <div style="font-size:1.5vw; line-height:6vh;">
-        <span style="text-decoration: underline; color:rgb(255, 100, 100);">
-        ・CPU対戦/Configでのフォント変更を実装 ( 2月8日追記 )
-        </span><br>
         ・スペースキーか時間経過で画面に単語が追加<br>
         ・単語をタイプすると相手に単語を送って
         <span style="color: rgb(255, 255, 255);">攻撃</span>
@@ -214,12 +211,12 @@ document.addEventListener('DOMContentLoaded', () => {
       title: 'CPU対戦',
       content: `
       <div style="font-size:1.5vw; line-height:6vh;">
+        　・CPU MATCH ボタンからCPUと対戦ができます<br>
+        　・対戦中に QUIT MATCH を押すとCPU対戦を中止します<br>
         　・各レベルで以下のCPUステータスが変わり、Customでは自由に設定できます<br>
-        　・INPUT RATE - CPUの1秒間の入力文字数<br>
-        　・MISS&nbsp&nbsp&nbspRATE - CPUのミス率( % )<br>
-        　・MISS&nbsp&nbsp&nbspWAIT - CPUのミス時の待機時間( 秒 )<br>
-        　・作ってすぐなのでバグ等あるかもしれません<br>
-        　・対戦中は CPU MATCH ボタンが QUIT MATCH ボタンとなり、それを押すとCPU対戦を中止します<br>
+        　---INPUT RATE &nbsp-&nbsp CPUの1秒間の入力文字数( 文字 )<br>
+        　---MISS&nbsp&nbsp&nbsp&nbspRATE &nbsp-&nbsp CPUのミス率( % )<br>
+        　---MISS&nbsp&nbsp&nbsp&nbspWAIT &nbsp-&nbsp CPUのミス時の待機時間( 秒 )<br>
 
       </div>
       `
@@ -227,13 +224,15 @@ document.addEventListener('DOMContentLoaded', () => {
     {
       title: '画面操作',
       content: `
-      <div style="font-size:1.5vw; line-height:6vh;">
-        <span style="font-size:1.8vw; color:rgba(85, 184, 255, 1); margin-bottom: 0.5vh;">Random Match</span><br>
+      <div style="font-size:1.4vw; line-height:4.5vh;">
+        <span style="font-size:1.8vw; color:rgba(85, 184, 255, 1); margin-bottom: 0.5vh;">CPU Match</span><br>
+        　・強さを選んでCPUと対戦<br>
+        <span style="font-size:1.8vw; color:rgba(255, 100, 100, 1); margin-bottom: 0.5vh;">Random Match</span><br>
         　・現在RANDOM MATCHを募集している対戦相手を探して対戦<br>
-        <span style="font-size:1.8vw; color: rgba(255, 100, 100, 1); margin-bottom: 0.5vh;">Room Match</span><br>
+        <span style="font-size:1.8vw; color: rgba(100, 100, 255, 1); margin-bottom: 0.5vh;">Room Match</span><br>
         　・4桁の数字を入力して同じ数字を入力しているプレイヤーと対戦<br>
         <span style="font-size:1.8vw; color: rgba(255, 200, 100, 1); margin-bottom: 0.5vh;">Config</span><br>
-        　・BGMやTYPESOUNDの変更 / 各種SEのオンオフ<br>
+        　・BGMやTYPESOUNDの変更 / 各種SEのオンオフ (設定はlocal storageに保存されます)<br>
         <span style="font-size:1.8vw; color: rgba(100, 255, 150, 1); margin-bottom: 0.5vh;">How To Play</span><br>
         　・現在の画面 - 操作方法や各種仕様を説明
       </div>
@@ -504,7 +503,7 @@ document.addEventListener('DOMContentLoaded', () => {
     {
       title: 'あとがき - ゲームについて',
       content: `        
-      <div style="font-size:1vw; line-height:3.2vh;">
+      <div style="font-size:1vw; line-height:3.1vh;">
         なぜこのゲームを作ったかというと、まず
         <a href="https://ja.wikipedia.org/wiki/QWERTY%E9%85%8D%E5%88%97" target="_blank">QWERTY配列</a>
         をやめて自作配列のタイピング練習をしていたら<br>
@@ -517,9 +516,9 @@ document.addEventListener('DOMContentLoaded', () => {
         を探すというのをこのゲームの本質にしようと思いました<br>
         モチーフがパズルゲームなのもありますが、パズル的思考が重要だと思ったためゲーム名を PUZZTYPE としました<br>
         当初考えていなかったのですが、その思考をより主軸とするため CONNECT システムを作りました<br>
-        ( 余談ですが、しりとりは英語で「WORD CHAIN」ともいわれるらしい )<br>
+        ( しりとりは英語で「WORD CHAIN」ともいわれるから、名前はそれでも良かったかも )<br>
         思い描いていたゲームスピードから離れるとは思いましたが、対戦ゲームとしてはあるほうがよかったと思います<br>
-        ただ、フィールドサイズや出現する単語の文字数、追加時間、追加方法、相殺システム、何が最適なのか...<br>
+        ただ、フィールドサイズや出現する単語の文字数、追加時間、追加方法、相殺システム、何が最適なのかは謎...<br>
         配色に関しても、同じ文字に同じ色のエフェクトをつけ、それが浮かないようにしたら変にカラフルになりました...<br>
         音声も、
         <a href="https://freesound.org" target="_blank">freesound</a>
@@ -533,7 +532,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <a href="https://sushida.net/play.html" target="_blank">寿司打</a>
         2万円/ 
         <a href="https://mikatype.github.io/MIKATYPE_JAVASCRIPT/index2.html" target="_blank">MIKATYPE</a>
-        300文字がやっとのタイパーなのでこのゲームに適応したプロタイパーの戦いが見てみたいです<br>
+        300文字がやっとのタイパーであり、上手い人はLV10のCPUに勝てるのか気になります<br>
         <br>
       </div>
       `
@@ -541,7 +540,7 @@ document.addEventListener('DOMContentLoaded', () => {
     {
       title: 'あとがき - その他',
       content: `
-      <div style="font-size:1vw; line-height:2.8vh;">
+      <div style="font-size:1vw; line-height:2.7vh;">
         制作期間は2か月弱で、PUZZTYPEにおけるコード( 約7000行 )の9割くらいは
         <a href="https://chatgpt.com" target="_blank">ChatGPT</a>
         と
@@ -555,10 +554,9 @@ document.addEventListener('DOMContentLoaded', () => {
         <a href="https://render.com" target="_blank">Render</a>
         の無料枠を使っていますが、P2Pならサーバ不要で作れるらしいので作り方間違えたかも...<br>
         <br>
-        テトリスを多く参考にしましたが、作者は上手い人のプレイを見るだけです<br>
-        最も参考にした
+        テトリスを多く参考にし、最も参考にした
         <a href="https://tetr.io" target="_blank">TETR.IO</a>
-        は無料で遊べますが、あまりゲームの才能があると思ってないのでプレイはしてません...<br><br>
+        は無料で遊べますが、ゲームの才能があると思ってないのでプレイしてません...<br><br>
         フォントについて、日本語の丸みがパズル的な世界観と一致せず、四角いと可読性が下がるため、選ぶのに難儀しました<br>
         ここの文章でも使っているフォントの制作者が
         <a href="https://moji-waku.com/kenq/index.html" target="_blank">どういうことを考えてフォントを作っているのか</a>
@@ -577,7 +575,8 @@ document.addEventListener('DOMContentLoaded', () => {
         P.P.S. 
         <a href="https://www.ergonomics.co.jp/shopdetail/000000000134" target="_blank">KinesisAdvantage360Pro</a>
         を使ってますが、せっかくいいキーボードを使ってるのに、配列はそのままという人は、配列にもこだわってみてください<br>
-        　　　 既得権益に胡坐をかくQWERTY配列を市場から駆逐しよう! ( この文やゲームの作成は途中からすべて
+        　　　既得権益に胡坐をかくQWERTY配列を市場から駆逐しよう! <br>
+        　　　( この文やゲームの作成は途中からすべて
         <a href="https://o24.works/layout" target="_blank">大西配列</a>
         を使って記述されています )
       </div>      
@@ -791,285 +790,31 @@ gameButtons.forEach(button => {
   });
 });
 
+let currentfontState;
+let currentBGMState;
+let currentTypeSoundState;
+let currentMissTypeSoundState;
+let currentDeleteSoundState;
+let currentAddWordSoundState;
+let currentAttackSoundState;
+let currentWarningSoundState;
+let currentCountdownSoundState;
+let currentGameOverSoundState;
+let currentButtonSoundState;
+
 document.addEventListener('DOMContentLoaded', () => {
-  const configWrapper = document.getElementById('configWrapper');
-  const configBtn = document.querySelector('.game-button.config');
-  const closeConfigBtn = document.querySelector('.configButtons.closeConfig');
-  const configButtons = document.querySelectorAll('.configButtons');
-
-  // ボタンごとにインデックスを設定
-  configButtons.forEach((button, index) => {
-    button.style.setProperty('--button-index', index);
-  });
-
-  // Configボタンクリック時の処理
-  configBtn.addEventListener('click', () => {
-    if (gameState !== 'normal') {
-      return;
-    }
-    configWrapper.classList.remove('closing');
-    configWrapper.classList.add('active');
-    gameState = 'config';
-  });
-
-  // Close Configボタンクリック時の処理
-  closeConfigBtn.addEventListener('click', () => {
-    configWrapper.classList.add('closing');
-    gameState = 'normal';
-    soundManager.stop('Consecutive Battle');
-    soundManager.stop('Lightning Brain');
-    soundManager.stop('R.E.B.O.R.N');
-    isPlaying = false;
-
-    // 背景のフェードアウトを遅らせる
-    setTimeout(() => {
-      configWrapper.classList.remove('active');
-    }, 800); // ボタンのアニメーションが終わる頃に背景もフェードアウト
-
-    // 完全に非表示にする前に全てのアニメーションを完了させる
-    setTimeout(() => {
-      configWrapper.classList.remove('closing');
-    }, 1000);
-  });
-});
-
-// BGMの状態を管理するグローバル変数
-const fontRight = document.getElementById('fontRight');
-const fontButton = document.querySelector('.configButtons.font');
-let currentfontState = 'せのびゴシック';
-
-// フォント切り替え用の関数
-function togglefontState() {
-  // fontの状態を切り替え
-  switch (currentfontState) {
-    case 'せのびゴシック':
-      currentfontState = 'スマートフォントUI';
-      break;
-    case 'スマートフォントUI':
-      currentfontState = 'ヨハク';
-      break;
-    case 'ヨハク':
-      currentfontState = 'さわらび明朝';
-      break;
-    case 'さわらび明朝':
-      currentfontState = 'マメロン';
-      break;
-    case 'マメロン':
-      currentfontState = 'にゃしぃフォント改二';
-      break;
-    case 'にゃしぃフォント改二':
-      currentfontState = 'せのびゴシック';
-      break;
-  }
+  currentfontState = localStorage.getItem('fontState') || 'せのびゴシック';
   document.documentElement.style.setProperty("--font-family-next", currentfontState);
-  fontRight.textContent = currentfontState;
-  return currentfontState;
-}
-
-
-// const BGMLeft = document.getElementById('BGMLeft');
-const BGMRight = document.getElementById('BGMRight');
-const BGMButton = document.querySelector('.configButtons.BGM');
-let currentBGMState = 'Consecutive Battle';
-
-// BGM切り替え用の関数
-function toggleBGMState() {
-
-  // BGMの状態を切り替え
-  switch (currentBGMState) {
-    case 'Consecutive Battle':
-      currentBGMState = 'Lightning Brain';
-      break;
-    case 'Lightning Brain':
-      currentBGMState = 'R.E.B.O.R.N';
-      break;
-    case 'R.E.B.O.R.N':
-      currentBGMState = 'OFF';
-      break;
-    case 'OFF':
-      currentBGMState = 'Consecutive Battle';
-      break;
-  }
-  // BGMLeft.textContent = 'BGM :';
-  BGMRight.textContent = currentBGMState;
-  return currentBGMState;
-}
-
-// const typeSELeft = document.getElementById('typeSELeft');
-const typeSERight = document.getElementById('typeSERight');
-const typeSEButton = document.querySelector('.configButtons.typeSE');
-let currentTypeSoundState = 'type1';
-
-function toggleTypeSoundState() {
-
-  switch (currentTypeSoundState) {
-    case 'type1':
-      currentTypeSoundState = 'type2';
-      break;
-    case 'type2':
-      currentTypeSoundState = 'type3';
-      break;
-    case 'type3':
-      currentTypeSoundState = 'type4';
-      break;
-    case 'type4':
-      currentTypeSoundState = 'type5';
-      break;
-    case 'type5':
-      currentTypeSoundState = 'type6';
-      break;
-    case 'type6':
-      currentTypeSoundState = 'type7';
-      break;
-    case 'type7':
-      currentTypeSoundState = 'type8';
-      break;
-    case 'type8':
-      currentTypeSoundState = 'OFF';
-      break;
-    case 'OFF':
-      currentTypeSoundState = 'type1';
-      break;
-  }
-
-  // typeSELeft.textContent = 'TYPE SOUND(listen here):';
-  typeSERight.textContent = currentTypeSoundState;
-  return currentTypeSoundState;
-}
-
-// const misstypeSELeft = document.getElementById('misstypeSELeft');
-const misstypeSERight = document.getElementById('misstypeSERight');
-const missTypeSEButton = document.querySelector('.configButtons.misstypeSE');
-let currentMissTypeSoundState = 'VALID';
-
-function toggleMissTypeSoundState() {
-  if (currentMissTypeSoundState === 'VALID') {
-    currentMissTypeSoundState = 'INVALID'
-  } else {
-    currentMissTypeSoundState = 'VALID'
-  }
-  // misstypeSELeft.textContent = 'MISSTYPE SOUND :';
-  misstypeSERight.textContent = currentMissTypeSoundState;
-  return currentMissTypeSoundState;
-}
-
-// const deleteSELeft = document.getElementById('deleteSELeft');
-const deleteSERight = document.getElementById('deleteSERight');
-const deleteSEButton = document.querySelector('.configButtons.deleteSE');
-let currentDeleteSoundState = 'VALID';
-
-function toggleDeleteSoundState() {
-  if (currentDeleteSoundState === 'VALID') {
-    currentDeleteSoundState = 'INVALID'
-  } else {
-    currentDeleteSoundState = 'VALID'
-  }
-  // deleteSELeft.textContent = 'DELETE SOUND :';
-  deleteSERight.textContent = currentDeleteSoundState;
-  return currentDeleteSoundState;
-}
-
-// const addWordSELeft = document.getElementById('addWordSELeft');
-const addWordSERight = document.getElementById('addWordSERight');
-const addWordSEButton = document.querySelector('.configButtons.addWordSE');
-let currentAddWordSoundState = 'VALID';
-
-function toggleAddWordSoundState() {
-  if (currentAddWordSoundState === 'VALID') {
-    currentAddWordSoundState = 'INVALID'
-  } else {
-    currentAddWordSoundState = 'VALID'
-  }
-  // addWordSELeft.textContent = 'ADDWORD SOUND :';
-  addWordSERight.textContent = currentAddWordSoundState;
-  return currentAddWordSoundState;
-}
-
-// const attackSELeft = document.getElementById('attackSELeft');
-const attackSERight = document.getElementById('attackSERight');
-const attackSEButton = document.querySelector('.configButtons.attackSE');
-let currentAttackSoundState = 'VALID';
-
-function toggleAttackSoundState() {
-  if (currentAttackSoundState === 'VALID') {
-    currentAttackSoundState = 'INVALID'
-  } else {
-    currentAttackSoundState = 'VALID'
-  }
-  // attackSELeft.textContent = 'ATTACK SOUND :';
-  attackSERight.textContent = currentAttackSoundState;
-  return currentAttackSoundState;
-}
-
-
-// const warningSELeft = document.getElementById('warningSELeft');
-const warningSERight = document.getElementById('warningSERight');
-const warningSEButton = document.querySelector('.configButtons.warningSE');
-let currentWarningSoundState = 'VALID';
-
-function toggleWarningSoundState() {
-  if (currentWarningSoundState === 'VALID') {
-    currentWarningSoundState = 'INVALID'
-  } else {
-    currentWarningSoundState = 'VALID'
-  }
-  // warningSELeft.textContent = 'WARNING SOUND :';
-  warningSERight.textContent = currentWarningSoundState;
-  return currentWarningSoundState;
-}
-
-// const countdownSELeft = document.getElementById('countdownSELeft');
-const countdownSERight = document.getElementById('countdownSERight');
-const countdownSEButton = document.querySelector('.configButtons.countdownSE');
-let currentCountdownSoundState = 'VALID';
-
-function toggleCountdownSoundState() {
-  if (currentCountdownSoundState === 'VALID') {
-    currentCountdownSoundState = 'INVALID'
-  } else {
-    currentCountdownSoundState = 'VALID'
-  }
-  // countdownSELeft.textContent = 'COUNTDOWN SOUND :';
-  countdownSERight.textContent = currentCountdownSoundState;
-  return currentCountdownSoundState;
-}
-
-// const gameOverSELeft = document.getElementById('gameOverSELeft');
-const gameOverSERight = document.getElementById('gameOverSERight');
-const gameOverSEButton = document.querySelector('.configButtons.gameOverSE');
-let currentGameOverSoundState = 'VALID';
-
-function toggleGameOverSoundState() {
-
-  if (currentGameOverSoundState === 'VALID') {
-    currentGameOverSoundState = 'INVALID'
-  } else {
-    currentGameOverSoundState = 'VALID'
-  }
-  // gameOverSELeft.textContent = 'GAMEOVER SOUND :';
-  gameOverSERight.textContent = currentGameOverSoundState;
-  return currentGameOverSoundState;
-}
-
-// const buttonSELeft = document.getElementById('buttonSELeft');
-const buttonSERight = document.getElementById('buttonSERight');
-const buttonSEButton = document.querySelector('.configButtons.buttonSE');
-let currentButtonSoundState = 'VALID';
-
-function toggleButtonSoundState() {
-  if (currentButtonSoundState === 'VALID') {
-    currentButtonSoundState = 'INVALID'
-  } else {
-    currentButtonSoundState = 'VALID'
-  }
-  // buttonSELeft.textContent = 'BUTTON SOUND :';
-  buttonSERight.textContent = currentButtonSoundState;
-  return currentButtonSoundState;
-}
-
-
-// 初期設定
-document.addEventListener('DOMContentLoaded', () => {
+  currentBGMState = localStorage.getItem('BGMState') || 'Consecutive Battle';
+  currentTypeSoundState = localStorage.getItem('TypeSoundState') || 'type1';
+  currentMissTypeSoundState = localStorage.getItem('MissTypeSoundState') || 'VALID';
+  currentDeleteSoundState = localStorage.getItem('DeleteSoundState') || 'VALID';
+  currentAddWordSoundState = localStorage.getItem('AddWordSoundState') || 'VALID';
+  currentAttackSoundState = localStorage.getItem('AttackSoundState') || 'VALID';
+  currentWarningSoundState = localStorage.getItem('WarningSoundState') || 'VALID';
+  currentCountdownSoundState = localStorage.getItem('CountdownSoundState') || 'VALID';
+  currentGameOverSoundState = localStorage.getItem('GameOverSoundState') || 'VALID';
+  currentButtonSoundState = localStorage.getItem('ButtonSoundState') || 'VALID';
 
   fontRight.textContent = currentfontState;
   fontButton.addEventListener('click', togglefontState);
@@ -1114,8 +859,292 @@ document.addEventListener('DOMContentLoaded', () => {
   // buttonSELeft.textContent = 'BUTTON SOUND :';
   buttonSERight.textContent = currentButtonSoundState;
   buttonSEButton.addEventListener('click', toggleButtonSoundState);
+
+
+  const configWrapper = document.getElementById('configWrapper');
+  const configBtn = document.querySelector('.game-button.config');
+  const closeConfigBtn = document.querySelector('.configButtons.closeConfig');
+  const configButtons = document.querySelectorAll('.configButtons');
+
+  // ボタンごとにインデックスを設定
+  configButtons.forEach((button, index) => {
+    button.style.setProperty('--button-index', index);
+  });
+
+  // Configボタンクリック時の処理
+  configBtn.addEventListener('click', () => {
+    if (gameState !== 'normal') {
+      return;
+    }
+    configWrapper.classList.remove('closing');
+    configWrapper.classList.add('active');
+    gameState = 'config';
+  });
+
+  // Close Configボタンクリック時の処理
+  closeConfigBtn.addEventListener('click', () => {
+    configWrapper.classList.add('closing');
+    gameState = 'normal';
+    soundManager.stop('Consecutive Battle');
+    soundManager.stop('Lightning Brain');
+    soundManager.stop('R.E.B.O.R.N');
+    isPlaying = false;
+
+    // 背景のフェードアウトを遅らせる
+    setTimeout(() => {
+      configWrapper.classList.remove('active');
+    }, 800); // ボタンのアニメーションが終わる頃に背景もフェードアウト
+
+    // 完全に非表示にする前に全てのアニメーションを完了させる
+    setTimeout(() => {
+      configWrapper.classList.remove('closing');
+    }, 1000);
+  });
 });
 
+// BGMの状態を管理するグローバル変数
+const fontRight = document.getElementById('fontRight');
+const fontButton = document.querySelector('.configButtons.font');
+// let currentfontState = 'せのびゴシック';
+
+// フォント切り替え用の関数
+function togglefontState() {
+  // fontの状態を切り替え
+  switch (currentfontState) {
+    case 'せのびゴシック':
+      currentfontState = 'スマートフォントUI';
+      break;
+    case 'スマートフォントUI':
+      currentfontState = 'ヨハク';
+      break;
+    case 'ヨハク':
+      currentfontState = 'さわらび明朝';
+      break;
+    case 'さわらび明朝':
+      currentfontState = 'マメロン';
+      break;
+    case 'マメロン':
+      currentfontState = 'にゃしぃフォント改二';
+      break;
+    case 'にゃしぃフォント改二':
+      currentfontState = 'せのびゴシック';
+      break;
+  }
+  localStorage.setItem('fontState', currentfontState);
+  document.documentElement.style.setProperty("--font-family-next", currentfontState);
+  fontRight.textContent = currentfontState;
+  return currentfontState;
+}
+
+
+// const BGMLeft = document.getElementById('BGMLeft');
+const BGMRight = document.getElementById('BGMRight');
+const BGMButton = document.querySelector('.configButtons.BGM');
+// let currentBGMState = 'Consecutive Battle';
+
+// BGM切り替え用の関数
+function toggleBGMState() {
+
+  // BGMの状態を切り替え
+  switch (currentBGMState) {
+    case 'Consecutive Battle':
+      currentBGMState = 'Lightning Brain';
+      break;
+    case 'Lightning Brain':
+      currentBGMState = 'R.E.B.O.R.N';
+      break;
+    case 'R.E.B.O.R.N':
+      currentBGMState = 'OFF';
+      break;
+    case 'OFF':
+      currentBGMState = 'Consecutive Battle';
+      break;
+  }
+  localStorage.setItem('BGMState', currentBGMState);
+  BGMRight.textContent = currentBGMState;
+  return currentBGMState;
+}
+
+// const typeSELeft = document.getElementById('typeSELeft');
+const typeSERight = document.getElementById('typeSERight');
+const typeSEButton = document.querySelector('.configButtons.typeSE');
+// let currentTypeSoundState = 'type1';
+
+function toggleTypeSoundState() {
+
+  switch (currentTypeSoundState) {
+    case 'type1':
+      currentTypeSoundState = 'type2';
+      break;
+    case 'type2':
+      currentTypeSoundState = 'type3';
+      break;
+    case 'type3':
+      currentTypeSoundState = 'type4';
+      break;
+    case 'type4':
+      currentTypeSoundState = 'type5';
+      break;
+    case 'type5':
+      currentTypeSoundState = 'type6';
+      break;
+    case 'type6':
+      currentTypeSoundState = 'type7';
+      break;
+    case 'type7':
+      currentTypeSoundState = 'type8';
+      break;
+    case 'type8':
+      currentTypeSoundState = 'OFF';
+      break;
+    case 'OFF':
+      currentTypeSoundState = 'type1';
+      break;
+  }
+
+  // typeSELeft.textContent = 'TYPE SOUND(listen here):';
+  localStorage.setItem('TypeSoundState', currentTypeSoundState);
+  typeSERight.textContent = currentTypeSoundState;
+  return currentTypeSoundState;
+}
+
+// const misstypeSELeft = document.getElementById('misstypeSELeft');
+const misstypeSERight = document.getElementById('misstypeSERight');
+const missTypeSEButton = document.querySelector('.configButtons.misstypeSE');
+// let currentMissTypeSoundState = 'VALID';
+
+function toggleMissTypeSoundState() {
+  if (currentMissTypeSoundState === 'VALID') {
+    currentMissTypeSoundState = 'INVALID'
+  } else {
+    currentMissTypeSoundState = 'VALID'
+  }
+  // misstypeSELeft.textContent = 'MISSTYPE SOUND :';
+  localStorage.setItem('MissTypeSoundState', currentMissTypeSoundState);
+  misstypeSERight.textContent = currentMissTypeSoundState;
+  return currentMissTypeSoundState;
+}
+
+// const deleteSELeft = document.getElementById('deleteSELeft');
+const deleteSERight = document.getElementById('deleteSERight');
+const deleteSEButton = document.querySelector('.configButtons.deleteSE');
+// let currentDeleteSoundState = 'VALID';
+
+function toggleDeleteSoundState() {
+  if (currentDeleteSoundState === 'VALID') {
+    currentDeleteSoundState = 'INVALID'
+  } else {
+    currentDeleteSoundState = 'VALID'
+  }
+  // deleteSELeft.textContent = 'DELETE SOUND :';
+  localStorage.setItem('DeleteSoundState', currentDeleteSoundState);
+  deleteSERight.textContent = currentDeleteSoundState;
+  return currentDeleteSoundState;
+}
+
+// const addWordSELeft = document.getElementById('addWordSELeft');
+const addWordSERight = document.getElementById('addWordSERight');
+const addWordSEButton = document.querySelector('.configButtons.addWordSE');
+// let currentAddWordSoundState = 'VALID';
+
+function toggleAddWordSoundState() {
+  if (currentAddWordSoundState === 'VALID') {
+    currentAddWordSoundState = 'INVALID'
+  } else {
+    currentAddWordSoundState = 'VALID'
+  }
+  // addWordSELeft.textContent = 'ADDWORD SOUND :';
+  localStorage.setItem('AddWordSoundState', currentAddWordSoundState);
+  addWordSERight.textContent = currentAddWordSoundState;
+  return currentAddWordSoundState;
+}
+
+// const attackSELeft = document.getElementById('attackSELeft');
+const attackSERight = document.getElementById('attackSERight');
+const attackSEButton = document.querySelector('.configButtons.attackSE');
+// let currentAttackSoundState = 'VALID';
+
+function toggleAttackSoundState() {
+  if (currentAttackSoundState === 'VALID') {
+    currentAttackSoundState = 'INVALID'
+  } else {
+    currentAttackSoundState = 'VALID'
+  }
+  // attackSELeft.textContent = 'ATTACK SOUND :';
+  localStorage.setItem('AttackSoundState', currentAttackSoundState);
+  attackSERight.textContent = currentAttackSoundState;
+  return currentAttackSoundState;
+}
+
+
+// const warningSELeft = document.getElementById('warningSELeft');
+const warningSERight = document.getElementById('warningSERight');
+const warningSEButton = document.querySelector('.configButtons.warningSE');
+// let currentWarningSoundState = 'VALID';
+
+function toggleWarningSoundState() {
+  if (currentWarningSoundState === 'VALID') {
+    currentWarningSoundState = 'INVALID'
+  } else {
+    currentWarningSoundState = 'VALID'
+  }
+  // warningSELeft.textContent = 'WARNING SOUND :';
+  localStorage.setItem('WarningSoundState', currentWarningSoundState);
+  warningSERight.textContent = currentWarningSoundState;
+  return currentWarningSoundState;
+}
+
+// const countdownSELeft = document.getElementById('countdownSELeft');
+const countdownSERight = document.getElementById('countdownSERight');
+const countdownSEButton = document.querySelector('.configButtons.countdownSE');
+// let currentCountdownSoundState = 'VALID';
+
+function toggleCountdownSoundState() {
+  if (currentCountdownSoundState === 'VALID') {
+    currentCountdownSoundState = 'INVALID'
+  } else {
+    currentCountdownSoundState = 'VALID'
+  }
+  // countdownSELeft.textContent = 'COUNTDOWN SOUND :';
+  localStorage.setItem('CountdownSoundState', currentCountdownSoundState);
+  countdownSERight.textContent = currentCountdownSoundState;
+  return currentCountdownSoundState;
+}
+
+// const gameOverSELeft = document.getElementById('gameOverSELeft');
+const gameOverSERight = document.getElementById('gameOverSERight');
+const gameOverSEButton = document.querySelector('.configButtons.gameOverSE');
+// let currentGameOverSoundState = 'VALID';
+
+function toggleGameOverSoundState() {
+
+  if (currentGameOverSoundState === 'VALID') {
+    currentGameOverSoundState = 'INVALID'
+  } else {
+    currentGameOverSoundState = 'VALID'
+  }
+  // gameOverSELeft.textContent = 'GAMEOVER SOUND :';
+  localStorage.setItem('GameOverSoundState', currentGameOverSoundState);
+  gameOverSERight.textContent = currentGameOverSoundState;
+  return currentGameOverSoundState;
+}
+
+// const buttonSELeft = document.getElementById('buttonSELeft');
+const buttonSERight = document.getElementById('buttonSERight');
+const buttonSEButton = document.querySelector('.configButtons.buttonSE');
+// let currentButtonSoundState = 'VALID';
+
+function toggleButtonSoundState() {
+  if (currentButtonSoundState === 'VALID') {
+    currentButtonSoundState = 'INVALID'
+  } else {
+    currentButtonSoundState = 'VALID'
+  }
+  // buttonSELeft.textContent = 'BUTTON SOUND :';
+  localStorage.setItem('ButtonSoundState', currentButtonSoundState);
+  buttonSERight.textContent = currentButtonSoundState;
+  return currentButtonSoundState;
+}
 
 let CELL_SIZE = 30;
 // CELL_SIZE = calculateCellSize();
@@ -1850,15 +1879,17 @@ async function resetGameAnimation() {
   if (playerWins < 2 && opponentWins < 2) {
     if (playerWins === 1) {
       setTimeout(() => {
-        doorLeft.style.background = 'linear-gradient(to right, black 80%, red)';
+        doorLeft.style.background = 'linear-gradient(to right, rgba(5, 7, 19, 1) 30%, rgb(155, 40, 40) 100%)';
       }, 350);
-      doorLeft.innerHTML = `<div class="door-text matchpoint-text" style="-webkit-text-stroke: 2px white; color: black; text-align: center; font-family:'zouver'; font-size: 10vh;line-height: 100%; margin-top: 40%;">MatchPoint</div>`;
+      doorLeft.innerHTML = `<div class="door-text matchpoint-text" 
+      style="-webkit-text-stroke: 2px rgba(5, 7, 19, 0); color:  rgb(255, 255, 255); text-align: center; font-family:'zouver'; font-size: 10vh;line-height: 100%; margin-top: 40%;">MatchPoint</div>`;
     }
     if (opponentWins === 1) {
       setTimeout(() => {
-        doorRight.style.background = 'linear-gradient(to left, black 80%, blue)';
+        doorRight.style.background = 'linear-gradient(to left, rgba(5, 7, 19, 1) 30%, rgb(40, 40, 155) 100%)';
       }, 350);
-      doorRight.innerHTML = `<div class="door-text matchpoint-text" style="-webkit-text-stroke: 2px white; color: black; text-align: center; font-family:'zouver'; font-size: 10vh; line-height: 100%; margin-top: 40%;">MatchPoint</div>`;
+      doorRight.innerHTML = `<div class="door-text matchpoint-text" 
+      style="-webkit-text-stroke: 2px rgba(5, 7, 19, 0); color: rgb(255, 255, 255); text-aloign: center; font-family:'zouver'; font-size: 10vh; line-height: 100%; margin-top: 40%;">MatchPoint</div>`;
     }
   }
 
@@ -2864,55 +2895,55 @@ window.addEventListener("keydown", (e) => {
         resetHighlight(playerField);
       }
     }
-    else if (key === "Enter") {
-      if (gameState !== 'normal') return;
-      if (gameState === 'normal') {
-        gameState = 'playing';
-        isPractice = true;
-        setWordPool();
-        if (playerFieldWords.length === 0) {
-          for (let x = 0; x < 9; x++) {
-            playerFieldWords.push(getRandomWordForField(playerUsedLengths));
-          }
-        }
-        drawInfo();
-        playerInput = "";
-        opponentInput = "";
-        drawInputField(ctxPlayerInput, '', playerInputField);
+    // else if (key === "Enter") {
+    //   if (gameState !== 'normal') return;
+    //   if (gameState === 'normal') {
+    //     gameState = 'playing';
+    //     isPractice = true;
+    //     setWordPool();
+    //     if (playerFieldWords.length === 0) {
+    //       for (let x = 0; x < 9; x++) {
+    //         playerFieldWords.push(getRandomWordForField(playerUsedLengths));
+    //       }
+    //     }
+    //     drawInfo();
+    //     playerInput = "";
+    //     opponentInput = "";
+    //     drawInputField(ctxPlayerInput, '', playerInputField);
 
-        updateFieldAfterReceiveOffset(playerField, playerFieldWords);
-        checkAndRemoveWord(playerField, playerFieldWords, playerInput);
-        drawField(ctxPlayer, playerField, memorizeLastAttackValue);
+    //     updateFieldAfterReceiveOffset(playerField, playerFieldWords);
+    //     checkAndRemoveWord(playerField, playerFieldWords, playerInput);
+    //     drawField(ctxPlayer, playerField, memorizeLastAttackValue);
 
-        switch (currentBGMState) {
-          case 'Consecutive Battle':
-            soundManager.playSound('Consecutive Battle', { volume: 0.6, loop: true });
-            break;
-          case 'Lightning Brain':
-            soundManager.playSound('Lightning Brain', { volume: 0.6, loop: true });
-            break;
-          case 'R.E.B.O.R.N':
-            soundManager.playSound('R.E.B.O.R.N', { volume: 0.6, loop: true });
-            break;
-          case 'OFF':
-            break;
-        }
-      }
-    } else if (key === "Escape") {
-      if (isPractice !== true) return;
-      soundManager.stop('Consecutive Battle');
-      soundManager.stop('Lightning Brain');
-      soundManager.stop('R.E.B.O.R.N');
-      gameStarted = false;
-      resetGame();
-      opponentReceiveValueToDisplay = [];
-      drawStatusField(ctxOpponentStatus, false);
-      playerWins = 0;
-      opponentWins = 0;
-      playerIsLoser = false;
-      isDisConnect = true;
-      gameState = 'normal';
-    }
+    //     switch (currentBGMState) {
+    //       case 'Consecutive Battle':
+    //         soundManager.playSound('Consecutive Battle', { volume: 0.6, loop: true });
+    //         break;
+    //       case 'Lightning Brain':
+    //         soundManager.playSound('Lightning Brain', { volume: 0.6, loop: true });
+    //         break;
+    //       case 'R.E.B.O.R.N':
+    //         soundManager.playSound('R.E.B.O.R.N', { volume: 0.6, loop: true });
+    //         break;
+    //       case 'OFF':
+    //         break;
+    //     }
+    //   }
+    // } else if (key === "Escape") {
+    //   if (isPractice !== true) return;
+    //   soundManager.stop('Consecutive Battle');
+    //   soundManager.stop('Lightning Brain');
+    //   soundManager.stop('R.E.B.O.R.N');
+    //   gameStarted = false;
+    //   resetGame();
+    //   opponentReceiveValueToDisplay = [];
+    //   drawStatusField(ctxOpponentStatus, false);
+    //   playerWins = 0;
+    //   opponentWins = 0;
+    //   playerIsLoser = false;
+    //   isDisConnect = true;
+    //   gameState = 'normal';
+    // }
 
     // else if (key === 'ArrowUp') {
     //   // playerWins++;
@@ -2928,10 +2959,13 @@ window.addEventListener("keydown", (e) => {
     // else if (key === "ArrowRight") {
     //   showRetryDialog();
     // }
-    // else if (key === "Enter") {
-    //   gameState = 'playing';
-    //   startGame();
-    // }
+    else if (key === "Enter") {
+      CPUstartCountdown();
+      // opponentWins++;
+      // CPUopponentHandleGameOver(true);
+      // gameState = 'playing';
+      // startGame();
+    }
     else {
       if (currentDeleteSoundState === 'VALID') {
         soundManager.playSound('deleteInput', { volume: 1 });
@@ -3872,13 +3906,13 @@ function showCountdown(count, elementId) {
   const overlay = document.getElementById(elementId);
   const countElement = document.createElement('div');
 
+  // -webkit-text-stroke: 2px white;
   countElement.style.cssText = `
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    color: black;
-    -webkit-text-stroke: 2px white;
+    color: white;
     font-size: 8vh;
     animation: countdownAnimation 0.9s ease-in forwards;
     transform-origin: center; 
@@ -3889,11 +3923,11 @@ function showCountdown(count, elementId) {
   styleSheet.textContent = `
     @keyframes countdownAnimation {
       0% {
-        transform: translate(-50%, -50%) scaleX(1);
+        transform: translate(-50%, -50%) scaleX(2) scaleY(2);
         opacity: 1;
       }
       100% {
-        transform: translate(-50%, -50%) scaleX(0);
+        transform: translate(-50%, -50%) scaleX(1.5) scaleY(1.5);
         opacity: 0;
       }
     }
@@ -4182,10 +4216,25 @@ function drawStatusField(ctx, isPlayer = true) {
     for (let i = 0; i < displayValues.length; i++) {
       const cellY = startY + (i * CELL_SIZE);
 
-      ctx.fillStyle = "rgb(135, 0, 0)";
+      let fillColor = "rgb(135, 0, 0)";
+      let fillStyle = "white";
+
+      if (displayValues[i] === memorizeLastAttackValue - 1) {
+        fillColor = "rgba(0, 255, 255, 0.5)";
+      } else if (displayValues[i] === memorizeLastAttackValue + 1) {
+        fillColor = "rgba(255, 0, 255, 0.5)";
+      } else if (displayValues[i] === memorizeLastAttackValue) {
+        fillColor = "rgba(255, 255, 255, 0.5)";
+        fillStyle = 'black';
+      }
+      ctx.fillStyle = fillColor;
+
+      // ctx.fillStyle = "rgb(135, 0, 0)";
       ctx.fillRect(0, cellY, CELL_SIZE / 2, CELL_SIZE);
 
-      ctx.fillStyle = "white";
+      // ctx.fillStyle = "white";
+      ctx.fillStyle = fillStyle;
+
       ctx.font = `${CELL_SIZE * 0.5}px 'kirin'`;
       ctx.textBaseline = "middle";
       ctx.textAlign = "center";
@@ -4541,6 +4590,7 @@ function showMatchingSuccess() {
     </div>
   `;
   setTimeout(() => {
+    gameState = "playing";
     hideLoadingOverlay();
     startCountdown();
   }, 2000);
@@ -4620,7 +4670,6 @@ function initializeSocket() {
     playerId = socket.id;
     isPlayer1 = playerId === data.player1Id;
     opponentId = isPlayer1 ? data.player2Id : data.player1Id;
-    gameState = "playing";
     playerWins = 0;
     opponentWins = 0;
     showMatchingSuccess();

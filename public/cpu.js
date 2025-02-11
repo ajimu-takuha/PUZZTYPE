@@ -4,9 +4,10 @@ document.addEventListener('DOMContentLoaded', () => {
     cpuButton.addEventListener('click', () => {
         if (gameState === 'normal') {
             showCpuDialog();
-        } else if ( gameState === "CPUmatch") {
+        } else if (gameState === "CPUmatch") {
             CPUquitMatch();
             cpuButton.textContent = "CPU MATCH";
+            cpuButton.classList.remove("CPUquitMatch");
         }
     });
 });
@@ -75,10 +76,10 @@ function showCpuDialog() {
         { speed: 3, miss: 2, missWait: 3 },
         { speed: 4, miss: 3, missWait: 3 },
         { speed: 4, miss: 2, missWait: 2 },
-        { speed: 5, miss: 5, missWait: 3 },
-        { speed: 5.5, miss: 4, missWait: 3 },
-        { speed: 6, miss: 3, missWait: 2 },
-        { speed: 7, miss: 3, missWait: 2 },
+        { speed: 5, miss: 3, missWait: 3 },
+        { speed: 5.5, miss: 4, missWait: 2 },
+        { speed: 6, miss: 4, missWait: 1 },
+        { speed: 7, miss: 2, missWait: 3.5 },
         { speed: 8, miss: 2, missWait: 2 }
     ];
 
@@ -144,6 +145,7 @@ function showCpuDialog() {
             cpuDialog.remove();
             CPUstartCountdown();
             cpuButton.textContent = "QUIT MATCH"
+            cpuButton.classList.add("CPUquitMatch");
             // CPUstartGame();
         }
     });
@@ -164,6 +166,8 @@ function CPUstartGame() {
     CPUdrawInputField(ctxOpponentInput, '', opponentInputField);
     CPUgameStep();
     CPUstartInput();
+    CPUupdateNerfInfoDisplay();
+    CPUopponentUpdateNerfInfoDisplay();
 }
 
 function CPUgameStep() {
@@ -193,7 +197,7 @@ function getInputWord() {
         CPUopponentUpdateFieldAfterReceiveOffset();
     }
 
-    if (opponentFieldWords.length + opponentReceiveValueToDisplay.length > 20) {
+    if (opponentFieldWords.length + opponentReceiveValueToDisplay.length > 16) {
         let wordLengths = opponentFieldWords.map(word => word.length).sort((a, b) => a - b);
         let longestContinuous = [];
         let currentSeq = [];
@@ -575,6 +579,13 @@ function CPUdrawStatusField(ctx, isPlayer = true) {
     const fieldWords = isPlayer ? playerFieldWords : opponentFieldWords;
     const state = isPlayer ? warningState.player : warningState.opponent;
 
+    let cheakLastAttackValue = 0;
+    if (isPlayer) {
+        cheakLastAttackValue = memorizeLastAttackValue;
+    } else {
+        cheakLastAttackValue = opponentMemorizeLastAttackValue;
+    }
+
     const isOverflowing = displayValues.length + fieldWords.length > FIELD_HEIGHT;
 
     if (isOverflowing && !state.interval) {
@@ -600,10 +611,24 @@ function CPUdrawStatusField(ctx, isPlayer = true) {
         for (let i = 0; i < displayValues.length; i++) {
             const cellY = startY + (i * CELL_SIZE);
 
-            ctx.fillStyle = "rgb(135, 0, 0)";
+            let fillColor = "rgb(135, 0, 0)";
+            let fillStyle = "white";
+
+            if (displayValues[i] === cheakLastAttackValue - 1) {
+                fillColor = "rgba(0, 255, 255, 0.5)";
+            } else if (displayValues[i] === cheakLastAttackValue + 1) {
+                fillColor = "rgba(255, 0, 255, 0.5)";
+            } else if (displayValues[i] === cheakLastAttackValue) {
+                fillColor = "rgba(255, 255, 255, 0.5)";
+                fillStyle = 'black';
+            }
+
+            ctx.fillStyle = fillColor;
+
+            // ctx.fillStyle = "rgb(135, 0, 0)";
             ctx.fillRect(0, cellY, CELL_SIZE / 2, CELL_SIZE);
 
-            ctx.fillStyle = "white";
+            ctx.fillStyle = fillStyle;
             ctx.font = `${CELL_SIZE * 0.5}px 'kirin'`;
             ctx.textBaseline = "middle";
             ctx.textAlign = "center";
@@ -1415,16 +1440,16 @@ function CPUopponentAttack(attackValue) {
                     if (attackValue > 1) {
                         isAttackShake = true;
                         playerReceiveValueToOffset.push(attackValue);
+                        playerReceiveValueToOffset.sort((a, b) => a - b);
                         playerReceiveValueToDisplay = [...playerReceiveValueToOffset];
-                        playerReceiveValueToDisplay.sort((a, b) => a - b);
-                        CPUdrawStatusField(ctxPlayerStatus, true);
+                        // CPUdrawStatusField(ctxPlayerStatus, true);
                     }
                 } else {
                     isAttackShake = false;
                 }
                 CPUopponentUpdateAttackInfoDisplay();
             }
-            CPUopponentUpdateNerfInfoDisplay()
+            CPUopponentUpdateNerfInfoDisplay();
         } else {
             opponentAttackValueToOffset = attackValue;
             opponentAtteckValueToAPM += attackValue;
@@ -1436,11 +1461,9 @@ function CPUopponentAttack(attackValue) {
                 if (attackValue > 1) {
                     isAttackShake = true;
                     playerReceiveValueToOffset.push(attackValue);
+                    playerReceiveValueToOffset.sort((a, b) => a - b);
                     playerReceiveValueToDisplay = [...playerReceiveValueToOffset];
-                    playerReceiveValueToDisplay.sort((a, b) => a - b);
-                    CPUdrawStatusField(ctxPlayerStatus, true);
-                    // console.log(opponentAttackValueToOffset);
-                    // console.log(playerReceiveValueToDisplay);
+                    // CPUdrawStatusField(ctxPlayerStatus, true);
                 }
             }
             CPUopponentUpdateAttackInfoDisplay();
@@ -1531,7 +1554,6 @@ function CPUopponentCalcReceiveOffset() {
         }
     }
     return opponentAttackValueToOffset > 1 ? opponentAttackValueToOffset : 0;
-
 }
 
 function CPUopponentHandleGameOver() {
@@ -1616,6 +1638,8 @@ function CPUhandleRetryResponse(response) {
     retryDialog = null;
     if (!response) {
         gameState = 'normal';
+        cpuButton.textContent = "CPU MATCH";
+        cpuButton.classList.remove("CPUquitMatch");
     } else {
         CPUstartCountdown();
     }

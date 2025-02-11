@@ -413,8 +413,8 @@ function CPUattack(attackValue) {
                 if (attackValue > 1) {
                     isAttackShake = true;
                     opponentReceiveValueToOffset.push(attackValue);
+                    opponentReceiveValueToOffset.sort((a, b) => a - b);
                     opponentReceiveValueToDisplay = [...opponentReceiveValueToOffset];
-                    opponentReceiveValueToDisplay.sort((a, b) => a - b);
                 }
             } else {
                 isAttackShake = false;
@@ -437,8 +437,8 @@ function CPUattack(attackValue) {
             if (attackValue > 1) {
                 isAttackShake = true;
                 opponentReceiveValueToOffset.push(attackValue);
+                opponentReceiveValueToOffset.sort((a, b) => a - b);
                 opponentReceiveValueToDisplay = [...opponentReceiveValueToOffset];
-                opponentReceiveValueToDisplay.sort((a, b) => a - b);
             }
         }
         CPUupdateAttackInfoDisplay();
