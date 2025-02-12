@@ -1121,11 +1121,10 @@ function CPUtriggerMissColorFlash(element) {
 let opponentMemorizeLastAttackValue = 0;
 function CPUopponentCalcAttackValue(removeWord) {
     opponentAttackValue = removeWord.length;
-    opponentMemorizeLastAttackValue = opponentAttackValue;
+    opponentMemorizeLastAttackValue = removeWord.length;
 
     let firstChar = removeWord.charAt(0);
 
-    // 特定の条件: 前回の最後の文字と今回の最初の文字が一致する場合
     if (CPUlastChar === firstChar) {
         CPUisWordChain = true;
     } else {
@@ -1140,9 +1139,11 @@ function CPUopponentCalcAttackValue(removeWord) {
         CPUopponentUpChainAttack();
     } else if (opponentLastAttackValue + 1 == removeWord.length) {
         CPUisSameChar = false;
-        isDownChain = true;
+        CPUisDownChain = true;
         CPUopponentDownChainAttack();
-    } else if (opponentLastAttackValue == removeWord.length) {
+    } else if (opponentLastAttackValue === removeWord.length) {
+        CPUisUpChain = false;
+        CPUisDownChain = false;
         CPUisSameChar = true;
         CPUopponentSameCharAttack();
     } else {

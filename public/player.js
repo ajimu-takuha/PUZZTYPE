@@ -196,8 +196,7 @@ function CPUnerfAttackValue() {
 
 function CPUcalcAttackValue(removeWord) {
     playerAttackValue = removeWord.length;
-    playerAttackValue = removeWord.length;
-    memorizeLastAttackValue = playerAttackValue;
+    memorizeLastAttackValue = removeWord.length;
     let firstChar = removeWord.charAt(0);
     if (lastChar === firstChar) {
         isWordChain = true;
@@ -207,25 +206,27 @@ function CPUcalcAttackValue(removeWord) {
     if (isWordChain) {
         CPUconnect();
     }
-    else if (playerLastAttackValue - 1 == removeWord.length) {
+    else if (playerLastAttackValue - 1 === removeWord.length) {
         isSameChar = false;
         isUpChain = true;
         CPUupChainAttack();
 
-    } else if (playerLastAttackValue + 1 == removeWord.length) {
+    } else if (playerLastAttackValue + 1 === removeWord.length) {
         isSameChar = false;
         isDownChain = true;
         CPUdownChainAttack();
 
-    } else if (playerLastAttackValue == removeWord.length) {
+    } else if (playerLastAttackValue === removeWord.length) {
         isSameChar = true;
+        isUpChain = false;
+        isDownChain = false;
         CPUsameCharAttack();
 
     } else {
         let calculatedAttackVal = playerAttackValue - nerfValue;
         CPUcancelChain();
         CPUattack(playerAttackValue);
-        if (calculatedAttackVal > 0 && calculatedAttackVal !== 1) {
+        if (calculatedAttackVal > 1) {
             CPUonAttackShake(calculatedAttackVal);
             CPUdisplayAttackValue(playerEffectOverlay, calculatedAttackVal);
         }
@@ -244,6 +245,7 @@ function CPUconnect() {
     }
     isUpChain = false;
     isDownChain = false;
+    isSameChar = false;
     CPUattack(playerAttackValue);
     if (chainBonus !== 0) {
         if (chainBonus > 10) {

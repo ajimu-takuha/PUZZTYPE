@@ -3184,19 +3184,19 @@ function calcAttackValue(removeWord) {
   if (isWordChain) {
     connect();
   }
-  else if (playerLastAttackValue - 1 == removeWord.length) {
+  else if (playerLastAttackValue - 1 === removeWord.length) {
     // console.log("upChain攻撃！ もとになる攻撃力は:" + playerAttackValue);
     isSameChar = false;
     isUpChain = true;
     upChainAttack();
 
-  } else if (playerLastAttackValue + 1 == removeWord.length) {
+  } else if (playerLastAttackValue + 1 === removeWord.length) {
     // console.log("downChain攻撃！ もとになる攻撃力は:" + playerAttackValue);
     isSameChar = false;
     isDownChain = true;
     downChainAttack();
 
-  } else if (playerLastAttackValue == removeWord.length) {
+  } else if (playerLastAttackValue === removeWord.length) {
     // console.log("sameChar攻撃！ もとになる攻撃力は:" + playerAttackValue);
     // cancelChain();
     isSameChar = true;
@@ -3909,9 +3909,8 @@ function showCountdown(count, elementId) {
   // -webkit-text-stroke: 2px white;
   countElement.style.cssText = `
     position: absolute;
-    top: 50%;
+    top: 45%;
     left: 50%;
-    transform: translate(-50%, -50%);
     color: white;
     font-size: 8vh;
     animation: countdownAnimation 0.9s ease-in forwards;
@@ -3923,11 +3922,11 @@ function showCountdown(count, elementId) {
   styleSheet.textContent = `
     @keyframes countdownAnimation {
       0% {
-        transform: translate(-50%, -50%) scaleX(2) scaleY(2);
+        transform: translate(-45%, -40%) scaleX(2) scaleY(2);
         opacity: 1;
       }
       100% {
-        transform: translate(-50%, -50%) scaleX(1.5) scaleY(1.5);
+        transform: translate(-45%, -40%) scaleX(1.5) scaleY(1.5);
         opacity: 0;
       }
     }
