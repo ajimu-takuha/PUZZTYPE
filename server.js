@@ -62,6 +62,11 @@ keepAlive();
 io.on('connection', (socket) => {
   console.log(`ユーザー接続: ${socket.id}`);
 
+  socket.on('cancelSearch', () => {
+    console.log(`${socket.id} が募集をキャンセル`);
+  });
+
+
   //   // WebRTC接続のためのシグナリングイベント
   //   socket.on('webrtc-offer', (data) => {
   //     // オファーを他のクライアントにブロードキャスト

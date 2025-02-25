@@ -25,7 +25,7 @@ let opponentField = Array.from({ length: FIELD_HEIGHT }, () =>
 );
 
 // プレイヤーが選択したカテゴリ
-let selectedCategory = "hiragana";
+let selectedCategory;
 
 // 各プレイヤーのフィールド単語リスト
 let wordPool = [];
@@ -70,7 +70,7 @@ let isUpChain = false;
 let CPUisUpChain = false;
 let isDownChain = false;
 let CPUisDownChain = false;
-let SameChar = false;
+let isSameChar = false;
 let CPUSameChar = false;
 let chainBonus = 0;
 let CPUchainBonus = 0;
@@ -160,7 +160,7 @@ window.GameConfig = {
   CPUisUpChain,
   isDownChain,
   CPUisDownChain,
-  SameChar,
+  isSameChar,
   CPUSameChar,
   // isNerf,
   // CPUisNerf,

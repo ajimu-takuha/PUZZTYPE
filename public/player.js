@@ -2,7 +2,11 @@
 window.addEventListener("keydown", (e) => {
     if (gameState !== 'CPUmatch') return;
     const key = e.key;
-    if (selectedCategory === "hiragana") {
+    if (key.length === 1 && key.match(/\d/)) {
+        return;
+    }
+    if (selectedCategory === "JAPANESE") {
+
         let convertedInput = "";
         if (key.length === 1) {
             playerKeyValueToKPM++;
@@ -48,6 +52,27 @@ window.addEventListener("keydown", (e) => {
                     soundManager.playSound('addFieldWord', { volume: 1 });
                 }
                 CPUupdateFieldAfterReceiveOffset(playerField, playerFieldWords);
+
+                if (Interval === "NORMAL") {
+                    gameStepInterval = updateBaseGameStepInterval();
+                    updateProgressBar(gameStepInterval);
+                    clearTimeout(CPUgameStepTimeoutId);
+                    CPUgameStepTimeoutId = setTimeout(CPUgameStep, gameStepInterval);
+            
+                } else if (Interval === "SUDDEN DEATH (1s)") {
+                    updateProgressBar(1000);
+                    CPUgameStepTimeoutId = setTimeout(CPUgameStep, 1000);
+            
+                } else if (Interval === "PEACEFUL (10s)") {
+                    updateProgressBar(10000);
+                    CPUgameStepTimeoutId = setTimeout(CPUgameStep, 10000);
+            
+                } else if (Interval === "NOTHING (PRACTICE)") {
+                    CPUcheckAndRemoveWord();
+                    CPUdrawField(ctxPlayer, playerField, memorizeLastAttackValue);
+                    return;
+                }
+
             } else if (key === "n") {
                 convertedInput = wanakana.toHiragana(playerInput.slice(0, -1));
                 if (playerInput.slice(-2) === "nn") {
@@ -77,19 +102,113 @@ window.addEventListener("keydown", (e) => {
             if (convertedInput === "") {
                 resetHighlight(playerField);
             }
-        } else {
+        } else if (key === "Delete") {
             if (currentDeleteSoundState === 'VALID') {
                 soundManager.playSound('deleteInput', { volume: 1 });
             }
             convertedInput = ""
             resetHighlight(playerField);
+        } else {
+            return;
         }
         playerInput = convertedInput;
+
+    } else if (selectedCategory === "ENGLISH") {
+        if (key.length === 1) {
+            playerKeyValueToKPM++;
+            playerInput += key;
+            if (key !== ' ') {
+                animateInputField();
+                switch (currentTypeSoundState) {
+                    case 'type1':
+                        soundManager.playSound('type1');
+                        break;
+                    case 'type2':
+                        soundManager.playSound('type2');
+                        break;
+                    case 'type3':
+                        soundManager.playSound('type3');
+                        break;
+                    case 'type4':
+                        soundManager.playSound('type4');
+                        break;
+                    case 'type5':
+                        soundManager.playSound('type5');
+                        break;
+                    case 'type6':
+                        soundManager.playSound('type6');
+                        break;
+                    case 'type7':
+                        soundManager.playSound('type7');
+                        break;
+                    case 'type8':
+                        soundManager.playSound('type8')
+                        break;
+                    case 'OFF':
+                        break;
+                }
+            }
+            if (key === ' ') {
+                playerInput = playerInput.trim();
+                convertedInput = wanakana.toHiragana(playerInput);
+                if (playerField.filter(row => row.some(item => item !== null)).length >= 20) {
+                    return;
+                }
+                if (currentAddWordSoundState === 'VALID') {
+                    soundManager.playSound('addFieldWord', { volume: 1 });
+                }
+                CPUupdateFieldAfterReceiveOffset(playerField, playerFieldWords);
+
+                if (Interval === "NORMAL") {
+                    gameStepInterval = updateBaseGameStepInterval();
+                    updateProgressBar(gameStepInterval);
+                    clearTimeout(CPUgameStepTimeoutId);
+                    CPUgameStepTimeoutId = setTimeout(CPUgameStep, gameStepInterval);
+            
+                } else if (Interval === "SUDDEN DEATH (1s)") {
+                    updateProgressBar(1000);
+                    CPUgameStepTimeoutId = setTimeout(CPUgameStep, 1000);
+            
+                } else if (Interval === "PEACEFUL (10s)") {
+                    updateProgressBar(10000);
+                    CPUgameStepTimeoutId = setTimeout(CPUgameStep, 10000);
+            
+                } else if (Interval === "NOTHING (PRACTICE)") {
+                    CPUcheckAndRemoveWord();
+                    CPUdrawField(ctxPlayer, playerField, memorizeLastAttackValue);
+                    return;
+                }
+            }
+        }
+        else if (key === "Backspace") {
+            if (currentDeleteSoundState === 'VALID') {
+                soundManager.playSound('deleteInput', { volume: 1 });
+            }
+            playerInput = playerInput.slice(0, -1); // バックスペースで最後の文字を削除
+            if (playerInput === "") {
+                resetHighlight(playerField);
+            }
+        }
+        else if (key === "Delete") {
+            if (currentDeleteSoundState === 'VALID') {
+                soundManager.playSound('deleteInput', { volume: 1 });
+            }
+            playerInput = ""
+            resetHighlight(playerField);
+        }
+        else {
+            return;
+        }
     }
     CPUcheckAndRemoveWord();
     CPUdrawField(ctxPlayer, playerField, memorizeLastAttackValue);
     CPUdrawInputField(ctxPlayerInput, playerInput, playerInputField);
 });
+
+function updateBaseGameStepInterval() {
+    let reduction = Math.floor(totalTime / 50) * 150;
+    return Math.max(2000, 10000 - reduction);
+}
 
 function CPUupdateFieldAfterReceiveOffset() {
     if (playerReceiveValueToOffset.length === 0) {
@@ -151,7 +270,13 @@ function CPUmoveWordToField() {
 
 function CPUcheckAndRemoveWord() {
     if (playerInput.length !== 0) {
-        const wordIndex = playerFieldWords.findIndex((word) => word === extractLeadingJapanese(playerInput));
+        let wordIndex;
+        if (selectedCategory !== "ENGLISH") {
+            wordIndex = playerFieldWords.findIndex((word) => word === extractLeadingJapanese(playerInput));
+        } else {
+            wordIndex = playerFieldWords.findIndex((word) => word === playerInput);
+        }
+        // const wordIndex = playerFieldWords.findIndex((word) => word === extractLeadingJapanese(playerInput));
         if (wordIndex !== -1) {
             const matchedWord = playerFieldWords[wordIndex];
             playerFieldWords.splice(wordIndex, 1);
@@ -163,9 +288,21 @@ function CPUcheckAndRemoveWord() {
             CPUhighlightMatchingCells(playerField);
             return;
         }
-        const highLightWordIndex = playerFieldWords.findIndex((word) => word.startsWith(extractLeadingJapanese(playerInput)));
+        // const highLightWordIndex = playerFieldWords.findIndex((word) => word.startsWith(extractLeadingJapanese(playerInput)));
+        let highLightWordIndex
+        if (selectedCategory !== "ENGLISH") {
+            highLightWordIndex = playerFieldWords.findIndex((word) => word.startsWith(extractLeadingJapanese(playerInput)));
+        } else {
+            highLightWordIndex = playerFieldWords.findIndex((word) => word.startsWith(playerInput));
+        }
         if (highLightWordIndex !== -1) {
-            const matchedLength = extractLeadingJapanese(playerInput).length;
+            // const matchedLength = extractLeadingJapanese(playerInput).length;
+            let matchedLength
+            if (selectedCategory !== "ENGLISH") {
+                matchedLength = extractLeadingJapanese(playerInput).length;
+            } else {
+                matchedLength = playerInput.length;
+            }
             highlightMatchWords(playerField, highLightWordIndex, matchedLength);
             return 0;
         }
@@ -397,6 +534,18 @@ function CPUsameCharAttack() {
 }
 
 function CPUattack(attackValue) {
+    if (selectedCategory === "ENGLISH") {
+        if (attackValue <= 3 || attackValue >= 11) return;
+        if (nerfValue !== 0) {
+            let nerfAttackValue = attackValue - nerfValue;
+            if (nerfAttackValue < 4) {
+                nerfValue = 0;
+                CPUupdateNerfInfoDisplay();
+                CPUupdateAttackInfoDisplay();
+                return;
+            }
+        }
+    }
     if (attackValue <= 1 || attackValue >= 11) return;
     if (nerfValue !== 0) {
         let nerfAttackValue = attackValue - nerfValue;
@@ -470,20 +619,6 @@ function CPUcancelChain() {
     CPUupdateChainInfoDisplay();
 }
 
-function CPUupdateChainInfoDisplay() {
-    if (chainBonus !== 0) {
-        animateAttackInfo(playerChainBonus, `Chain: ${chainBonus}`, false);
-    } else {
-        playerChainBonus.classList.remove('animate');
-        playerChainBonus.classList.add('fade-out');
-
-        setTimeout(() => {
-            playerChainBonus.textContent = '';
-            playerChainBonus.classList.remove('fade-out');
-        }, 500);
-    }
-}
-
 function CPUonAttackShake(attackValue) {
     const shakeDistance = Math.min(MAX_SHAKE_DISTANCE, Math.max(MIN_SHAKE_DISTANCE, attackValue));
     const shakeScale = shakeDistance / 200;
@@ -520,6 +655,14 @@ function CPUupdateAttackInfoDisplay() {
 
 function CPUupdateChainInfoDisplay() {
     if (chainBonus !== 0) {
+        chainBonusColor = "rgb(0, 255, 0)";
+        if (isUpChain) {
+            chainBonusColor = "rgb(0, 255, 255)";
+        }
+        else if (isDownChain) {
+            chainBonusColor = "rgb(255, 0, 255)";
+        }
+        document.documentElement.style.setProperty('--chainColor', chainBonusColor);
         animateAttackInfo(playerChainBonus, `Chain: ${chainBonus}`, false);
     } else {
         playerChainBonus.classList.remove('animate');
@@ -628,6 +771,8 @@ function CPUresetGame() {
 
     stopDrawInfo()
 
+    clearTimeout(CPUgameStepTimeoutId);
+    clearTimeout(CPUopponentGameStepTimeoutId);
     clearProgressBar();
 
     // playerInfoをリセット

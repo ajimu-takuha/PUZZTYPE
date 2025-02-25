@@ -24,136 +24,189 @@ function CPUquitMatch() {
     gameState = 'normal';
 }
 
-let cpuLevelSelectValue;
-let customSettingsValue;
 let inputSpeedToCalc = 4;
 let missRateToCalc = 2;
 let missWaitTimeToCalc = 2;
 
+const cpuDialog = document.createElement('div');
+cpuDialog.className = 'cpuDialogOverlay';
+cpuDialog.style.display = 'none';
+cpuDialog.innerHTML = `
+  <div id="cpuDialog">
+    <h2>LEVEL SELECT</h2>
+    <label for="cpuLevel">LEVEL:</label>
+    <select id="cpuLevel">
+      <option value="custom">Custom</option>
+      ${Array.from({ length: 10 }, (_, i) => `<option value="${i + 1}" ${i === 4 ? 'selected' : ''}>${i + 1}</option>`).join('')}
+    </select>
+    
+    <div id="customSettings">
+      <label for="inputSpeed">INPUT &nbspRATE : <span id="inputSpeedValue">50</span></label> 
+      <input type="range" id="inputSpeed" min="0" max="20" value="5" step="0.1"><br>
+      
+      <label for="missRate">MISS&nbsp&nbsp&nbspRATE : <span id="missRateValue">10</span></label> 
+      <input type="range" id="missRate" min="0" max="30" value="5" step="0.1"><br>
+
+      <label for="missWaitTime">MISS&nbsp&nbsp&nbspWAIT : <span id="missWaitTimeValue">1</span></label>
+      <input type="range" id="missWaitTime" min="0" max="10" value="1" step="0.1"><br>
+    </div>
+    
+    <div class="dialog-buttons">
+      <button id="startCpuButton" class="dialogButton CPUdialogButton">START</button>
+      <button id="cancelCpuButton" class="dialogButton CPUdialogButton">CANCEL</button>
+    </div>
+  </div>
+`;
+
+document.body.appendChild(cpuDialog);
+
+
+
 function showCpuDialog() {
-    const cpuDialog = document.createElement('div');
-    cpuDialog.className = 'cpuDialogOverlay';
-    cpuDialog.innerHTML = `
-      <div id="cpuDialog">
-        <h2>SELECT LEVEL</h2>
-        <label for="cpuLevel">LEVEL:</label>
-        <select id="cpuLevel">
-          <option value="custom">Custom</option>
-          ${Array.from({ length: 10 }, (_, i) => `<option value="${i + 1}" ${i === 4 ? 'selected' : ''}>${i + 1}</option>`).join('')}
-        </select>
-        
-        <div id="customSettings" style="display: none;">
-          <label for="inputSpeed">INPUT&nbspRATE : <span id="inputSpeedValue">50</span></label> 
-          <input type="range" id="inputSpeed" min="1" max="20" value="5"><br>
-          
-          <label for="missRate">MISS&nbsp&nbsp&nbspRATE : <span id="missRateValue">10</span></label> 
-          <input type="range" id="missRate" min="0" max="30" value="5"><br>
-
-          <label for="missWaitTime">MISS&nbsp&nbsp&nbspWAIT : <span id="missWaitTimeValue">1</span></label>
-          <input type="range" id="missWaitTime" min="0" max="10" value="1"><br>
-        </div>
-        
-        <div class="dialog-buttons">
-          <button id="startCpuButton" class="dialogButton">START</button>
-          <button id="cancelCpuButton" class="dialogButton">CANCEL</button>
-        </div>
-      </div>
-    `;
-    document.body.appendChild(cpuDialog);
-
-    const cpuLevelSelect = document.getElementById('cpuLevel');
-    const customSettings = document.getElementById('customSettings');
-    const inputSpeed = document.getElementById('inputSpeed');
-    const missRate = document.getElementById('missRate');
-    const missWaitTime = document.getElementById('missWaitTime');
-    const inputSpeedValue = document.getElementById('inputSpeedValue');
-    const missRateValue = document.getElementById('missRateValue');
-    const missWaitTimeValue = document.getElementById('missWaitTimeValue');
-
-    const predefinedLevels = [
-        { speed: 1, miss: 1, missWait: 3 },
-        { speed: 2, miss: 2, missWait: 3 },
-        { speed: 3, miss: 2, missWait: 3 },
-        { speed: 4, miss: 3, missWait: 3 },
-        { speed: 4, miss: 2, missWait: 2 },
-        { speed: 5, miss: 3, missWait: 3 },
-        { speed: 5.5, miss: 4, missWait: 2 },
-        { speed: 6, miss: 4, missWait: 1 },
-        { speed: 7, miss: 2, missWait: 3.5 },
-        { speed: 8, miss: 2, missWait: 2 }
-    ];
-
-    cpuLevelSelect.value = "5";
-
-    inputSpeed.value = predefinedLevels[4].speed;
-    inputSpeedToCalc = predefinedLevels[4].speed;
-    missRate.value = predefinedLevels[4].miss;
-    missRateToCalc = predefinedLevels[4].miss;
-    missWaitTime.value = predefinedLevels[4].missWait;
-    missWaitTimeToCalc = predefinedLevels[4].missWait;
-
-    inputSpeedValue.textContent = predefinedLevels[4].speed;
-    missRateValue.textContent = predefinedLevels[4].miss;
-    missWaitTimeValue.textContent = predefinedLevels[4].missWait;
-
-    cpuLevelSelect.addEventListener('change', () => {
-        if (cpuLevelSelect.value === 'custom') {
-            customSettings.style.display = 'block';
-        } else {
-            customSettings.style.display = 'none';
-            const level = parseInt(cpuLevelSelect.value) - 1;
-
-            inputSpeed.value = predefinedLevels[level].speed;
-            inputSpeedToCalc = predefinedLevels[level].speed;
-
-            missRate.value = predefinedLevels[level].miss;
-            missRateToCalc = predefinedLevels[level].miss;
-
-            missWaitTime.value = predefinedLevels[level].missWait;
-            missWaitTimeToCalc = predefinedLevels[level].missWait;
-
-            inputSpeedValue.textContent = predefinedLevels[level].speed;
-            missRateValue.textContent = predefinedLevels[level].miss;
-            missWaitTimeValue.textContent = predefinedLevels[level].missWait;
-        }
-    });
-
-    // カスタム設定変更時も適応
-    inputSpeed.addEventListener('input', () => {
-        inputSpeedValue.textContent = inputSpeed.value;
-        inputSpeedToCalc = parseInt(inputSpeed.value, 10);
-    });
-
-    missRate.addEventListener('input', () => {
-        missRateValue.textContent = missRate.value;
-        missRateToCalc = parseInt(missRate.value, 10);
-    });
-
-    missWaitTime.addEventListener('input', () => {
-        missWaitTimeValue.textContent = missWaitTime.value;
-        missWaitTimeToCalc = parseInt(missWaitTime.value, 10);
-    }); 6
-
-    // イベントリスナー追加 (showCpuDialog 内)
-    missWaitTime.addEventListener('input', () => {
-        missWaitTimeValue.textContent = missWaitTime.value;
-        missWaitTimeToCalc = parseInt(missWaitTime.value, 10);
-    });
-
-    document.getElementById('startCpuButton').addEventListener('click', () => {
-        if (gameState === 'normal') {
-            cpuDialog.remove();
-            CPUstartCountdown();
-            cpuButton.textContent = "QUIT MATCH"
-            cpuButton.classList.add("CPUquitMatch");
-            // CPUstartGame();
-        }
-    });
-    document.getElementById('cancelCpuButton').addEventListener('click', () => {
-        gameState = "normal";
-        cpuDialog.remove();
-    });
+    document.querySelector('.cpuDialogOverlay').style.display = 'block';
 }
+
+const cpuLevelSelect = document.getElementById('cpuLevel');
+const customSettings = document.getElementById('customSettings');
+const inputSpeed = document.getElementById('inputSpeed');
+const missRate = document.getElementById('missRate');
+const missWaitTime = document.getElementById('missWaitTime');
+const inputSpeedValue = document.getElementById('inputSpeedValue');
+const missRateValue = document.getElementById('missRateValue');
+const missWaitTimeValue = document.getElementById('missWaitTimeValue');
+
+cpuLevelSelect.addEventListener('mouseenter', () => {
+    if (currentButtonSoundState === 'VALID') {
+        soundManager.playSound('buttonHover', { volume: 1.2 });
+    }
+});
+cpuLevelSelect.addEventListener("click", () => {
+    if (currentButtonSoundState === "VALID") {
+        soundManager.playSound("buttonClick", { volume: 0.5 });
+    }
+});
+
+const rangeInputs = document.querySelectorAll("#customSettings input[type='range']");
+
+rangeInputs.forEach(input => {
+    input.addEventListener("mouseenter", () => {
+        if (currentButtonSoundState === "VALID") {
+            soundManager.playSound("buttonHover", { volume: 1.2 });
+        }
+    });
+    input.addEventListener("click", () => {
+        if (currentButtonSoundState === "VALID") {
+            soundManager.playSound("buttonClick", { volume: 0.5 });
+        }
+    });
+});
+
+const predefinedLevels = [
+    { speed: 1, miss: 1, missWait: 3 },
+    { speed: 2, miss: 2, missWait: 3 },
+    { speed: 3, miss: 2, missWait: 3 },
+    { speed: 4, miss: 3, missWait: 3 },
+    { speed: 4, miss: 2, missWait: 2 },
+    { speed: 5, miss: 3, missWait: 3 },
+    { speed: 5.5, miss: 4, missWait: 2 },
+    { speed: 6, miss: 5, missWait: 1.5 },
+    { speed: 7, miss: 2, missWait: 3.5 },
+    { speed: 8, miss: 2, missWait: 2 }
+];
+
+cpuLevelSelect.value = "1";
+
+inputSpeed.value = predefinedLevels[0].speed;
+inputSpeedToCalc = predefinedLevels[0].speed;
+missRate.value = predefinedLevels[0].miss;
+missRateToCalc = predefinedLevels[0].miss;
+missWaitTime.value = predefinedLevels[0].missWait;
+missWaitTimeToCalc = predefinedLevels[0].missWait;
+
+inputSpeedValue.textContent = predefinedLevels[0].speed.toFixed(1);
+missRateValue.textContent = predefinedLevels[0].miss.toFixed(1);
+missWaitTimeValue.textContent = predefinedLevels[0].missWait.toFixed(1);
+
+cpuLevelSelect.addEventListener('change', () => {
+    if (cpuLevelSelect.value !== 'custom') {
+        const level = parseInt(cpuLevelSelect.value) - 1;
+
+        inputSpeed.value = predefinedLevels[level].speed;
+        inputSpeedToCalc = predefinedLevels[level].speed;
+
+        missRate.value = predefinedLevels[level].miss;
+        missRateToCalc = predefinedLevels[level].miss;
+
+        missWaitTime.value = predefinedLevels[level].missWait;
+        missWaitTimeToCalc = predefinedLevels[level].missWait;
+
+        inputSpeedValue.textContent = predefinedLevels[level].speed.toFixed(1);
+        missRateValue.textContent = predefinedLevels[level].miss.toFixed(1);
+        missWaitTimeValue.textContent = predefinedLevels[level].missWait.toFixed(1);
+    }
+    // }
+});
+
+// カスタム設定変更時も適応
+inputSpeed.addEventListener('input', () => {
+    cpuLevelSelect.value = 'custom';
+    inputSpeedValue.textContent = inputSpeed.value;
+    inputSpeedToCalc = inputSpeed.value;
+});
+
+missRate.addEventListener('input', () => {
+    cpuLevelSelect.value = 'custom';
+    missRateValue.textContent = missRate.value;
+    missRateToCalc = missRate.value;
+});
+
+missWaitTime.addEventListener('input', () => {
+    cpuLevelSelect.value = 'custom';
+    missWaitTimeValue.textContent = missWaitTime.value;
+    missWaitTimeToCalc = missWaitTime.value;
+});
+
+inputSpeed.addEventListener('input', function () {
+    document.getElementById('inputSpeedValue').textContent = parseFloat(this.value).toFixed(1);
+});
+
+missRate.addEventListener('input', function () {
+    document.getElementById('missRateValue').textContent = parseFloat(this.value).toFixed(1);
+});
+
+missWaitTime.addEventListener('input', function () {
+    document.getElementById('missWaitTimeValue').textContent = parseFloat(this.value).toFixed(1);
+});
+
+const CPUdialogButton = document.querySelectorAll('.CPUdialogButton');
+CPUdialogButton.forEach(button => {
+    button.addEventListener('mouseenter', () => {
+        if (currentButtonSoundState === 'VALID') {
+            soundManager.playSound('buttonHover', { volume: 1.2 });
+        }
+    });
+    button.addEventListener('click', () => {
+        if (currentButtonSoundState === 'VALID') {
+            soundManager.playSound('buttonClick', { volume: 0.5 });
+        }
+    });
+});
+
+document.getElementById('startCpuButton').addEventListener('click', () => {
+    if (gameState === 'normal') {
+        // cpuDialog.remove();
+        cpuDialog.style.display = 'none';
+        CPUstartCountdown();
+        cpuButton.textContent = "QUIT MATCH"
+        cpuButton.classList.add("CPUquitMatch");
+        // CPUstartGame();
+    }
+});
+document.getElementById('cancelCpuButton').addEventListener('click', () => {
+    gameState = "normal";
+    // cpuDialog.remove();
+    cpuDialog.style.display = 'none';
+});
 
 function CPUstartGame() {
     gameState = "CPUmatch";
@@ -165,21 +218,56 @@ function CPUstartGame() {
     CPUdrawInputField(ctxPlayerInput, '', playerInputField);
     CPUdrawInputField(ctxOpponentInput, '', opponentInputField);
     CPUgameStep();
+    CPUopponentGameStep();
     CPUstartInput();
     CPUupdateNerfInfoDisplay();
     CPUopponentUpdateNerfInfoDisplay();
 }
 
+let CPUgameStepTimeoutId;
+let CPUopponentGameStepTimeoutId;
+
 function CPUgameStep() {
     if (gameState !== "CPUmatch") return;
     CPUupdateFieldAfterReceiveOffset();
-    CPUopponentUpdateFieldAfterReceiveOffset();
     CPUcheckAndRemoveWord();
     CPUdrawField(ctxPlayer, playerField, memorizeLastAttackValue);
+    if (Interval === "NORMAL") {
+        gameStepInterval = updateBaseGameStepInterval();
+        updateProgressBar(gameStepInterval);
+        clearTimeout(CPUgameStepTimeoutId);
+        CPUgameStepTimeoutId = setTimeout(CPUgameStep, gameStepInterval);
+
+    } else if (Interval === "SUDDEN DEATH (1s)") {
+        updateProgressBar(1000);
+        CPUgameStepTimeoutId = setTimeout(CPUgameStep, 1000);
+
+    } else if (Interval === "PEACEFUL (10s)") {
+        updateProgressBar(10000);
+        CPUgameStepTimeoutId = setTimeout(CPUgameStep, 10000);
+
+    } else if (Interval === "NOTHING (PRACTICE)") {
+        return;
+    }
+}
+
+function CPUopponentGameStep() {
+    if (gameState !== "CPUmatch") return;
+    CPUopponentUpdateFieldAfterReceiveOffset();
+    CPUopponentcheckAndRemoveWord();
     CPUdrawField(ctxOpponent, opponentField, opponentMemorizeLastAttackValue);
-    gameStepInterval = Math.max(minInterval, gameStepInterval - 200);
-    updateProgressBar(gameStepInterval);
-    setTimeout(CPUgameStep, gameStepInterval);
+    if (Interval === "NORMAL") {
+
+        gameStepInterval = updateBaseGameStepInterval();
+        clearTimeout(CPUopponentGameStepTimeoutId);
+        CPUopponentGameStepTimeoutId = setTimeout(CPUopponentGameStep, gameStepInterval);
+
+    } else if (Interval === "SUDDEN DEATH") {
+        CPUopponentGameStepTimeoutId = setTimeout(CPUopponentGameStep, 1000);
+
+    } else if (Interval === "PEACEFUL") {
+        CPUopponentGameStepTimeoutId = setTimeout(CPUopponentGameStep, 10000);
+    }
 }
 
 // let toConnectChar = '';
@@ -191,9 +279,19 @@ function getInputWord() {
 
     if (opponentFieldWords.length < 10 && opponentReceiveValueToDisplay.length === 0) {
         while (opponentFieldWords.length < 10) {
+
+            gameStepInterval = updateBaseGameStepInterval();
+            clearTimeout(CPUopponentGameStepTimeoutId);
+            CPUopponentGameStepTimeoutId = setTimeout(CPUopponentGameStep, gameStepInterval);
+
             CPUopponentUpdateFieldAfterReceiveOffset();
         }
     } else if (opponentFieldWords.length + opponentReceiveValueToDisplay.length < 13) {
+
+        gameStepInterval = updateBaseGameStepInterval();
+        clearTimeout(CPUopponentGameStepTimeoutId);
+        CPUopponentGameStepTimeoutId = setTimeout(CPUopponentGameStep, gameStepInterval);
+
         CPUopponentUpdateFieldAfterReceiveOffset();
     }
 
@@ -266,7 +364,9 @@ let decidedWordLength = 0
 
 function CPUstartInput() {
     if (gameState !== "CPUmatch") return;
-    let speed = 1000 / parseInt(inputSpeedToCalc, 10);
+    if (inputSpeedToCalc == 0) return;
+    console.log(inputSpeedToCalc);
+    let speed = 1000 / inputSpeedToCalc;
     function typeWord() {
         function typeCharacter() {
             if (gameState !== "CPUmatch") return;
@@ -322,7 +422,7 @@ function CPUstartInput() {
 }
 
 function CPUstartCountdown() {
-    gameState = 'countdown';
+    gameState = 'CPUcountdown';
     CPUresetGame();
     let count = 3;
     const countInterval = setInterval(() => {
@@ -850,8 +950,13 @@ function CPUhighlightMatchingCells(field) {
 
 function CPUopponentcheckAndRemoveWord() {
     if (opponentInput.length !== 0) {
+        let wordIndex;
+        if (selectedCategory !== "ENGLISH") {
+            wordIndex = opponentFieldWords.findIndex((word) => word === extractLeadingJapanese(opponentInput));
+        } else {
+            wordIndex = opponentFieldWords.findIndex((word) => word === opponentInput);
+        }
         // 入力文字の先頭から続く日本語部分を抽出して、フィールド内の単語と一致しているか確認
-        const wordIndex = opponentFieldWords.findIndex((word) => word === extractLeadingJapanese(opponentInput));
         if (wordIndex !== -1) {
             // 一致する単語を取得
             const matchedWord = opponentFieldWords[wordIndex];
@@ -873,15 +978,22 @@ function CPUopponentcheckAndRemoveWord() {
 
             return;
         }
-        const highLightWordIndex = opponentFieldWords.findIndex((word) => word.startsWith(extractLeadingJapanese(opponentInput)));
+        let highLightWordIndex
+        if (selectedCategory !== "ENGLISH") {
+            highLightWordIndex = opponentFieldWords.findIndex((word) => word.startsWith(extractLeadingJapanese(opponentInput)));
+        } else {
+            highLightWordIndex = opponentFieldWords.findIndex((word) => word.startsWith(opponentInput));
+        }
 
         if (highLightWordIndex !== -1) {
-
-            const matchedLength = extractLeadingJapanese(opponentInput).length;
-
+            let matchedLength
+            if (selectedCategory !== "ENGLISH") {
+                matchedLength = extractLeadingJapanese(opponentInput).length;
+            } else {
+                matchedLength = opponentInput.length;
+            }
             highlightMatchWords(opponentField, highLightWordIndex, matchedLength);
-
-            return 0; // 一致しない場合は 0 を返す
+            return 0;
         }
 
         resetHighlight(opponentField);
@@ -1075,22 +1187,6 @@ function CPUopponentGenerateStyledCharacters(word, matchingChars, lastChar) {
     }).join("");
 }
 
-function CPUopponentUpdateChainInfoDisplay() {
-    if (chainBonus !== 0) {
-        animateAttackInfo(opponentChainBonus, `Chain: ${chainBonus}`, false);
-    } else {
-        // フェードアウトアニメーションを適用
-        opponentChainBonus.classList.remove('animate');
-        opponentChainBonus.classList.add('fade-out');
-
-        // アニメーション終了後に空文字列を設定
-        setTimeout(() => {
-            opponentChainBonus.textContent = '';
-            opponentChainBonus.classList.remove('fade-out');
-        }, 500);
-    }
-}
-
 function CPUOpponentNerfAttackValue() {
     CPUnerfValue = CPUnerfValue + 1;
     CPUopponentUpdateNerfInfoDisplay();
@@ -1167,8 +1263,18 @@ function CPUopponentCancelChain() {
     CPUopponentUpdateChainInfoDisplay();
 }
 
+let CPUchainBonusColor;
+
 function CPUopponentUpdateChainInfoDisplay() {
     if (CPUchainBonus !== 0) {
+        CPUchainBonusColor = "rgb(0, 255, 0)";
+        if (CPUisUpChain) {
+            CPUchainBonusColor = "rgb(0, 255, 255)";
+        }
+        else if (CPUisDownChain) {
+            CPUchainBonusColor = "rgb(255, 0, 255)";
+        }
+        document.documentElement.style.setProperty('--opponentChainColor', CPUchainBonusColor);
         animateAttackInfo(opponentChainBonus, `Chain: ${CPUchainBonus}`, false);
     } else {
         opponentChainBonus.classList.remove('animate');
@@ -1422,6 +1528,18 @@ function CPUdisplayAttackValue(element, number) {
 
 // 既存のattack関数を修正
 function CPUopponentAttack(attackValue) {
+    if (selectedCategory === "ENGLISH") {
+        if (attackValue < 4 || attackValue >= 11) return;
+        if (CPUnerfValue !== 0) {
+            let nerfAttackValue = attackValue - CPUnerfValue;
+            if (nerfAttackValue < 4) {
+                CPUnerfValue = 0;
+                CPUopponentUpdateNerfInfoDisplay();
+                CPUopponentUpdateAttackInfoDisplay();
+                return;
+            }
+        }
+    }
     if (attackValue <= 1 || attackValue >= 11) return;
     if (gameState === "CPUmatch") {
         if (CPUnerfValue !== 0) {
@@ -1518,8 +1636,14 @@ function CPUopponentCalcReceiveOffsetToDisplay() {
         } else {
             opponentReceiveValueToDisplay[maxIndex] -= opponentAttackValueToDisplay;
             opponentAttackValueToDisplay = 0;
-            if (opponentReceiveValueToDisplay[maxIndex] < 2) {
-                opponentReceiveValueToDisplay.splice(maxIndex, 1);
+            if (selectedCategory === "ENGLISH") {
+                if (opponentReceiveValueToDisplay[maxIndex] < 4) {
+                    opponentReceiveValueToDisplay.splice(maxIndex, 1);
+                }
+            } else {
+                if (opponentReceiveValueToDisplay[maxIndex] < 2) {
+                    opponentReceiveValueToDisplay.splice(maxIndex, 1);
+                }
             }
         }
     }
@@ -1549,12 +1673,22 @@ function CPUopponentCalcReceiveOffset() {
         } else {
             opponentReceiveValueToOffset[maxIndex] -= opponentAttackValueToOffset;
             opponentAttackValueToOffset = 0;
-            if (opponentReceiveValueToOffset[maxIndex] < 2) {
-                opponentReceiveValueToOffset.splice(maxIndex, 1);
+            if (selectedCategory === "ENGLISH") {
+                if (opponentReceiveValueToOffset[maxIndex] < 4) {
+                    opponentReceiveValueToOffset.splice(maxIndex, 1);
+                }
+            } else {
+                if (opponentReceiveValueToOffset[maxIndex] < 2) {
+                    opponentReceiveValueToOffset.splice(maxIndex, 1);
+                }
             }
         }
     }
-    return opponentAttackValueToOffset > 1 ? opponentAttackValueToOffset : 0;
+    if (selectedCategory === "ENGLISH") {
+        return opponentAttackValueToOffset > 3 ? opponentAttackValueToOffset : 0;
+    } else {
+        return opponentAttackValueToOffset > 1 ? opponentAttackValueToOffset : 0;
+    }
 }
 
 function CPUopponentHandleGameOver() {
@@ -1622,7 +1756,7 @@ function CPUshowRetryDialog() {
     dialogButton.forEach(button => {
         button.addEventListener('mouseenter', () => {
             if (currentButtonSoundState === 'VALID') {
-                soundManager.playSound('buttonHover', { volume: 0.8 });
+                soundManager.playSound('buttonHover', { volume: 1.2 });
             }
         });
         button.addEventListener('click', () => {
