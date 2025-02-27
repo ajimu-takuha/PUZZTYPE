@@ -147,9 +147,9 @@ body {
   gap: 2vw;
   transition: top 1s ease-in-out;
   position: relative;
-  top: 0;
-  /* top: -100vh;
-  animation: drop 1s cubic-bezier(0.25, 1, 0.5, 1) 3.5s forwards; */
+  /* top: 0; */
+  top: -100vh;
+  animation: drop 1s cubic-bezier(0.25, 1, 0.5, 1) 3.5s forwards;
 }
 
 .gameArea {
@@ -360,7 +360,7 @@ body {
   /* color: rgba(100, 255, 150, 1); */
   color: rgb(0, 0, 0);
   margin-top: 1.5vh;
-  margin-bottom: 1vh;
+  margin-bottom: 0.75vh;
   text-shadow:
     0px 0px 1px rgba(100, 255, 150, 1),
     1px 1px 0 rgba(100, 255, 150, 1),
@@ -732,7 +732,7 @@ body {
 #playerGameArea {}
 
 #opponentGameArea {
-  margin-right: 16vw;
+  margin-right: 14.8vw;
 }
 
 /* 各フィールドと入力領域を縦に並べる */
@@ -740,7 +740,17 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  /* 中央揃え */
+}
+
+.styleWrapper {
+  width: 1.2vw;
+  display: flex;
+  justify-content: flex-start;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  margin-left: 0.5vw;
+  font-size: 3vh;
+  color: rgba(255, 255, 255, 0.5);
 }
 
 /* フィールドと入力領域のキャンバススタイル */
@@ -1266,6 +1276,11 @@ canvas {}
 .attack-double {
   color: rgb(255, 255, 255);
   text-shadow: 0 0 10px #ff0000;
+}
+
+.attack-miss {
+  color: rgba(180, 200, 255, 0.8);
+  text-shadow: 0 0 10px rgba(0, 68, 255, 0.8);
 }
 
 /* アニメーションをリセットするためのクラス */

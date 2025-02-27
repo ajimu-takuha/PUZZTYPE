@@ -21,7 +21,7 @@
 </head>
 
 <body>
-  <!-- <div class="welcomeOverlay">
+  <div class="welcomeOverlay">
     <div class="welcome">
       <span> </span>
       <span>W</span>
@@ -44,7 +44,7 @@
       <span>P</span>
       <span>E</span>
     </div>
-  </div> -->
+  </div>
   <div id="howToPlayWrapper">
     <div id="howToPlay">
     </div>
@@ -57,11 +57,17 @@
       </p>
       <p id="modeRight"></p>
     </button>
-    <button class="configButtons mod toUseSE">
-      <p id="modLeft">INTERVAL (VS CPU ONLY)
+    <button class="configButtons style toUseSE">
+      <p id="styleLeft">STYLE
         :
       </p>
-      <p id="modRight"></p>
+      <p id="styleRight"></p>
+    </button>
+    <button class="configButtons interval toUseSE">
+      <p id="intervalLeft">INTERVAL (VS CPU ONLY)
+        :
+      </p>
+      <p id="intervalRight"></p>
     </button>
     <button class="configButtons font toUseSE">
       <p id="fontLeft">FONT
@@ -169,6 +175,8 @@
             <span></span>
           </div>
         </div>
+        <div id="playerStyle" class="styleWrapper">
+        </div>
       </div>
       <div id="opponentGameArea" class="gameArea">
         <div class="sideWrapper">
@@ -212,6 +220,8 @@
             <span></span>
             <span></span>
           </div>
+        </div>
+        <div id="opponentStyle" class="styleWrapper">
         </div>
       </div>
     </div>

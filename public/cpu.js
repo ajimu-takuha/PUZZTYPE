@@ -232,21 +232,23 @@ function CPUgameStep() {
     CPUupdateFieldAfterReceiveOffset();
     CPUcheckAndRemoveWord();
     CPUdrawField(ctxPlayer, playerField, memorizeLastAttackValue);
-    if (Interval === "NORMAL") {
+    if (interval === "NORMAL") {
         gameStepInterval = updateBaseGameStepInterval();
         updateProgressBar(gameStepInterval);
         clearTimeout(CPUgameStepTimeoutId);
         CPUgameStepTimeoutId = setTimeout(CPUgameStep, gameStepInterval);
 
-    } else if (Interval === "SUDDEN DEATH (1s)") {
+    } else if (interval === "SUDDEN DEATH (1s)") {
         updateProgressBar(1000);
+        clearTimeout(CPUgameStepTimeoutId);
         CPUgameStepTimeoutId = setTimeout(CPUgameStep, 1000);
 
-    } else if (Interval === "PEACEFUL (10s)") {
+    } else if (interval === "PEACEFUL (10s)") {
         updateProgressBar(10000);
+        clearTimeout(CPUgameStepTimeoutId);
         CPUgameStepTimeoutId = setTimeout(CPUgameStep, 10000);
 
-    } else if (Interval === "NOTHING (PRACTICE)") {
+    } else if (interval === "NOTHING (PRACTICE)") {
         return;
     }
 }
@@ -256,17 +258,22 @@ function CPUopponentGameStep() {
     CPUopponentUpdateFieldAfterReceiveOffset();
     CPUopponentcheckAndRemoveWord();
     CPUdrawField(ctxOpponent, opponentField, opponentMemorizeLastAttackValue);
-    if (Interval === "NORMAL") {
+    if (interval === "NORMAL") {
 
         gameStepInterval = updateBaseGameStepInterval();
         clearTimeout(CPUopponentGameStepTimeoutId);
         CPUopponentGameStepTimeoutId = setTimeout(CPUopponentGameStep, gameStepInterval);
 
-    } else if (Interval === "SUDDEN DEATH") {
+    } else if (interval === "SUDDEN DEATH (1s)") {
+        clearTimeout(CPUopponentGameStepTimeoutId);
         CPUopponentGameStepTimeoutId = setTimeout(CPUopponentGameStep, 1000);
 
-    } else if (Interval === "PEACEFUL") {
+    } else if (interval === "PEACEFUL (10s)") {
+        clearTimeout(CPUopponentGameStepTimeoutId);
         CPUopponentGameStepTimeoutId = setTimeout(CPUopponentGameStep, 10000);
+    
+    } else if (interval === "NOTHING (PRACTICE)") {
+        return;
     }
 }
 
@@ -279,24 +286,40 @@ function getInputWord() {
 
     if (opponentFieldWords.length < 10 && opponentReceiveValueToDisplay.length === 0) {
         while (opponentFieldWords.length < 10) {
-
+            if (interval === "NORMAL") {
+                gameStepInterval = updateBaseGameStepInterval();
+                clearTimeout(CPUopponentGameStepTimeoutId);
+                CPUopponentGameStepTimeoutId = setTimeout(CPUopponentGameStep, gameStepInterval);
+                CPUopponentUpdateFieldAfterReceiveOffset();
+            } else if (interval === "SUDDEN DEATH (1s)") {
+                clearTimeout(CPUopponentGameStepTimeoutId);
+                CPUopponentGameStepTimeoutId = setTimeout(CPUopponentGameStep, 1000);
+                CPUopponentUpdateFieldAfterReceiveOffset();
+            } else if (interval === "PEACEFUL (10s)") {
+                clearTimeout(CPUopponentGameStepTimeoutId);
+                CPUopponentGameStepTimeoutId = setTimeout(CPUopponentGameStep, 10000);
+                CPUopponentUpdateFieldAfterReceiveOffset();
+            }
+        }
+    } else if (opponentFieldWords.length + opponentReceiveValueToDisplay.length < 13) {
+        if (interval === "NORMAL") {
             gameStepInterval = updateBaseGameStepInterval();
             clearTimeout(CPUopponentGameStepTimeoutId);
             CPUopponentGameStepTimeoutId = setTimeout(CPUopponentGameStep, gameStepInterval);
-
+            CPUopponentUpdateFieldAfterReceiveOffset();
+        } else if (interval === "SUDDEN DEATH (1s)") {
+            clearTimeout(CPUopponentGameStepTimeoutId);
+            CPUopponentGameStepTimeoutId = setTimeout(CPUopponentGameStep, 1000);
+            CPUopponentUpdateFieldAfterReceiveOffset();
+        } else if (interval === "PEACEFUL (10s)") {
+            clearTimeout(CPUopponentGameStepTimeoutId);
+            CPUopponentGameStepTimeoutId = setTimeout(CPUopponentGameStep, 10000);
             CPUopponentUpdateFieldAfterReceiveOffset();
         }
-    } else if (opponentFieldWords.length + opponentReceiveValueToDisplay.length < 13) {
-
-        gameStepInterval = updateBaseGameStepInterval();
-        clearTimeout(CPUopponentGameStepTimeoutId);
-        CPUopponentGameStepTimeoutId = setTimeout(CPUopponentGameStep, gameStepInterval);
-
-        CPUopponentUpdateFieldAfterReceiveOffset();
     }
 
     if (opponentFieldWords.length + opponentReceiveValueToDisplay.length > 16) {
-        let wordLengths = opponentFieldWords.map(word => word.length).sort((a, b) => a - b);
+        let wordLengths = opponentFieldWords.filter(word => word !== attackWord).map(word => word.length).sort((a, b) => a - b);
         let longestContinuous = [];
         let currentSeq = [];
         for (let i = 0; i < wordLengths.length; i++) {
@@ -314,26 +337,27 @@ function getInputWord() {
         }
         if (longestContinuous.length > 0) {
             let minLength = Math.min(...longestContinuous);
-            return opponentFieldWords.find(word => word.length === minLength);
+            return opponentFieldWords.filter(word => word !== attackWord).find(word => word.length === minLength);
+
         }
     }
 
-    if (CPUchainBonus > 3 && opponentFieldWords.find(word => word[0] === CPUlastChar)) {
-        let matchingWord = opponentFieldWords.find(word => word[0] === CPUlastChar);
+    if (CPUchainBonus > 3 && opponentFieldWords.filter(word => word !== attackWord).find(word => word[0] === CPUlastChar)) {
+        let matchingWord = opponentFieldWords.filter(word => word !== attackWord).find(word => word[0] === CPUlastChar);
         lastInputWordLength = matchingWord.length;
         return matchingWord;
     }
 
-    if (opponentFieldWords.find(word => word.length === lastInputWordLength - 1)) {
+    if (opponentFieldWords.filter(word => word !== attackWord).find(word => word.length === lastInputWordLength - 1)) {
         lastInputWordLength--;
-        return opponentFieldWords.find(word => word.length === lastInputWordLength);
-    } else if (opponentFieldWords.find(word => word.length === lastInputWordLength)) {
-        return opponentFieldWords.find(word => word.length === lastInputWordLength);
-    } else if (opponentFieldWords.find(word => word.length === lastInputWordLength + 1)) {
+        return opponentFieldWords.filter(word => word !== attackWord).find(word => word.length === lastInputWordLength);
+    } else if (opponentFieldWords.filter(word => word !== attackWord).find(word => word.length === lastInputWordLength)) {
+        return opponentFieldWords.filter(word => word !== attackWord).find(word => word.length === lastInputWordLength);
+    } else if (opponentFieldWords.filter(word => word !== attackWord).find(word => word.length === lastInputWordLength + 1)) {
         lastInputWordLength++;
-        return opponentFieldWords.find(word => word.length === lastInputWordLength);
+        return opponentFieldWords.filter(word => word !== attackWord).find(word => word.length === lastInputWordLength);
     } else {
-        let wordLengths = [...new Set(opponentFieldWords.map(word => word.length))].sort((a, b) => a - b);
+        let wordLengths = [...new Set(opponentFieldWords.filter(word => word !== attackWord).map(word => word.length))].sort((a, b) => a - b);
         let longestContinuous = [];
         let currentSeq = [];
         for (let i = 0; i < wordLengths.length; i++) {
@@ -351,12 +375,11 @@ function getInputWord() {
         }
         if (longestContinuous.length > 0) {
             let maxLength = Math.max(...longestContinuous);
-            let returnWord = opponentFieldWords.find(word => word.length === maxLength);
+            let returnWord = opponentFieldWords.filter(word => word !== attackWord).find(word => word.length === maxLength);
             lastInputWordLength = returnWord.length;
             return returnWord;
         }
     }
-    console.log(opponentFieldWords);
 }
 
 let opponentWordToInput = '';
@@ -365,12 +388,11 @@ let decidedWordLength = 0
 function CPUstartInput() {
     if (gameState !== "CPUmatch") return;
     if (inputSpeedToCalc == 0) return;
-    console.log(inputSpeedToCalc);
     let speed = 1000 / inputSpeedToCalc;
     function typeWord() {
         function typeCharacter() {
             if (gameState !== "CPUmatch") return;
-            if (Math.random() * 100 < missRateToCalc) {
+            if (getBetterRandom() * 100 < missRateToCalc) {
                 if (CPUchainBonus === 3) {
                     CPUchainBonus = 2
                 } else if (CPUchainBonus <= 2) {
@@ -746,66 +768,73 @@ function CPUdrawField(ctx, field, receivedLastWordLength) {
     ctx.clearRect(0, 0, ctx.canvas.getBoundingClientRect().width, ctx.canvas.getBoundingClientRect().height);
     ctx.fillStyle = "rgba(5, 7, 19, 0.7)";
     ctx.fillRect(0, 0, ctx.canvas.getBoundingClientRect().width, ctx.canvas.getBoundingClientRect().height);
-    if (receivedLastWordLength !== 0) {
-        for (let y = 0; y < FIELD_HEIGHT; y++) {
-            let hasContent = false;
-            for (let x = 0; x < FIELD_WIDTH; x++) {
-                if (field[y][x] && field[y][x].word) {
-                    hasContent = true;
-                    break;
-                }
-            }
-
-            if (!hasContent) {
-                continue;
-            }
-
-            // 行の文字を1つの単語として結合
-            let rowWord = '';
-            for (let x = 0; x < FIELD_WIDTH; x++) {
-                if (field[y][x] && field[y][x].word) {
-                    rowWord += field[y][x].word;
-                }
-            }
-
-            if (rowWord.length > 0) {
-
-                const position = y * CELL_SIZE;
-                const width = FIELD_WIDTH * CELL_SIZE;
-                const height = CELL_SIZE;
-
-                const hasLongerWord = (receivedLastWordLength === 10 && rowWord.length === 9) ||
-                    (receivedLastWordLength === 2 && rowWord.length === 3) ||
-                    (rowWord.length === receivedLastWordLength + 1);
-
-                const hasShorterWord = receivedLastWordLength !== 2 &&
-                    rowWord.length === receivedLastWordLength - 1;
-
-                if (rowWord.length === receivedLastWordLength) {
-                    ctx.fillStyle = `rgba(255, 255, 255, 0.2)`;
-                    ctx.fillRect(0, position, width, height);
-                    ctx.strokeStyle = `rgba(255, 255, 255, 0.5)`;
-                    ctx.lineWidth = 2;
-                    ctx.strokeRect(0, position, width, height);
-
-                } else if (hasLongerWord) {
-                    // drawHorizontalGradient(ctx, y, 'SHORTER_WORD');
-                    ctx.fillStyle = `rgba(255, 0, 255, 0.2)`;
-                    ctx.fillRect(0, position, width, height);
-                    ctx.strokeStyle = `rgba(255, 0, 255, 0.5)`;
-                    ctx.lineWidth = 2;
-                    ctx.strokeRect(0, position, width, height);
-
-                } else if (hasShorterWord) {
-                    // drawHorizontalGradient(ctx, y, 'SHORTER_WORD');
-                    ctx.fillStyle = `rgba(0, 255, 255, 0.2)`;
-                    ctx.fillRect(0, position, width, height);
-                    ctx.strokeStyle = `rgba(0, 255, 255, 0.5)`;
-                    ctx.lineWidth = 2;
-                    ctx.strokeRect(0, position, width, height);
-                }
+    // if (receivedLastWordLength !== 0) {
+    for (let y = 0; y < FIELD_HEIGHT; y++) {
+        let hasContent = false;
+        for (let x = 0; x < FIELD_WIDTH; x++) {
+            if (field[y][x] && field[y][x].word) {
+                hasContent = true;
+                break;
             }
         }
+
+        if (!hasContent) {
+            continue;
+        }
+
+        // 行の文字を1つの単語として結合
+        let rowWord = '';
+        for (let x = 0; x < FIELD_WIDTH; x++) {
+            if (field[y][x] && field[y][x].word) {
+                rowWord += field[y][x].word;
+            }
+        }
+
+        if (rowWord.length > 0) {
+
+            const position = y * CELL_SIZE;
+            const width = FIELD_WIDTH * CELL_SIZE;
+            const height = CELL_SIZE;
+
+            const hasLongerWord = (receivedLastWordLength === 10 && rowWord.length === 9) ||
+                (receivedLastWordLength === 2 && rowWord.length === 3) ||
+                (rowWord.length === receivedLastWordLength + 1);
+
+            const hasShorterWord = receivedLastWordLength !== 2 &&
+                rowWord.length === receivedLastWordLength - 1;
+
+            if (rowWord == attackWord) {
+                ctx.fillStyle = 'rgba(50, 50, 50)';
+                ctx.fillRect(0, position, width, height);
+                ctx.strokeStyle = 'rgba(50, 50, 50)';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(0, position, width, height);
+            }
+            else if (rowWord.length === receivedLastWordLength) {
+                ctx.fillStyle = `rgba(255, 255, 255, 0.2)`;
+                ctx.fillRect(0, position, width, height);
+                ctx.strokeStyle = `rgba(255, 255, 255, 0.5)`;
+                ctx.lineWidth = 2;
+                ctx.strokeRect(0, position, width, height);
+
+            } else if (hasLongerWord) {
+                // drawHorizontalGradient(ctx, y, 'SHORTER_WORD');
+                ctx.fillStyle = `rgba(255, 0, 255, 0.2)`;
+                ctx.fillRect(0, position, width, height);
+                ctx.strokeStyle = `rgba(255, 0, 255, 0.5)`;
+                ctx.lineWidth = 2;
+                ctx.strokeRect(0, position, width, height);
+
+            } else if (hasShorterWord) {
+                // drawHorizontalGradient(ctx, y, 'SHORTER_WORD');
+                ctx.fillStyle = `rgba(0, 255, 255, 0.2)`;
+                ctx.fillRect(0, position, width, height);
+                ctx.strokeStyle = `rgba(0, 255, 255, 0.5)`;
+                ctx.lineWidth = 2;
+                ctx.strokeRect(0, position, width, height);
+            }
+        }
+        // }
     }
 
     for (let y = 0; y < FIELD_HEIGHT; y++) {
@@ -836,17 +865,19 @@ function CPUdrawField(ctx, field, receivedLastWordLength) {
                 const centerX = x * CELL_SIZE + CELL_SIZE / 2;
                 const centerY = y * CELL_SIZE + CELL_SIZE / 2;
 
-                if (cell.isHighlighted) {
-                    // ctx.strokeStyle = 'black';
+                if (cell.word == "×") {
                     ctx.lineWidth = 2;
-                    // ctx.strokeText(cell.word, centerX, centerY);
-                    // ctx.fillStyle = 'white';
+                    ctx.fillStyle = 'rgb(0, 0, 0)';
+                    ctx.fillText(cell.word, centerX, centerY);
+                }
+                else if (cell.isHighlighted) {
+                    ctx.lineWidth = 2;
                     ctx.fillStyle = 'rgb(0, 0, 0)';
                     ctx.fillText(cell.word, centerX, centerY);
                 } else {
                     // すべての文字に黒い縁取りを追加
                     ctx.strokeStyle = 'rgba(0, 0, 0, 0.5)';
-                    ctx.lineWidth = 2; // 縁取りの太さ
+                    ctx.lineWidth = 2;
                     ctx.strokeText(cell.word, centerX, centerY);
                     ctx.fillStyle = 'white';
                     ctx.fillText(cell.word, centerX, centerY);
@@ -858,7 +889,7 @@ function CPUdrawField(ctx, field, receivedLastWordLength) {
 }
 
 function CPUupdateNextDisplay(words) {
-    const combinedWords = [...playerFieldWords, ...wordPool];
+    const combinedWords = [...playerFieldWords.filter(word => word !== attackWord), ...wordPool];
     const matchingChars = getMatchingStartAndEndLetters(combinedWords).map(normalizeHiragana);
     // キャッシュを更新：前回のmatchingCharsを保持する
     matchingChars.forEach((char) => {
@@ -1041,15 +1072,6 @@ function CPUremoveWordFromField(field, word) {
     }
 }
 
-// 画面フィールドをクリア
-function clearField(field) {
-    for (let y = 0; y < FIELD_HEIGHT; y++) {
-        for (let x = 0; x < FIELD_WIDTH; x++) {
-            field[y][x] = null;
-        }
-    }
-}
-
 function CPUupdateField(field, fieldWords) {
     clearField(field);
     let row = FIELD_HEIGHT - 1;
@@ -1089,7 +1111,7 @@ const CPUcharColorMap = new Map();
 const CPUusedColors = new Set([...CPUcharColorMap.values()].map((color) => color.baseColor));
 
 function CPUopponentUpdateNextDisplay(words) {
-    const combinedWords = [...opponentFieldWords, ...opponentWordPool];
+    const combinedWords = [...opponentFieldWords.filter(word => word !== attackWord), ...opponentWordPool];
 
     const matchingChars = getMatchingStartAndEndLetters(combinedWords).map(normalizeHiragana);
 
@@ -1464,6 +1486,10 @@ function CPUopponentOnAttackShake(attackValue) {
 }
 
 function CPUdisplayAttackValue(element, number) {
+    if (isMiss) {
+        number = 0;
+    };
+
     if (typeof number !== 'number') {
         return;
     }

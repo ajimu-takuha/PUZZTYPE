@@ -53,24 +53,26 @@ window.addEventListener("keydown", (e) => {
                 }
                 CPUupdateFieldAfterReceiveOffset(playerField, playerFieldWords);
 
-                if (Interval === "NORMAL") {
+                if (interval === "NORMAL") {
                     gameStepInterval = updateBaseGameStepInterval();
                     updateProgressBar(gameStepInterval);
                     clearTimeout(CPUgameStepTimeoutId);
                     CPUgameStepTimeoutId = setTimeout(CPUgameStep, gameStepInterval);
-            
-                } else if (Interval === "SUDDEN DEATH (1s)") {
+
+                } else if (interval === "SUDDEN DEATH (1s)") {
                     updateProgressBar(1000);
+                    clearTimeout(CPUgameStepTimeoutId);
                     CPUgameStepTimeoutId = setTimeout(CPUgameStep, 1000);
-            
-                } else if (Interval === "PEACEFUL (10s)") {
+
+                } else if (interval === "PEACEFUL (10s)") {
                     updateProgressBar(10000);
+                    clearTimeout(CPUgameStepTimeoutId);
                     CPUgameStepTimeoutId = setTimeout(CPUgameStep, 10000);
-            
-                } else if (Interval === "NOTHING (PRACTICE)") {
+
+                } else if (interval === "NOTHING (PRACTICE)") {
                     CPUcheckAndRemoveWord();
                     CPUdrawField(ctxPlayer, playerField, memorizeLastAttackValue);
-                    return;
+
                 }
 
             } else if (key === "n") {
@@ -108,7 +110,13 @@ window.addEventListener("keydown", (e) => {
             }
             convertedInput = ""
             resetHighlight(playerField);
-        } else {
+        }
+        // else if (key === "Escape") {
+        //     opponentReceiveValueToOffset = [];
+        //     opponentReceiveValueToDisplay = [];
+        //     CPUdrawStatusField(ctxOpponentStatus, false);
+        // }
+        else {
             return;
         }
         playerInput = convertedInput;
@@ -159,24 +167,26 @@ window.addEventListener("keydown", (e) => {
                 }
                 CPUupdateFieldAfterReceiveOffset(playerField, playerFieldWords);
 
-                if (Interval === "NORMAL") {
+                if (interval === "NORMAL") {
                     gameStepInterval = updateBaseGameStepInterval();
                     updateProgressBar(gameStepInterval);
                     clearTimeout(CPUgameStepTimeoutId);
                     CPUgameStepTimeoutId = setTimeout(CPUgameStep, gameStepInterval);
-            
-                } else if (Interval === "SUDDEN DEATH (1s)") {
+
+                } else if (interval === "SUDDEN DEATH (1s)") {
                     updateProgressBar(1000);
+                    clearTimeout(CPUgameStepTimeoutId);
                     CPUgameStepTimeoutId = setTimeout(CPUgameStep, 1000);
-            
-                } else if (Interval === "PEACEFUL (10s)") {
+
+                } else if (interval === "PEACEFUL (10s)") {
                     updateProgressBar(10000);
+                    clearTimeout(CPUgameStepTimeoutId);
                     CPUgameStepTimeoutId = setTimeout(CPUgameStep, 10000);
-            
-                } else if (Interval === "NOTHING (PRACTICE)") {
+
+                } else if (interval === "NOTHING (PRACTICE)") {
                     CPUcheckAndRemoveWord();
                     CPUdrawField(ctxPlayer, playerField, memorizeLastAttackValue);
-                    return;
+
                 }
             }
         }
@@ -308,15 +318,17 @@ function CPUcheckAndRemoveWord() {
         }
         resetHighlight(playerField);
         if (playerInput.length !== 0) {
-            if (chainBonus === 3) {
-                chainBonus = 2
-            } else if (chainBonus <= 2) {
-                chainBonus = 0;
-            } else {
-                chainBonus = chainBonus - 2;
+            if (currentKey !== "OPTIMIST" && currentKey !== "WORDCHAINER") {
+                if (chainBonus === 3) {
+                    chainBonus = 2
+                } else if (chainBonus <= 2) {
+                    chainBonus = 0;
+                } else {
+                    chainBonus = chainBonus - 2;
+                }
+                CPUupdateChainInfoDisplay();
+                CPUnerfAttackValue();
             }
-            CPUupdateChainInfoDisplay();
-            CPUnerfAttackValue();
             if (currentMissTypeSoundState === 'VALID') {
                 soundManager.playSound('missType');
             }
@@ -343,7 +355,40 @@ function CPUcalcAttackValue(removeWord) {
     if (isWordChain) {
         CPUconnect();
     }
-    else if (playerLastAttackValue - 1 === removeWord.length) {
+    else if (currentKey == "WORDCHAINER" && !isWordChain) {
+        if (playerLastAttackValue - 1 === removeWord.length) {
+            nerfValue = 0;
+            isUpChain = true;
+            if (isDownChain === true) {
+                isdownChain = false;
+                chainBonus = 2;
+            } else if (chainBonus === 0) {
+                chainBonus = 2;
+            } else {
+                chainBonus = chainBonus + 2;
+            }
+        } else if (playerLastAttackValue + 1 === removeWord.length) {
+            nerfValue = 0;
+            isDownChain = true;
+            if (isUpChain === true) {
+                isUpChain = false;
+                chainBonus = 2;
+            } else if (chainBonus === 0) {
+                chainBonus = 2;
+            } else {
+                chainBonus++;
+            }
+        } else {
+            CPUcancelChain();
+            nerfValue = 0;
+        }
+        CPUupdateNerfInfoDisplay();
+        CPUupdateChainInfoDisplay();
+        animateAttackInfo(playerAttackKind, 'MISS', 'attack-miss');
+        playerLastAttackValue = memorizeLastAttackValue;
+        lastChar = normalizeHiragana(removeWord.charAt(removeWord.length - 1));
+        return;
+    } else if (playerLastAttackValue - 1 === removeWord.length) {
         isSameChar = false;
         isUpChain = true;
         CPUupChainAttack();
@@ -372,37 +417,87 @@ function CPUcalcAttackValue(removeWord) {
     lastChar = normalizeHiragana(removeWord.charAt(removeWord.length - 1));
 }
 
-function CPUconnect() {
-    let calculatedAttackVal = playerAttackValue;
-    if (nerfValue !== 0) {
-        calculatedAttackVal = playerAttackValue - nerfValue;
-        if (calculatedAttackVal < 2) {
-            calculatedAttackVal = 0
+function CPUwordCainerAttack(total) {
+    while (total > 0) {
+        let attackValue;
+        if (selectedCategory !== "ENGLISH") {
+            attackValue = Math.floor(Math.random() * 9) + 2;
+            if (total - attackValue < 2) {
+                attackValue = Math.max(2, total - 2);
+            } else if (attackValue > total) {
+                attackValue = total;
+            }
+        } else {
+            attackValue = Math.floor(Math.random() * 9) + 4;
+            if (total - attackValue < 4) {
+                attackValue = Math.max(4, total - 4);
+            } else if (attackValue > total) {
+                attackValue = total;
+            }
         }
+        if (attackValue > total) {
+            attackValue = total;
+        }
+        CPUattack(attackValue);
+        total -= attackValue;
     }
-    isUpChain = false;
-    isDownChain = false;
-    isSameChar = false;
-    CPUattack(playerAttackValue);
-    if (chainBonus !== 0) {
+}
+
+function CPUconnect() {
+    if (currentKey == "WORDCHAINER") {
+        let calculatedAttackVal = 20;
+        isUpChain = false;
+        isDownChain = false;
+        isSameChar = false;
+        chainBonus += 5;
+        CPUwordCainerAttack(20);
         if (chainBonus > 10) {
             let toCalcChainBonusAttack = chainBonus;
             while (toCalcChainBonusAttack > 10) {
-                CPUattack(10); // 10を減らす
+                CPUattack(10);
                 toCalcChainBonusAttack -= 10;
             }
             CPUattack(toCalcChainBonusAttack);
-        } else if (chainBonus > 1) {
+        } else {
             CPUattack(chainBonus);
         }
-    }
-    calculatedAttackVal = calculatedAttackVal + chainBonus;
-    if (chainBonus % 10 === 1) {
-        calculatedAttackVal -= 1;
-    }
-    if (calculatedAttackVal > 1) {
-        CPUonAttackShake(calculatedAttackVal);
-        CPUdisplayAttackValue(playerEffectOverlay, calculatedAttackVal);
+        if (calculatedAttackVal > 1) {
+            CPUonAttackShake(calculatedAttackVal);
+            CPUdisplayAttackValue(playerEffectOverlay, calculatedAttackVal);
+        }
+    } else {
+        let calculatedAttackVal = playerAttackValue;
+        if (nerfValue !== 0) {
+            calculatedAttackVal = playerAttackValue - nerfValue;
+            if (calculatedAttackVal < 2) {
+                calculatedAttackVal = 0
+            }
+        }
+        isUpChain = false;
+        isDownChain = false;
+        isSameChar = false;
+        CPUattack(playerAttackValue);
+        if (chainBonus !== 0) {
+            if (chainBonus > 10) {
+                let toCalcChainBonusAttack = chainBonus;
+                while (toCalcChainBonusAttack > 10) {
+                    CPUattack(10);
+                    toCalcChainBonusAttack -= 10;
+                }
+                CPUattack(toCalcChainBonusAttack);
+            } else if (chainBonus > 1) {
+                CPUattack(chainBonus);
+            }
+        }
+        calculatedAttackVal = calculatedAttackVal + chainBonus;
+        if (chainBonus % 10 === 1) {
+            calculatedAttackVal -= 1;
+        }
+        if (calculatedAttackVal > 1) {
+            CPUonAttackShake(calculatedAttackVal);
+            CPUdisplayAttackValue(playerEffectOverlay, calculatedAttackVal);
+
+        }
     }
 }
 
@@ -416,7 +511,11 @@ function CPUupChainAttack() {
     }
     if (isDownChain === true) {
         isDownChain = false;
-        chainBonus = 2;
+        if (currentKey === "MUSCLE") {
+            chainBonus = 0;
+        } else {
+            chainBonus = 2;
+        }
         CPUattack(playerAttackValue);
         CPUattack(chainBonus);
         calculatedAttackVal = calculatedAttackVal + chainBonus;
@@ -425,11 +524,25 @@ function CPUupChainAttack() {
         return;
     }
     if (chainBonus === 0) {
-        chainBonus = 2;
+        if (currentKey === "MUSCLE") {
+            chainBonus = 0;
+        } else {
+            chainBonus = 2;
+        }
         CPUattack(playerAttackValue);
         CPUattack(chainBonus);
     } else {
-        chainBonus = chainBonus + 2;
+        if (currentKey === "MUSCLE") {
+            chainBonus = 0;
+        } else if (currentKey === "TECHNICIAN") {
+            chainBonus = chainBonus + 1;
+        } else {
+            if (currentKey === "OPTIMIST") {
+                chainBonus = chainBonus + 3;
+            } else {
+                chainBonus = chainBonus + 2;
+            }
+        }
         if (chainBonus > 10) {
             CPUattack(playerAttackValue);
             let toCalcChainBonusAttack = chainBonus;
@@ -464,7 +577,13 @@ function CPUdownChainAttack() {
     }
     if (isUpChain === true) {
         isUpChain = false;
-        chainBonus = 2;
+        if (currentKey === "MUSCLE") {
+            chainBonus = 0;
+        } else if (currentKey === "DEFENCER") {
+            chainBonus = 0;
+        } else {
+            chainBonus = 2;
+        }
         CPUattack(playerAttackValue);
         CPUattack(chainBonus);
         calculatedAttackVal = calculatedAttackVal + chainBonus;
@@ -473,11 +592,27 @@ function CPUdownChainAttack() {
         return;
     }
     if (chainBonus === 0) {
-        chainBonus = 2;
+        if (currentKey === "MUSCLE") {
+            chainBonus = 0;
+        } else if (currentKey === "DEFENCER") {
+            chainBonus = 0;
+        } else {
+            chainBonus = 2;
+        }
         CPUattack(playerAttackValue);
         CPUattack(chainBonus);
     } else {
-        chainBonus++;
+        if (currentKey === "MUSCLE") {
+            chainBonus = 0;
+        } else if (currentKey === "DEFENCER") {
+            chainBonus = chainBonus;
+        } else {
+            if (currentKey === "OPTIMIST") {
+                chainBonus = chainBonus + 2;
+            } else {
+                chainBonus++;
+            }
+        }
         if (chainBonus > 10) {
             CPUattack(playerAttackValue);
             let toCalcChainBonusAttack = chainBonus;
@@ -510,9 +645,15 @@ function CPUsameCharAttack() {
             calculatedAttackVal = 0
         }
     }
-    calculatedAttackVal = calculatedAttackVal + playerAttackValue + chainBonus * 2;
-    playerAttackValue = playerAttackValue * 2 + chainBonus * 2
-    chainBonus = 0;
+    if (currentKey === "MUSCLE") {
+        chainBonus += 1;
+        calculatedAttackVal = calculatedAttackVal + playerAttackValue + playerAttackValue + chainBonus * 3;
+        playerAttackValue = playerAttackValue * 3 + chainBonus * 3
+    } else {
+        calculatedAttackVal = calculatedAttackVal + playerAttackValue + chainBonus * 2;
+        playerAttackValue = playerAttackValue * 2 + chainBonus * 2
+        chainBonus = 0;
+    }
     if (playerAttackValue > 10) {
         while (playerAttackValue > 10) {
             CPUattack(10);
@@ -533,7 +674,87 @@ function CPUsameCharAttack() {
     CPUdisplayAttackValue(playerEffectOverlay, calculatedAttackVal);
 }
 
-function CPUattack(attackValue) {
+function getBetterRandom() {
+    const array = new Uint32Array(1);
+    crypto.getRandomValues(array);
+    return array[0] / 0xFFFFFFFF;
+}
+
+let attackWord = "××××××××××";
+
+function CPUtechnicianAttack() {
+    opponentFieldWords.push(attackWord);
+    opponentFieldWords.sort((a, b) => {
+        if (a === attackWord && b !== attackWord) return -1;
+        if (b === attackWord && a !== attackWord) return 1;
+        return b.length - a.length;
+    });
+    clearField(opponentField);
+    let row = FIELD_HEIGHT - 1; // 下から配置
+    for (const word of opponentFieldWords) {
+        let col = 0; // 左端から配置
+        for (const char of word) {
+            if (col >= FIELD_WIDTH) {
+                row--; // 次の行に移動
+                col = 0;
+            }
+            if (row === 0) {
+                opponentField[row][col] = { word: char, isHighlighted: false };
+                col++;
+            } else if (row < 0) {
+                if (gameState === 'ended') return;
+                CPUdrawField(ctxOpponent, opponentField, opponentMemorizeLastAttackValue);
+                CPUopponentHandleGameOver(true);
+                return;
+
+            } else {
+                opponentField[row][col] = { word: char, isHighlighted: false };
+                col++;
+            }
+        }
+        row--;
+    }
+    CPUdrawField(ctxOpponent, opponentField, opponentMemorizeLastAttackValue);
+}
+
+let isMiss = false;
+
+function CPUattack(attackValue, isRecursive = false) {
+    isMiss = false;
+    if (currentKey === "MUSCLE" && !isSameChar) {
+        isMiss = true;
+        nerfValue = 0;
+        CPUupdateNerfInfoDisplay();
+        animateAttackInfo(playerAttackKind, 'MISS', 'attack-miss');
+        CPUupdateChainInfoDisplay();
+        CPUdrawStatusField(ctxOpponentStatus, false);
+        CPUdrawStatusField(ctxPlayerStatus, true);
+        return;
+    }
+    if (currentKey === "OPTIMIST") {
+        if (attackValue >= 6) {
+            let halfValue = attackValue / 2;
+            attackValue = (getBetterRandom() < 0.5) ? Math.floor(halfValue) : Math.ceil(halfValue);
+        }
+    }
+    if (currentKey === "GAMBLER") {
+        if (!isRecursive) {
+            const random = getBetterRandom();
+            if (random < 0.50) {
+                isMiss = true;
+                animateAttackInfo(playerAttackKind, 'MISS', 'attack-miss');
+                CPUupdateChainInfoDisplay();
+                CPUdrawStatusField(ctxOpponentStatus, false);
+                CPUdrawStatusField(ctxPlayerStatus, true);
+                return;
+            } else if (random < 0.9) {
+                CPUattack(attackValue, true);
+            } else {
+                CPUattack(attackValue, true);
+                CPUattack(attackValue, true);
+            }
+        }
+    }
     if (selectedCategory === "ENGLISH") {
         if (attackValue <= 3 || attackValue >= 11) return;
         if (nerfValue !== 0) {
@@ -574,7 +795,6 @@ function CPUattack(attackValue) {
         }
         CPUupdateNerfInfoDisplay();
     } else {
-
         // console.log(playerAttackValueToOffset);
         // console.log(playerReceiveValueToOffset);
 
@@ -654,6 +874,12 @@ function CPUupdateAttackInfoDisplay() {
 }
 
 function CPUupdateChainInfoDisplay() {
+    if (currentKey == "TECHNICIAN") {
+        if (chainBonus >= 5) {
+            chainBonus = chainBonus - 5;
+            CPUtechnicianAttack();
+        }
+    }
     if (chainBonus !== 0) {
         chainBonusColor = "rgb(0, 255, 0)";
         if (isUpChain) {
