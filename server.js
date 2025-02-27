@@ -205,6 +205,19 @@ io.on('connection', (socket) => {
   });
 
 
+  socket.on('syncStyleName', (currentKey) => {
+    const room = Array.from(socket.rooms)[1];
+    if (room) {
+      const gameRoom = rooms.get(room);
+      if (gameRoom) {
+        const targetSocket = socket.id === gameRoom.player1.id ? gameRoom.player2 : gameRoom.player1;
+        targetSocket.emit('updateStyleName', {
+          currentKey: currentKey
+        });
+      }
+    }
+  });
+
   socket.on('attack', (data) => {
     const room = Array.from(socket.rooms)[1];
     if (room) {
