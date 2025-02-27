@@ -107,7 +107,7 @@ io.on('connection', (socket) => {
           player2Field: [],
         }
       });
-      console.log( room + 'で' + waitingPlayer.id + 'と' + socket.id + "が試合開始");
+      console.log(room + 'で' + waitingPlayer.id + 'と' + socket.id + "が試合開始");
       waitingPlayer = null;
     }
   });
@@ -146,7 +146,7 @@ io.on('connection', (socket) => {
             player2Field: [],
           }
         });
-        console.log( roomNumber + ' で ' + waitingSocket.id + ' と ' + socket.id + " が試合開始");
+        console.log(roomNumber + ' で ' + waitingSocket.id + ' と ' + socket.id + " が試合開始");
         roomMatches.delete(roomNumber);
       } else {
         socket.emit('invalidRoom');
@@ -193,7 +193,18 @@ io.on('connection', (socket) => {
 
   // }
 
-  // 攻撃イベントの処理を追加
+  socket.on('syncTechnicianAttack', () => {
+    const room = Array.from(socket.rooms)[1];
+    if (room) {
+      const gameRoom = rooms.get(room);
+      if (gameRoom) {
+        const targetSocket = socket.id === gameRoom.player1.id ? gameRoom.player2 : gameRoom.player1;
+        targetSocket.emit('receiveTechnicianAttack');
+      }
+    }
+  });
+
+
   socket.on('attack', (data) => {
     const room = Array.from(socket.rooms)[1];
     if (room) {
