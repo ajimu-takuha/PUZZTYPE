@@ -651,7 +651,7 @@ function CPUsameCharAttack() {
         calculatedAttackVal = calculatedAttackVal + playerAttackValue + chainBonus * 2;
         playerAttackValue = playerAttackValue * 2 + chainBonus * 2
         chainBonus = 0;
-        if (currentKey === "TECHNICIAN" && playerAttackValue >= 20) {
+        if (currentKey === "TECHNICIAN" && calculatedAttackVal >= 20) {
             calculatedAttackVal = calculatedAttackVal - 20;
             playerAttackValue = playerAttackValue - 20;
             CPUtechnicianAttack();
@@ -741,16 +741,40 @@ function CPUattack(attackValue, isRecursive = false) {
         }
     }
     if (currentKey === "GAMBLER") {
+
         if (!isRecursive) {
             const random = getBetterRandom();
-            if (random < 0.50) {
+            if (random < 0.25) {
+                if (nerfValue !== 0) {
+                    attackValue = attackValue - nerfValue;
+                    if (attackValue >= 2) {
+                        playerReceiveValueToOffset.push(attackValue);
+                        playerReceiveValueToDisplay = [...playerReceiveValueToOffset];
+                        playerReceiveValueToDisplay.sort((a, b) => a - b);
+                        CPUdrawStatusField(ctxPlayerStatus, true);
+                        soundManager.playSound('receiveAttack', { volume: 0.5 });
+                        nerfValue = 0;
+                    }
+                }
+
                 isMiss = true;
+                CPUupdateNerfInfoDisplay();
                 animateAttackInfo(playerAttackKind, 'MISS', 'attack-miss');
                 CPUupdateChainInfoDisplay();
                 CPUdrawStatusField(ctxOpponentStatus, false);
                 CPUdrawStatusField(ctxPlayerStatus, true);
                 return;
-            } else if (random < 0.9) {
+            }
+            else if (random < 0.50) {
+                isMiss = true;
+                nerfValue = 0;
+                CPUupdateNerfInfoDisplay();
+                animateAttackInfo(playerAttackKind, 'MISS', 'attack-miss');
+                CPUupdateChainInfoDisplay();
+                CPUdrawStatusField(ctxOpponentStatus, false);
+                CPUdrawStatusField(ctxPlayerStatus, true);
+                return;
+            } else if (random < 0.75) {
                 CPUattack(attackValue, true);
             } else {
                 CPUattack(attackValue, true);

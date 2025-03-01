@@ -216,13 +216,13 @@ document.addEventListener('DOMContentLoaded', () => {
         　対戦時はフィールド横に現在のスタイルが表示されます<br>
         <span style="text-shadow:0px 0px 1px rgba(100, 255, 150, 1),1px 1px 0 rgba(100, 255, 150, 1),-1px 1px 0 rgba(100, 255, 150, 1),-1px -1px 0 rgba(100, 255, 150, 1),1px -1px 0 rgba(100, 255, 150, 1); color: rgb(0, 0, 0);">
         MUSCLE</span><br>
-        　<span style="color: rgb(255, 255, 255);">DOUBLE ATTACK</span>
+        　・<span style="color: rgb(255, 255, 255);">DOUBLE ATTACK</span>
         の威力が2倍から3倍になり、
         <span style="color: rgb(255, 255, 255);">DOUBLE ATTACK</span>
         によって
         <span style="color: rgba(255, 200, 50, 0.9);">CHAINBONUS</span>
         が1増えます<br>
-        　<span style="color: rgb(255, 255, 255);">DOUBLE ATTACK</span>
+        　・<span style="color: rgb(255, 255, 255);">DOUBLE ATTACK</span>
         以外で攻撃できず、
         <span style="color: rgb(0, 255, 255);">UPCHAIN</span>
         /
@@ -230,22 +230,22 @@ document.addEventListener('DOMContentLoaded', () => {
         で
         <span style="color: rgba(255, 200, 50, 0.9);">CHAINBONUS</span>
         が0になります<br>
-        　<span style="color: rgb(0, 255, 0);">CONNECT</span><br>
+        　・<span style="color: rgb(0, 255, 0);">CONNECT</span>
         によって
         <span style="color: rgba(255, 200, 50, 0.9);">CHAINBONUS</span>
-        を引き継げます
+        を引き継げます<br>
         <span style="text-shadow:0px 0px 1px rgba(100, 255, 150, 1),1px 1px 0 rgba(100, 255, 150, 1),-1px 1px 0 rgba(100, 255, 150, 1),-1px -1px 0 rgba(100, 255, 150, 1),1px -1px 0 rgba(100, 255, 150, 1); color: rgb(0, 0, 0);">
         DEFENCER</span><br>
-        　相殺時に同じ攻撃力がある場合は1回の攻撃で3回まで相殺します<br>
-        　<span style="color: rgb(255, 0, 255);">DOWNCHAIN</span>
+        　・相殺時に同じ攻撃力がある場合は1回の攻撃で3回まで相殺します<br>
+        　・<span style="color: rgb(255, 0, 255);">DOWNCHAIN</span>
         による
         <span style="color: rgba(255, 200, 50, 0.9);">CHAINBONUS</span>
         の増加ができません<br>
         <span style="text-shadow:0px 0px 1px rgba(100, 255, 150, 1),1px 1px 0 rgba(100, 255, 150, 1),-1px 1px 0 rgba(100, 255, 150, 1),-1px -1px 0 rgba(100, 255, 150, 1),1px -1px 0 rgba(100, 255, 150, 1); color: rgb(0, 0, 0);">
         TECHNICIAN</span><br>
-        　<span style="color: rgba(255, 200, 50, 0.9);">CHAINBONUS</span>
-        が5になると自動的に消費して相手フィールドに消せないラインが送られます<br>
-        　攻撃力が20以上になった場合も攻撃力を20減らして相手フィールドに消せないラインが送られます<br>
+        　・<span style="color: rgba(255, 200, 50, 0.9);">CHAINBONUS</span>
+        が5以上になると自動的に消費して相手フィールドに消せないラインが送られます<br>
+        　・攻撃力20以上の攻撃を行った場合も、攻撃力を20消費して相手フィールドに消せないラインが送られます<br>
       </div>
       `
     },
@@ -255,41 +255,42 @@ document.addEventListener('DOMContentLoaded', () => {
       <div style="font-size:1.2vw; line-height:4.2vh;">
         <span style="text-shadow:0px 0px 1px rgba(100, 255, 150, 1),1px 1px 0 rgba(100, 255, 150, 1),-1px 1px 0 rgba(100, 255, 150, 1),-1px -1px 0 rgba(100, 255, 150, 1),1px -1px 0 rgba(100, 255, 150, 1); color: rgb(0, 0, 0);">
         GAMBLER</span><br>
-        　攻撃が50%の確率で
-        <span style="color:rgba(180, 200, 255, 0.8);">MISS</span>
-        となり、40%の確率で2回、10%の確率で3回攻撃します<br>
+        　・攻撃が各25%の確率で 
+        自分に攻撃 / 
+        MISS
+        / 2回攻撃 / 3回攻撃 に変化します<br>
         <span style="text-shadow:0px 0px 1px rgba(100, 255, 150, 1),1px 1px 0 rgba(100, 255, 150, 1),-1px 1px 0 rgba(100, 255, 150, 1),-1px -1px 0 rgba(100, 255, 150, 1),1px -1px 0 rgba(100, 255, 150, 1); color: rgb(0, 0, 0);">
         OPTIMIST</span><br>
-        　ミスタイプによる
+        　・ミスタイプによる
         <span style="color:rgba(180, 200, 255, 0.8);">Nerf</span>
         値の増加 / 
         <span style="color: rgba(255, 200, 50, 0.9);">CHAINBONUS</span>
         減少が起こりません<br>
-        　2回目以降の        
+        　・2回目以降の        
         <span style="color: rgb(0, 255, 255);">UPCHAIN</span>
         /
         <span style="color: rgb(255, 0, 255);">DOWNCHAIN</span>
         による
         <span style="color: rgba(255, 200, 50, 0.9);">CHAINBONUS</span>
-        が1増えます<br>
-        　6以上の攻撃力が半分になり、少数になる場合は50%で切り上げもしくは切り下げの攻撃力になります<br>
+        が通常より1増えます<br>
+        　・6以上の攻撃力が半分になり、少数になる場合は50%で切り上げもしくは切り下げの攻撃力になります<br>
         <span style="text-shadow:0px 0px 1px rgba(100, 255, 150, 1),1px 1px 0 rgba(100, 255, 150, 1),-1px 1px 0 rgba(100, 255, 150, 1),-1px -1px 0 rgba(100, 255, 150, 1),1px -1px 0 rgba(100, 255, 150, 1); color: rgb(0, 0, 0);">
         WORDCHAINER</span><br>
-        　<span style="color: rgb(0, 255, 0);">CONNECT</span>
+        　・<span style="color: rgb(0, 255, 0);">CONNECT</span>
         は
         <span style="color: rgba(255, 200, 50, 0.9);">CHAINBONUS</span>
         を5増加させたあとに<br>
-        　攻撃力20をランダムに振り分けた攻撃と、
+        　・攻撃力20をランダムに振り分けた攻撃と、
         <span style="color: rgba(255, 200, 50, 0.9);">CHAINBONUS</span>
         による攻撃を行います<br>
-        　ミスタイプによる
+        　・ミスタイプによる
         <span style="color:rgba(180, 200, 255, 0.8);">Nerf</span>
         値の増加 /
         <span style="color: rgba(255, 200, 50, 0.9);">CHAINBONUS</span>
         の減少が起こらず、
         <span style="color: rgb(0, 255, 0);">CONNECT</span>
         以外で攻撃できません<br>
-        　<span style="color: rgb(0, 255, 255);">UPCHAIN</span>
+        　・<span style="color: rgb(0, 255, 255);">UPCHAIN</span>
         /
         <span style="color: rgb(255, 0, 255);">DOWNCHAIN</span>
         による
@@ -573,8 +574,7 @@ document.addEventListener('DOMContentLoaded', () => {
         このゲームの機能等について要望があればコメントください<br><br>
         <div style="font-size:0.8vw; line-height:2vh;">
         P.S.　 デバッグのために対戦してくれた merishiaru ありがとう!<br>
-        P.P.S. せっかくいいキーボードを使ってるのに、配列はそのままという人は、配列にもこだわってみてください<br>
-        　　　既得権益に胡坐をかくQWERTY配列を市場から駆逐しよう! <br>
+        P.P.S. せっかくいいキーボードを使ってる人は配列にもこだわって、既得権益に胡坐をかくQWERTY配列を市場から駆逐しよう!<br>
         　　　( この文やゲームの作成は途中からすべて
         <a href="https://o24.works/layout" target="_blank">大西配列</a>
         を使って記述してます )
@@ -837,10 +837,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   fontRight.textContent = currentfontState;
   fontButton.addEventListener('click', toggleFontState);
-  
+
   gridHorizonRight.textContent = currentGridHorizonState;
   gridHorizonButton.addEventListener('click', toggleGridHorizonState);
-  
+
   gridVerticalRight.textContent = currentGridVerticalState;
   gridVerticalButton.addEventListener('click', toggleGridVerticalState);
 
@@ -939,7 +939,7 @@ let styles = {
   'MUSCLE': "DBL-ATK ×1.5 & BONUS +1 / ONLY DBL-ATK",
   'DEFENCER': "OFFSET ×3 / D-BONUS 0",
   'TECHNICIAN': "OBSTRUCT USING 5 BONUS / 20 ATK",
-  'GAMBLER': "ATK 50% MISS / 40% ×2 / 10% ×3",
+  'GAMBLER': "ATK 25% -> SELF-ATK / MISS / ×2 / ×3",
   'OPTIMIST': "BONUS+1 / NO MISS PENALTY / HALF ATK",
   'WORDCHAINER': "CONNECT ONLY ATK 20 & BONUS +5",
 };
@@ -2635,13 +2635,13 @@ window.addEventListener('resize', () => {
 
 // グリッドを描画する関数
 function drawGrid(ctx) {
-  if(currentGridHorizonState === 'INVALID'  && currentGridVerticalState === 'INVALID') {
+  if (currentGridHorizonState === 'INVALID' && currentGridVerticalState === 'INVALID') {
     return;
   }
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
   ctx.lineWidth = 1;
 
-  if(currentGridHorizonState === 'VALID') {
+  if (currentGridHorizonState === 'VALID') {
     // 水平線を描画
     for (let y = 0; y <= FIELD_HEIGHT; y++) {
       ctx.beginPath();
@@ -2651,7 +2651,7 @@ function drawGrid(ctx) {
     }
   }
 
-  if(currentGridVerticalState === 'VALID') {
+  if (currentGridVerticalState === 'VALID') {
     // 垂直線を描画
     for (let x = 0; x <= FIELD_WIDTH; x++) {
       ctx.beginPath();
@@ -3405,7 +3405,7 @@ function calcAttackValue(removeWord) {
         chainBonus++;
       }
     } else {
-      CPUcancelChain();
+      cancelChain();
       nerfValue = 0;
     }
     updateNerfInfoDisplay();
@@ -3629,7 +3629,32 @@ function attack(attackValue) {
   if (currentKey == "GAMBLER") {
     if (!isRecursive) {
       const random = getBetterRandom();
-      if (random < 0.5) {
+      if (random < 0.25) {
+        if (nerfValue !== 0) {
+          attackValue = attackValue - nerfValue;
+          if (attackValue >= 2) {
+            playerReceiveValueToOffset.push(attackValue);
+            playerReceiveValueToDisplay = [...playerReceiveValueToOffset];
+            playerReceiveValueToDisplay.sort((a, b) => a - b);
+            drawStatusField(ctxPlayerStatus, true);
+            soundManager.playSound('receiveAttack', { volume: 0.5 });
+            nerfValue = 0;
+          }
+        }
+
+        isMiss = true;
+        updateNerfInfoDisplay();
+        animateAttackInfo(playerAttackKind, 'MISS', 'attack-miss');
+        updateChainInfoDisplay();
+        drawStatusField(ctxOpponentStatus, false);
+        drawStatusField(ctxPlayerStatus, true);
+        socket.emit('sendAttackInfo', {
+          attackType: 'MISS',
+          chainBonus: playerChainBonus,
+        });
+        return;
+      }
+      else if (random < 0.5) {
         isMiss = true;
         nerfValue = 0;
         updateNerfInfoDisplay();
@@ -3642,11 +3667,11 @@ function attack(attackValue) {
           chainBonus: playerChainBonus,
         });
         return;
-      } else if (random < 0.9) {
-        CPUattack(attackValue, true);
+      } else if (random < 0.75) {
+        attack(attackValue, true);
       } else {
-        CPUattack(attackValue, true);
-        CPUattack(attackValue, true);
+        attack(attackValue, true);
+        attack(attackValue, true);
       }
     }
   }
@@ -3657,8 +3682,8 @@ function attack(attackValue) {
       let nerfAttackValue = attackValue - nerfValue;
       if (nerfAttackValue < 2) {
         nerfValue = 0;
-        CPUupdateNerfInfoDisplay();
-        CPUupdateAttackInfoDisplay();
+        updateNerfInfoDisplay();
+        updateAttackInfoDisplay();
         return;
       }
     }
@@ -4178,10 +4203,10 @@ function sameCharAttack() {
     calculatedAttackVal = calculatedAttackVal + playerAttackValue + chainBonus * 2;
     playerAttackValue = playerAttackValue * 2 + chainBonus * 2
     chainBonus = 0;
-    if (currentKey === "TECHNICIAN" && playerAttackValue >= 20) {
-        calculatedAttackVal = calculatedAttackVal - 20;
-        playerAttackValue = playerAttackValue - 20;
-        technicianAttack();
+    if (currentKey === "TECHNICIAN" && calculatedAttackVal >= 20) {
+      calculatedAttackVal = calculatedAttackVal - 20;
+      playerAttackValue = playerAttackValue - 20;
+      technicianAttack();
     }
   }
 
