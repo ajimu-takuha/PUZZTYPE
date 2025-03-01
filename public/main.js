@@ -245,11 +245,7 @@ document.addEventListener('DOMContentLoaded', () => {
         TECHNICIAN</span><br>
         　<span style="color: rgba(255, 200, 50, 0.9);">CHAINBONUS</span>
         が5になると自動的に消費して相手フィールドに消せないラインが送られます<br>
-        　2回目以降の
-        <span style="color: rgb(0, 255, 255);">UPCHAIN</span>
-        による
-        <span style="color: rgba(255, 200, 50, 0.9);">CHAINBONUS</span>
-        の増加が1になります<br>
+        　攻撃力が20以上になった場合も攻撃力を20減らして相手フィールドに消せないラインが送られます<br>
       </div>
       `
     },
@@ -814,6 +810,8 @@ document.addEventListener('DOMContentLoaded', () => {
     : 0;
   currentKey = styleKeys[currentIndexState];
   currentfontState = localStorage.getItem('fontState') || 'せのびゴシック';
+  currentGridHorizonState = localStorage.getItem('gridHorizonState') || 'VALID';
+  currentGridVerticalState = localStorage.getItem('gridVerticalState') || 'VALID';
   document.documentElement.style.setProperty("--font-family-next", currentfontState);
   currentBGMState = localStorage.getItem('BGMState') || 'Consecutive Battle';
   currentTypeSoundState = localStorage.getItem('TypeSoundState') || 'type1';
@@ -839,6 +837,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   fontRight.textContent = currentfontState;
   fontButton.addEventListener('click', toggleFontState);
+  
+  gridHorizonRight.textContent = currentGridHorizonState;
+  gridHorizonButton.addEventListener('click', toggleGridHorizonState);
+  
+  gridVerticalRight.textContent = currentGridVerticalState;
+  gridVerticalButton.addEventListener('click', toggleGridVerticalState);
 
   // BGMLeft.textContent = 'BGM :';
   BGMRight.textContent = currentBGMState;
@@ -934,7 +938,7 @@ let styles = {
   'NORMAL STYLE': "CLASSIC ABILITY",
   'MUSCLE': "DBL-ATK ×1.5 & BONUS +1 / ONLY DBL-ATK",
   'DEFENCER': "OFFSET ×3 / D-BONUS 0",
-  'TECHNICIAN': "OBSTRUCT USING 5 BONUS / U-BONUS 1",
+  'TECHNICIAN': "OBSTRUCT USING 5 BONUS / 20 ATK",
   'GAMBLER': "ATK 50% MISS / 40% ×2 / 10% ×3",
   'OPTIMIST': "BONUS+1 / NO MISS PENALTY / HALF ATK",
   'WORDCHAINER': "CONNECT ONLY ATK 20 & BONUS +5",
@@ -1026,6 +1030,32 @@ function toggleFontState() {
   document.documentElement.style.setProperty("--font-family-next", currentfontState);
   fontRight.textContent = currentfontState;
   return currentfontState;
+}
+
+const gridHorizonRight = document.getElementById('gridHorizonRight');
+const gridHorizonButton = document.querySelector('.configButtons.gridHorizon');
+
+function toggleGridHorizonState() {
+  if (currentGridHorizonState === 'VALID') {
+    currentGridHorizonState = 'INVALID'
+  } else {
+    currentGridHorizonState = 'VALID'
+  }
+  localStorage.setItem('gridHorizonState', currentGridHorizonState);
+  gridHorizonRight.textContent = currentGridHorizonState;
+}
+
+const gridVerticalRight = document.getElementById('gridVerticalRight');
+const gridVerticalButton = document.querySelector('.configButtons.gridVertical');
+
+function toggleGridVerticalState() {
+  if (currentGridVerticalState === 'VALID') {
+    currentGridVerticalState = 'INVALID'
+  } else {
+    currentGridVerticalState = 'VALID'
+  }
+  localStorage.setItem('gridVerticalState', currentGridVerticalState);
+  gridVerticalRight.textContent = currentGridVerticalState;
 }
 
 
@@ -2367,9 +2397,9 @@ function drawField(ctx, field, receivedLastWordLength) {
         rowWord.length === receivedLastWordLength - 1;
 
       if (rowWord == attackWord) {
-        ctx.fillStyle = 'rgba(50, 50, 50)';
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
         ctx.fillRect(0, position, width, height);
-        ctx.strokeStyle = 'rgba(50, 50, 50)';
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
         ctx.lineWidth = 2;
         ctx.strokeRect(0, position, width, height);
 
@@ -2490,16 +2520,6 @@ function drawField(ctx, field, receivedLastWordLength) {
 //   ctx.strokeRect(0, y, width, height);
 // }
 
-function drawGrid(ctx) {
-  ctx.strokeStyle = 'rgba(50, 50, 50)'; // グリッド線の色
-  for (let x = 0; x <= FIELD_WIDTH; x++) {
-    ctx.beginPath();
-    ctx.moveTo(x * CELL_SIZE, 0);
-    ctx.lineTo(x * CELL_SIZE, FIELD_HEIGHT * CELL_SIZE);
-    ctx.stroke();
-  }
-}
-
 
 // キャンバスサイズをリサイズする関数
 function resizeField(canvas) {
@@ -2615,23 +2635,30 @@ window.addEventListener('resize', () => {
 
 // グリッドを描画する関数
 function drawGrid(ctx) {
+  if(currentGridHorizonState === 'INVALID'  && currentGridVerticalState === 'INVALID') {
+    return;
+  }
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
   ctx.lineWidth = 1;
 
-  // 水平線を描画
-  for (let y = 0; y <= FIELD_HEIGHT; y++) {
-    ctx.beginPath();
-    ctx.moveTo(0, y * CELL_SIZE);
-    ctx.lineTo(FIELD_WIDTH * CELL_SIZE, y * CELL_SIZE);
-    ctx.stroke();
+  if(currentGridHorizonState === 'VALID') {
+    // 水平線を描画
+    for (let y = 0; y <= FIELD_HEIGHT; y++) {
+      ctx.beginPath();
+      ctx.moveTo(0, y * CELL_SIZE);
+      ctx.lineTo(FIELD_WIDTH * CELL_SIZE, y * CELL_SIZE);
+      ctx.stroke();
+    }
   }
 
-  // 垂直線を描画
-  for (let x = 0; x <= FIELD_WIDTH; x++) {
-    ctx.beginPath();
-    ctx.moveTo(x * CELL_SIZE, 0);
-    ctx.lineTo(x * CELL_SIZE, FIELD_HEIGHT * CELL_SIZE);
-    ctx.stroke();
+  if(currentGridVerticalState === 'VALID') {
+    // 垂直線を描画
+    for (let x = 0; x <= FIELD_WIDTH; x++) {
+      ctx.beginPath();
+      ctx.moveTo(x * CELL_SIZE, 0);
+      ctx.lineTo(x * CELL_SIZE, FIELD_HEIGHT * CELL_SIZE);
+      ctx.stroke();
+    }
   }
 }
 
@@ -2657,7 +2684,6 @@ async function loadWordList() {
 // ゲーム開始
 // 初期化時の処理に追加
 loadWordList().then(() => {
-  // initializeSocket();
 
   resizeField(playerFieldElement);
   resizeField(opponentFieldElement);
@@ -2676,11 +2702,11 @@ loadWordList().then(() => {
 
   ctxPlayer.fillStyle = "rgba(5, 7, 19, 0.7)";
   ctxPlayer.fillRect(0, 0, ctxPlayer.canvas.getBoundingClientRect().width, ctxPlayer.canvas.getBoundingClientRect().height);
-  drawGrid(ctxPlayer);
+  drawField(ctxPlayer);
 
   ctxOpponent.fillStyle = "rgba(5, 7, 19, 0.7)";
   ctxOpponent.fillRect(0, 0, ctxOpponent.canvas.getBoundingClientRect().width, ctxOpponent.canvas.getBoundingClientRect().height);
-  drawGrid(ctxOpponent);
+  drawField(ctxOpponent);
 });
 
 function startGame() {
@@ -4152,6 +4178,11 @@ function sameCharAttack() {
     calculatedAttackVal = calculatedAttackVal + playerAttackValue + chainBonus * 2;
     playerAttackValue = playerAttackValue * 2 + chainBonus * 2
     chainBonus = 0;
+    if (currentKey === "TECHNICIAN" && playerAttackValue >= 20) {
+        calculatedAttackVal = calculatedAttackVal - 20;
+        playerAttackValue = playerAttackValue - 20;
+        technicianAttack();
+    }
   }
 
   if (playerAttackValue > 10) {

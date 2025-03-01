@@ -534,8 +534,6 @@ function CPUupChainAttack() {
     } else {
         if (currentKey === "MUSCLE") {
             chainBonus = 0;
-        } else if (currentKey === "TECHNICIAN") {
-            chainBonus = chainBonus + 1;
         } else {
             if (currentKey === "OPTIMIST") {
                 chainBonus = chainBonus + 3;
@@ -653,6 +651,11 @@ function CPUsameCharAttack() {
         calculatedAttackVal = calculatedAttackVal + playerAttackValue + chainBonus * 2;
         playerAttackValue = playerAttackValue * 2 + chainBonus * 2
         chainBonus = 0;
+        if (currentKey === "TECHNICIAN" && playerAttackValue >= 20) {
+            calculatedAttackVal = calculatedAttackVal - 20;
+            playerAttackValue = playerAttackValue - 20;
+            CPUtechnicianAttack();
+        }
     }
     if (playerAttackValue > 10) {
         while (playerAttackValue > 10) {

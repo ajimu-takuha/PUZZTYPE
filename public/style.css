@@ -562,13 +562,13 @@ body {
 
 #configWrapper.active .configButtons {
   transform: translateY(0);
-  transition-delay: calc(0.1s + (var(--button-index) * 0.05s));
+  transition-delay: calc(0.05s + (var(--button-index) * 0.05s));
 }
 
 /* 非表示時のアニメーション */
 #configWrapper.closing .configButtons {
   transform: translateY(100vh);
-  transition-delay: calc((8 - var(--button-index)) * 0.05s);
+  transition-delay: calc((17 - var(--button-index)) * 0.05s);
 }
 
 #titleWrapper {
