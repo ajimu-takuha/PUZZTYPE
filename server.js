@@ -240,8 +240,7 @@ io.on('connection', (socket) => {
         const targetSocket = socket.id === gameRoom.player1.id
           ? gameRoom.player2
           : gameRoom.player1;
-
-        targetSocket.emit('syncAttackValue', data);
+          targetSocket.emit('receiveAttackValue', data);
       }
     }
   });
