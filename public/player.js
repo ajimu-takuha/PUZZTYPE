@@ -2,7 +2,24 @@
 window.addEventListener("keydown", (e) => {
     if (gameState !== 'CPUmatch') return;
     const key = e.key;
-    if (key.length === 1 && key.match(/\d/)) {
+    if (key === "Escape") {
+        CPUtechnicianAttack();
+        // playerReceiveValueToOffset.push(Math.floor(Math.random() * 9) + 2);
+        // playerReceiveValueToDisplay = [...playerReceiveValueToOffset];
+        // playerReceiveValueToDisplay.sort((a, b) => a - b);
+        // CPUdrawStatusField(ctxPlayerStatus, true);
+        // soundManager.playSound('receiveAttack', { volume: 0.5 });
+        // CPUdrawStatusField(ctxOpponentStatus, false);
+        // CPUdrawStatusField(ctxPlayerStatus, true);
+    }
+
+    if (
+        !(key.length === 1 && key.match(/[a-z]/)) && // a〜z
+        key !== '-' && // ハイフン
+        key !== 'Backspace' && // バックスペース
+        key !== 'Delete' && // デリート
+        key !== ' ' // スペース（空白）
+    ) {
         return;
     }
     if (selectedCategory === "JAPANESE") {
@@ -268,6 +285,7 @@ function CPUupdateFieldAfterReceiveOffset() {
         row--;
     }
     CPUupdateNextDisplay(wordPool);
+    CPUupdateAllNextGradients(wordPool, true);
     CPUhighlightMatchingCells(playerField);
 }
 
@@ -450,6 +468,7 @@ function CPUconnect() {
         isDownChain = false;
         isSameChar = false;
         chainBonus += 5;
+        calculatedAttackVal = calculatedAttackVal + chainBonus;
         CPUwordCainerAttack(20);
         if (chainBonus > 10) {
             let toCalcChainBonusAttack = chainBonus;
@@ -462,6 +481,7 @@ function CPUconnect() {
             CPUattack(chainBonus);
         }
         if (calculatedAttackVal > 1) {
+            6
             CPUonAttackShake(calculatedAttackVal);
             CPUdisplayAttackValue(playerEffectOverlay, calculatedAttackVal);
         }
@@ -514,7 +534,12 @@ function CPUupChainAttack() {
         if (currentKey === "MUSCLE") {
             chainBonus = 0;
         } else {
-            chainBonus = 2;
+            if (currentKey === "GAMBLER") {
+                const bonus = Math.floor(Math.random() * 4);
+                chainBonus = bonus;
+            } else {
+                chainBonus = 2;
+            }
         }
         CPUattack(playerAttackValue);
         CPUattack(chainBonus);
@@ -526,6 +551,9 @@ function CPUupChainAttack() {
     if (chainBonus === 0) {
         if (currentKey === "MUSCLE") {
             chainBonus = 0;
+        } else if (currentKey === "GAMBLER") {
+            const bonus = Math.floor(Math.random() * 4);
+            chainBonus = bonus;
         } else {
             chainBonus = 2;
         }
@@ -534,6 +562,9 @@ function CPUupChainAttack() {
     } else {
         if (currentKey === "MUSCLE") {
             chainBonus = 0;
+        } else if (currentKey === "GAMBLER") {
+            const bonus = Math.floor(Math.random() * 4);
+            chainBonus += bonus;
         } else {
             if (currentKey === "OPTIMIST") {
                 chainBonus = chainBonus + 3;
@@ -577,8 +608,9 @@ function CPUdownChainAttack() {
         isUpChain = false;
         if (currentKey === "MUSCLE") {
             chainBonus = 0;
-        } else if (currentKey === "DEFENCER") {
-            chainBonus = 0;
+        } else if (currentKey === "GAMBLER") {
+            const bonus = Math.floor(Math.random() * 4);
+            chainBonus = bonus;
         } else {
             chainBonus = 2;
         }
@@ -592,8 +624,9 @@ function CPUdownChainAttack() {
     if (chainBonus === 0) {
         if (currentKey === "MUSCLE") {
             chainBonus = 0;
-        } else if (currentKey === "DEFENCER") {
-            chainBonus = 0;
+        } else if (currentKey === "GAMBLER") {
+            const bonus = Math.floor(Math.random() * 4);
+            chainBonus = bonus;
         } else {
             chainBonus = 2;
         }
@@ -602,11 +635,12 @@ function CPUdownChainAttack() {
     } else {
         if (currentKey === "MUSCLE") {
             chainBonus = 0;
-        } else if (currentKey === "DEFENCER") {
-            chainBonus = chainBonus;
+        } else if (currentKey === "GAMBLER") {
+            const bonus = Math.floor(Math.random() * 4);
+            chainBonus += bonus;
         } else {
             if (currentKey === "OPTIMIST") {
-                chainBonus = chainBonus + 2;
+                chainBonus = chainBonus + 3;
             } else {
                 chainBonus++;
             }
@@ -735,37 +769,45 @@ function CPUattack(attackValue, isRecursive = false) {
         return;
     }
     if (currentKey === "OPTIMIST") {
-        if (attackValue >= 6) {
-            let halfValue = attackValue / 2;
-            attackValue = (getBetterRandom() < 0.5) ? Math.floor(halfValue) : Math.ceil(halfValue);
+        // if (attackValue >= 6) {
+        //     let halfValue = attackValue / 2;
+        //     attackValue = (getBetterRandom() < 0.5) ? Math.floor(halfValue) : Math.ceil(halfValue);
+        // }
+        const random = getBetterRandom();
+        console.log(random);
+        if (random < 0.3) {
+            isMiss = true;
+            animateAttackInfo(playerAttackKind, 'MISS', 'attack-miss');
+            CPUupdateChainInfoDisplay();
+            CPUdrawStatusField(ctxOpponentStatus, false);
+            CPUdrawStatusField(ctxPlayerStatus, true);
+            return;
         }
     }
     if (currentKey === "GAMBLER") {
-
         if (!isRecursive) {
             const random = getBetterRandom();
+            if (nerfValue !== 0) {
+                attackValue = attackValue - nerfValue;
+                nerfValue = 0;
+            }
             if (random < 0.25) {
-                if (nerfValue !== 0) {
-                    attackValue = attackValue - nerfValue;
-                    if (attackValue >= 2) {
-                        playerReceiveValueToOffset.push(attackValue);
-                        playerReceiveValueToDisplay = [...playerReceiveValueToOffset];
-                        playerReceiveValueToDisplay.sort((a, b) => a - b);
-                        CPUdrawStatusField(ctxPlayerStatus, true);
-                        soundManager.playSound('receiveAttack', { volume: 0.5 });
-                        nerfValue = 0;
-                    }
+                if (attackValue >= 2) {
+                    playerReceiveValueToOffset.push(attackValue);
+                    playerReceiveValueToDisplay = [...playerReceiveValueToOffset];
+                    playerReceiveValueToDisplay.sort((a, b) => a - b);
+                    CPUdrawStatusField(ctxPlayerStatus, true);
+                    soundManager.playSound('receiveAttack', { volume: 0.5 });
                 }
-
                 isMiss = true;
                 CPUupdateNerfInfoDisplay();
-                animateAttackInfo(playerAttackKind, 'MISS', 'attack-miss');
+                animateAttackInfo(playerAttackKind, 'SELF ATTACK', 'attack-miss');
                 CPUupdateChainInfoDisplay();
                 CPUdrawStatusField(ctxOpponentStatus, false);
                 CPUdrawStatusField(ctxPlayerStatus, true);
                 return;
             }
-            else if (random < 0.50) {
+            else if (random < 0.5) {
                 isMiss = true;
                 nerfValue = 0;
                 CPUupdateNerfInfoDisplay();
@@ -775,10 +817,14 @@ function CPUattack(attackValue, isRecursive = false) {
                 CPUdrawStatusField(ctxPlayerStatus, true);
                 return;
             } else if (random < 0.75) {
-                CPUattack(attackValue, true);
+                if (attackValue >= 2) {
+                    CPUattack(attackValue, true);
+                }
             } else {
-                CPUattack(attackValue, true);
-                CPUattack(attackValue, true);
+                if (attackValue >= 2) {
+                    CPUattack(attackValue, true);
+                    CPUattack(attackValue, true);
+                }
             }
         }
     }
@@ -973,6 +1019,8 @@ function CPUhandleGameOver() {
 
 
 function CPUresetGame() {
+    opponentStyle.textContent = ``;
+
     soundManager.stop('warning');
     lastInputWordLength = 0;
     isWordDecided = false;

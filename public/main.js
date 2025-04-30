@@ -204,12 +204,14 @@ document.addEventListener('DOMContentLoaded', () => {
         <span style="color: rgb(255, 255, 255);">攻撃力2倍</span>
         <span style="font-size:1vw; color: rgb(255, 255, 255);"> -DOUBLE ATTACK </span><br>
         ・単語がフィールドからあふれたら負け<br>
-        <span style="color: rgb(255, 55, 55);">・スタイルを追加 (次ページ参照 / 2/28追記)<br></span>
+        ・スタイルを変更して違ったプレイを楽しもう!
+        　<span style="font-size:1vw; color: rgb(255, 255, 255);">
+        ※オンライン対戦は人がいないのでとりあえずCPUと対戦してみてね!</span><br>
       </div>
       `
     },
     {
-      title: 'スタイル (2/28追記)',
+      title: 'スタイル  -その1',
       content: `
       <div style="font-size:1.2vw; line-height:4.2vh;">
         　CONFIG画面でNORMAL STYLEを押すとプレイヤーのスタイルを変更でき、能力が変わります<br>
@@ -235,12 +237,9 @@ document.addEventListener('DOMContentLoaded', () => {
         <span style="color: rgba(255, 200, 50, 0.9);">CHAINBONUS</span>
         を引き継げます<br>
         <span style="text-shadow:0px 0px 1px rgba(100, 255, 150, 1),1px 1px 0 rgba(100, 255, 150, 1),-1px 1px 0 rgba(100, 255, 150, 1),-1px -1px 0 rgba(100, 255, 150, 1),1px -1px 0 rgba(100, 255, 150, 1); color: rgb(0, 0, 0);">
-        DEFENCER</span><br>
-        　・相殺時に同じ攻撃力がある場合は1回の攻撃で3回まで相殺します<br>
-        　・<span style="color: rgb(255, 0, 255);">DOWNCHAIN</span>
-        による
-        <span style="color: rgba(255, 200, 50, 0.9);">CHAINBONUS</span>
-        の増加ができません<br>
+        REFLECTOR</span><br>
+        　・相殺時に同じ攻撃力がある場合は1回の攻撃で4回まで相殺し、その攻撃力で2回相手を攻撃します<br>
+        　・相手から送られる攻撃がすべて2倍になります<br>
         <span style="text-shadow:0px 0px 1px rgba(100, 255, 150, 1),1px 1px 0 rgba(100, 255, 150, 1),-1px 1px 0 rgba(100, 255, 150, 1),-1px -1px 0 rgba(100, 255, 150, 1),1px -1px 0 rgba(100, 255, 150, 1); color: rgb(0, 0, 0);">
         TECHNICIAN</span><br>
         　・<span style="color: rgba(255, 200, 50, 0.9);">CHAINBONUS</span>
@@ -252,13 +251,19 @@ document.addEventListener('DOMContentLoaded', () => {
     {
       title: 'スタイル -その2',
       content: `
-      <div style="font-size:1.2vw; line-height:4.2vh;">
+      <div style="font-size:1.2vw; line-height:4vh;">
         <span style="text-shadow:0px 0px 1px rgba(100, 255, 150, 1),1px 1px 0 rgba(100, 255, 150, 1),-1px 1px 0 rgba(100, 255, 150, 1),-1px -1px 0 rgba(100, 255, 150, 1),1px -1px 0 rgba(100, 255, 150, 1); color: rgb(0, 0, 0);">
         GAMBLER</span><br>
         　・攻撃が各25%の確率で 
         自分に攻撃 / 
         MISS
         / 2回攻撃 / 3回攻撃 に変化します<br>
+        　・<span style="color: rgb(0, 255, 255);">UPCHAIN</span>
+        /
+        <span style="color: rgb(255, 0, 255);">DOWNCHAIN</span>
+        で
+        <span style="color: rgba(255, 200, 50, 0.9);">CHAINBONUS</span>
+        が0-3のうちランダムに上昇するようになります<br>
         <span style="text-shadow:0px 0px 1px rgba(100, 255, 150, 1),1px 1px 0 rgba(100, 255, 150, 1),-1px 1px 0 rgba(100, 255, 150, 1),-1px -1px 0 rgba(100, 255, 150, 1),1px -1px 0 rgba(100, 255, 150, 1); color: rgb(0, 0, 0);">
         OPTIMIST</span><br>
         　・ミスタイプによる
@@ -272,8 +277,8 @@ document.addEventListener('DOMContentLoaded', () => {
         <span style="color: rgb(255, 0, 255);">DOWNCHAIN</span>
         による
         <span style="color: rgba(255, 200, 50, 0.9);">CHAINBONUS</span>
-        が通常より1増えます<br>
-        　・6以上の攻撃力が半分になり、少数になる場合は50%で切り上げもしくは切り下げの攻撃力になります<br>
+        上昇値が3になります<br>
+        　・30%の確率で攻撃に失敗します<br>
         <span style="text-shadow:0px 0px 1px rgba(100, 255, 150, 1),1px 1px 0 rgba(100, 255, 150, 1),-1px 1px 0 rgba(100, 255, 150, 1),-1px -1px 0 rgba(100, 255, 150, 1),1px -1px 0 rgba(100, 255, 150, 1); color: rgb(0, 0, 0);">
         WORDCHAINER</span><br>
         　・<span style="color: rgb(0, 255, 0);">CONNECT</span>
@@ -297,7 +302,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <span style="color: rgba(255, 200, 50, 0.9);">CHAINBONUS</span>
         の増加はできます<br>
         　<span style="font-size:1vw; color: rgb(255, 255, 255);">
-        ※GAMBLERとOPTIMIST使用時の攻撃力表記は弱体化前のものが表記され、実際の攻撃力ではありません</span><br>
+        ※GAMBLER使用時の攻撃力表記は弱体化前のものが表記され、実際の攻撃力ではありません</span><br>
         
       </div>
       `
@@ -309,10 +314,11 @@ document.addEventListener('DOMContentLoaded', () => {
         　・CPU MATCH ボタンからCPUと対戦ができます<br>
         　・対戦中に QUIT MATCH を押すとCPU対戦を中止します<br>
         　・各レベルで以下のCPUステータスが変わり、スライダーで自由に変更できます<br>
-        　---INPUT RATE &nbsp-&nbsp CPUの1秒間の入力文字数( 文字 )<br>
-        　---MISS&nbsp&nbsp&nbsp&nbspRATE &nbsp-&nbsp CPUのミス率( % )<br>
-        　---MISS&nbsp&nbsp&nbsp&nbspWAIT &nbsp-&nbsp CPUのミス時の待機時間( 秒 )<br>
-        　CONFIG画面からINTERVALを変更すると、単語の追加秒数を変更できます<br>
+        　--- INPUT&nbsp&nbsp RATE &nbsp-&nbsp CPUの1秒間の入力文字数 ( 文字 )<br>
+        　--- MISS&nbsp&nbsp&nbsp&nbsp&nbsp&nbspRATE &nbsp-&nbsp CPUの入力時におけるミス率 ( % )<br>
+        　--- MISS&nbsp&nbsp&nbsp&nbsp&nbsp&nbspWAIT &nbsp-&nbsp CPUのミス時の待機時間 ( 秒 )<br>
+        　--- SELECT&nbspWAIT &nbsp-&nbsp CPUが新たに入力する単語を選択するまでの時間 ( 秒 )<br>
+        　CONFIG画面からINTERVALを変更すると、時間経過による単語の追加の秒数を変更できます<br>
 
       </div>
       `
@@ -428,7 +434,7 @@ document.addEventListener('DOMContentLoaded', () => {
         値だけ減少させ、攻撃力が1以下になると相手に攻撃を送らなくなります<br>
         ・
         <span style="color: rgba(255, 200, 50, 0.9);">CHAINBONUS</span>
-        があった場合は2減少し、3の場合は2になります<br>
+        があった場合は2減少し、CHAINBONUSが3の場合は2になります<br>
         ・
         <span style="color:rgba(180, 200, 255, 0.8);">Nerf</span>
         値は次の攻撃後に攻撃力を問わずリセットされます<br>
@@ -445,7 +451,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ・よってフィールドに「たいぷ」とあり、「たいぱ」のように入力した場合、
         <span style="color:rgba(180, 200, 255, 0.8);">Nerf</span>
         されます<br>
-        ・しかし「eたいぺ」/「たいpf」/「たいpぱ」のように入力した場合は
+        ・しかし「tたいぺ」/「たいpf」/「たいpぱ」のように入力した場合は
         <span style="color:rgba(180, 200, 255, 0.8);">Nerf</span>
         されません<br>
         ・「たいぱぱ」と入力したあと、BackSpaceキーを入力して「たいぱ」となった場合も
@@ -461,7 +467,7 @@ document.addEventListener('DOMContentLoaded', () => {
       `
     },
     {
-      title: '英語モードについて (2/26追記)',
+      title: '英語モード',
       content: `
       <div style="font-size:1.2vw; line-height:4vh;">
         ・CONFIGからMODEをENGLISHにできます (以下、英語モードとします)<br>
@@ -470,9 +476,9 @@ document.addEventListener('DOMContentLoaded', () => {
         ・攻撃相殺後、4未満になった自分の攻撃は消えます<br>
         ・英語モードでは、相手のモードにかかわらず、受ける攻撃力に+2されます<br>
         ・英語モードでは、相手のモードにかかわらず、与える攻撃力が-2されます<br>
-        ・つまり、英語モード同士の対戦では通常の攻撃になります<br>
-        ・そして、日本語モード相手では難しくなります<br>
+        ・つまり、英語モード同士の対戦では通常の攻撃になり、日本語モード相手では難しくなります<br>
         ・これは英語の方が入力量が少なく済み、かつCONNECTしやすいためこのような仕様にしています<br>
+        ・スタイル「WORDCHAINER」は英語モードでの仕様を前提としています<br>
         ・CPUは自分の入力モードと同じモードになります<br>
         ・ほかの仕様は日本語モードと同じです<br>
       </div>
@@ -530,13 +536,13 @@ document.addEventListener('DOMContentLoaded', () => {
         システムに関しては、先にCPUを作って対戦の調整をすべきだったのを後悔してます...<br>
         出題単語は8割趣味で一般性を欠きますが、「タイピングはプロパガンダにピッタリ」という
         <a href="https://taisoku.com" target="_blank">某タイピングゲーム</a>
-        の例題に影響を受け<br>
+        の例文に影響され、<br>
         よくわからない単語でも、ふと現実で見つけるのを期待してマニアックにしています<br>
-        作者は
+        自分は
         <a href="https://sushida.net/play.html" target="_blank">寿司打</a>
         2万円/ 
         <a href="https://mikatype.github.io/MIKATYPE_JAVASCRIPT/index2.html" target="_blank">MIKATYPE</a>
-        300文字がやっとのタイパーであり、上手い人はLV10のCPUに勝てるのか気になります<br>
+        300文字がやっとのタイパーなので、上手い人ならLV10のCPUに勝てるのか気になります<br>
         <br>
       </div>
       `
@@ -562,15 +568,15 @@ document.addEventListener('DOMContentLoaded', () => {
         <a href="https://tetr.io" target="_blank">TETR.IO</a>
         は無料で遊べますが、ゲームの才能ないのでプレイしてません...<br><br>
         フォントについて、日本語の丸みがパズル的でないため選ぶのが大変でした...<br>
-        ここの文章でも使っているフォントの制作者が
+        この文章に使っているフォントの制作者が
         <a href="https://moji-waku.com/kenq/index.html" target="_blank">どういうことを考えてフォントを作っているのか</a>
         がとても面白かったです<br><br>
         それと、BGM作曲者watson氏が音楽を担当するフリーゲーム
         <a href="https://katatema.main.jp/mu" target="_blank">ムラサキ</a>
         、みんなもプレイしよう! ( Steamでも販売中! )<br>
-        ついでに、
+        自分は以前
         <a href="https://plicy.net/GamePlay/175820" target="_blank">10パズル</a>
-        というゲームを以前作っているので計算が好きなら遊んでみてください<br><br>
+        というゲームを作っているので、計算が好きなら遊んでみてください<br><br>
         このゲームの機能等について要望があればコメントください<br><br>
         <div style="font-size:0.8vw; line-height:2vh;">
         P.S.　 デバッグのために対戦してくれた merishiaru ありがとう!<br>
@@ -586,7 +592,7 @@ document.addEventListener('DOMContentLoaded', () => {
       content: `
       <div style="font-size:0.75vw; line-height:2vh;">   
       BGM　:      
-      <a href="https://musmus.main.jp/" target="_blank"> MusMus (waston)</a><br>
+      <a href="https://musmus.main.jp/" target="_blank"> MusMus (watson)</a><br>
       FONT :
       <a href="https://modi.jpn.org/font_senobi.php" target="_blank">せのびゴシック</a>
       /
@@ -937,10 +943,10 @@ const opponentStyle = document.getElementById('opponentStyle');
 let styles = {
   'NORMAL STYLE': "CLASSIC ABILITY",
   'MUSCLE': "DBL-ATK ×1.5 & BONUS +1 / ONLY DBL-ATK",
-  'DEFENCER': "OFFSET ×3 / D-BONUS 0",
+  'REFLECTOR': "OFFSET ×4 / REFLECT / DAMAGE ×2",
   'TECHNICIAN': "OBSTRUCT USING 5 BONUS / 20 ATK",
   'GAMBLER': "ATK 25% -> SELF-ATK / MISS / ×2 / ×3",
-  'OPTIMIST': "BONUS+1 / NO MISS PENALTY / HALF ATK",
+  'OPTIMIST': "BONUS UP / NO MISS PENALTY / ATK 30% MISS",
   'WORDCHAINER': "CONNECT ONLY ATK 20 & BONUS +5",
 };
 
@@ -2079,11 +2085,30 @@ function calcReceiveOffset() {
   };
 
   if (playerReceiveValueToOffset.includes(playerAttackValueToOffset)) {
-    if (currentKey == "DEFENCER") {
+    if (currentKey == "REFLECTOR") {
       let count = 0;
-      while (playerReceiveValueToOffset.includes(playerAttackValueToOffset) && count < 3) {
+      console.log(playerAttackValueToOffset);
+      while (playerReceiveValueToOffset.includes(playerAttackValueToOffset) && count < 4) {
         playerReceiveValueToOffset.splice(playerReceiveValueToOffset.indexOf(playerAttackValueToOffset), 1);
         count++;
+      }
+      if (gameState === 'CPUmatch') {
+        opponentReceiveValueToOffset.push(playerAttackValueToOffset);
+        opponentReceiveValueToOffset.push(playerAttackValueToOffset);
+        opponentReceiveValueToOffset.sort((a, b) => a - b);
+        opponentReceiveValueToDisplay = [...opponentReceiveValueToOffset];
+        CPUdrawStatusField(ctxOpponentStatus, false);
+        playerAtteckValueToAPM += playerAttackValueToOffset;
+        playerAtteckValueToAPM += playerAttackValueToOffset;
+      } else {
+        playerAtteckValueToAPM += playerAttackValueToOffset;
+        playerAtteckValueToAPM += playerAttackValueToOffset;
+        socket.emit('attack', {
+          attackValue: playerAttackValueToOffset
+        });
+        socket.emit('attack', {
+          attackValue: playerAttackValueToOffset
+        });
       }
       playerAttackValueToOffset = 0;
     } else {
@@ -2138,16 +2163,17 @@ function calcReceiveOffsetToDisplay() {
   playerReceiveValueToDisplay = [...playerReceiveValueToOffset];
 
   if (playerReceiveValueToDisplay.includes(playerAttackValueToDisplay)) {
-    if (currentKey == "DEFENCER") {
+    if (currentKey == "REFLECTOR") {
       let count = 0;
-      while (playerReceiveValueToDisplay.includes(playerAttackValueToDisplay) && count < 3) {
+      while (playerReceiveValueToDisplay.includes(playerAttackValueToDisplay) && count < 4) {
         playerReceiveValueToDisplay.splice(playerReceiveValueToDisplay.indexOf(playerAttackValueToDisplay), 1);
         count++;
       }
       playerAttackValueToDisplay = 0;
+    } else {
+      playerReceiveValueToDisplay.splice(playerReceiveValueToDisplay.indexOf(playerAttackValueToDisplay), 1);
+      playerAttackValueToDisplay = 0;
     }
-    playerReceiveValueToDisplay.splice(playerReceiveValueToDisplay.indexOf(playerAttackValueToDisplay), 1);
-    playerAttackValueToDisplay = 0;
   }
 
   if (playerAttackValueToDisplay === 0) return 0;
@@ -2881,7 +2907,14 @@ let isPractice = false;
 window.addEventListener("keydown", (e) => {
   if (gameState === 'ended' || isRoomMatch === true || gameState === 'CPUmatch') return;
   const key = e.key;
-  if (key.length === 1 && key.match(/\d/)) {
+  // 小文字 a-z、ハイフン(-)、Backspace、Delete 以外は return
+  if (
+    !(key.length === 1 && key.match(/[a-z]/)) && // a〜z
+    key !== '-' && // ハイフン
+    key !== 'Backspace' && // バックスペース
+    key !== 'Delete' && // デリート
+    key !== ' ' // スペース（空白）
+  ) {
     return;
   }
   if (gameState === 'config') {
@@ -3236,18 +3269,18 @@ function checkAndRemoveWord(field, fieldWords, input) {
 
       // プレイヤー入力時、部分一致、完全一致しなかった場合、攻撃を弱体化
       if (playerInput.length !== 0) {
-        // console.log("playerInput" + playerInput);
-        // cancelChain();
         if (input === playerInput) {
-          if (chainBonus === 3) {
-            chainBonus = 2
-          } else if (chainBonus <= 2) {
-            chainBonus = 0;
-          } else {
-            chainBonus = chainBonus - 2;
+          if (currentKey !== "OPTIMIST" && currentKey !== "WORDCHAINER") {
+            if (chainBonus === 3) {
+              chainBonus = 2
+            } else if (chainBonus <= 2) {
+              chainBonus = 0;
+            } else {
+              chainBonus = chainBonus - 2;
+            }
+            updateChainInfoDisplay();
+            nerfAttackValue();
           }
-          updateChainInfoDisplay();
-          nerfAttackValue();
           if (currentMissTypeSoundState === 'VALID') {
             soundManager.playSound('missType');
           }
@@ -3531,7 +3564,10 @@ const playerchildEffectOverlay = document.getElementById('childEffectOverlay');
 // playerchildEffectOverlay.classList.add('glowingEffect');
 
 function displayAttackValue(element, number) {
-  // 数値以外の入力をチェック
+  if (isMiss && element === playerEffectOverlay) {
+    number = 0;
+  };
+
   if (typeof number !== 'number') {
     return;
   }
@@ -3549,11 +3585,7 @@ function displayAttackValue(element, number) {
   }
 
   const containerRect = element.getBoundingClientRect();
-
-  // フォントサイズの計算: CELL_SIZE * 2 + number
   const fontSize = (CELL_SIZE * 1.5) + number * 1.5;
-
-  // 数値表示用の要素を作成
   const numberElement = document.createElement('span');
   numberElement.textContent = number;
   numberElement.className = 'displayAttackValue';
@@ -3591,11 +3623,17 @@ function displayAttackValue(element, number) {
   requestAnimationFrame(() => {
     numberElement.style.transform += ` translate(${randomTranslateX}px, ${randomTranslateY}px) scale(1.2)`;
     numberElement.classList.add('fade-out');
+  });
 
-    // アニメーション完了後に要素を削除
-    setTimeout(() => {
-      numberElement.remove();
-    }, 1500);
+  setTimeout(() => {
+    numberElement.remove();
+  }, 1500);
+
+  socket.emit('syncAttackValue', {
+    number: number,
+    // color: numberElement.style.color,
+    // fontSize: fontSize,
+    // transform: numberElement.style.transform,
   });
 }
 
@@ -3603,8 +3641,7 @@ function technicianAttack() {
   socket.emit('syncTechnicianAttack');
 }
 
-
-function attack(attackValue) {
+function attack(attackValue, isRecursive = false) {
   isMiss = false;
   if (currentKey === "MUSCLE" && !isSameChar) {
     isMiss = true;
@@ -3621,35 +3658,47 @@ function attack(attackValue) {
     return;
   }
   if (currentKey == "OPTIMIST") {
-    if (attackValue >= 6) {
-      let halfValue = attackValue / 2;
-      attackValue = (getBetterRandom() < 0.5) ? Math.floor(halfValue) : Math.ceil(halfValue);
+    // if (attackValue >= 6) {
+    //   let halfValue = attackValue / 2;
+    //   attackValue = (getBetterRandom() < 0.5) ? Math.floor(halfValue) : Math.ceil(halfValue);
+    // }
+    if (getBetterRandom() < 0.3) {
+      isMiss = true;
+      animateAttackInfo(playerAttackKind, 'MISS', 'attack-miss');
+      updateChainInfoDisplay();
+      drawStatusField(ctxOpponentStatus, false);
+      drawStatusField(ctxPlayerStatus, true);
+      socket.emit('sendAttackInfo', {
+        attackType: 'MISS',
+        chainBonus: playerChainBonus,
+      });
+      return;
     }
   }
   if (currentKey == "GAMBLER") {
     if (!isRecursive) {
       const random = getBetterRandom();
+      if (nerfValue !== 0) {
+        attackValue = attackValue - nerfValue;
+        nerfValue = 0;
+      }
       if (random < 0.25) {
-        if (nerfValue !== 0) {
-          attackValue = attackValue - nerfValue;
-          if (attackValue >= 2) {
-            playerReceiveValueToOffset.push(attackValue);
-            playerReceiveValueToDisplay = [...playerReceiveValueToOffset];
-            playerReceiveValueToDisplay.sort((a, b) => a - b);
-            drawStatusField(ctxPlayerStatus, true);
-            soundManager.playSound('receiveAttack', { volume: 0.5 });
-            nerfValue = 0;
-          }
+        if (attackValue >= 2) {
+          playerReceiveValueToOffset.push(attackValue);
+          playerReceiveValueToDisplay = [...playerReceiveValueToOffset];
+          playerReceiveValueToDisplay.sort((a, b) => a - b);
+          drawStatusField(ctxPlayerStatus, true);
+          soundManager.playSound('receiveAttack', { volume: 0.5 });
+          nerfValue = 0;
         }
-
         isMiss = true;
         updateNerfInfoDisplay();
-        animateAttackInfo(playerAttackKind, 'MISS', 'attack-miss');
+        animateAttackInfo(playerAttackKind, 'SELF ATTACK', 'attack-miss');
         updateChainInfoDisplay();
         drawStatusField(ctxOpponentStatus, false);
         drawStatusField(ctxPlayerStatus, true);
         socket.emit('sendAttackInfo', {
-          attackType: 'MISS',
+          attackType: 'SELF ATTACK',
           chainBonus: playerChainBonus,
         });
         return;
@@ -3668,10 +3717,14 @@ function attack(attackValue) {
         });
         return;
       } else if (random < 0.75) {
-        attack(attackValue, true);
+        if (attackValue >= 2) {
+          attack(attackValue, true);
+        }
       } else {
-        attack(attackValue, true);
-        attack(attackValue, true);
+        if (attackValue >= 2) {
+          attack(attackValue, true);
+          attack(attackValue, true);
+        }
       }
     }
   }
@@ -3742,7 +3795,7 @@ function attack(attackValue) {
       playerAttackValueToOffset = 0;
       isAttackShake = false;
       if (playerReceiveValueToOffset.length === 0) {
-        console.log("攻撃します、攻撃力は" + attackValue);
+        // console.log("攻撃します、攻撃力は" + attackValue);
         if (attackValue > 1) {
           isAttackShake = true;
           socket.emit('attack', {
@@ -3988,6 +4041,7 @@ function connect() {
     isDownChain = false;
     isSameChar = false;
     chainBonus += 5;
+    calculatedAttackVal = calculatedAttackVal + chainBonus;
     wordCainerAttack(20);
     if (chainBonus > 10) {
       let toCalcChainBonusAttack = chainBonus;
@@ -4052,6 +4106,9 @@ function upChainAttack() {
     isDownChain = false;
     if (currentKey === "MUSCLE") {
       chainBonus = 0;
+    } else if (currentKey === "GAMBLER") {
+      const bonus = Math.floor(Math.random() * 4);
+      chainBonus = bonus;
     } else {
       chainBonus = 2;
     }
@@ -4069,6 +4126,9 @@ function upChainAttack() {
   if (chainBonus === 0) {
     if (currentKey === "MUSCLE") {
       chainBonus = 0;
+    } else if (currentKey === "GAMBLER") {
+      const bonus = Math.floor(Math.random() * 4);
+      chainBonus = bonus;
     } else {
       chainBonus = 2;
     }
@@ -4078,6 +4138,9 @@ function upChainAttack() {
   } else {
     if (currentKey === "MUSCLE") {
       chainBonus = 0;
+    } else if (currentKey === "GAMBLER") {
+      const bonus = Math.floor(Math.random() * 4);
+      chainBonus += bonus;
     } else {
       if (currentKey === "OPTIMIST") {
         chainBonus = chainBonus + 3;
@@ -4125,24 +4188,27 @@ function downChainAttack() {
     isUpChain = false;
     if (currentKey === "MUSCLE") {
       chainBonus = 0;
-    } else if (currentKey === "DEFENCER") {
-      chainBonus = 0;
     } else {
-      chainBonus = 2;
+      if (currentKey === "GAMBLER") {
+        const bonus = Math.floor(Math.random() * 4);
+        chainBonus = bonus;
+      } else {
+        chainBonus = 2;
+      }
     }
     attack(playerAttackValue);
     attack(chainBonus);
     calculatedAttackVal = calculatedAttackVal + chainBonus;
     onAttackShake(calculatedAttackVal);
     displayAttackValue(playerEffectOverlay, calculatedAttackVal);
-
     return;
   }
   if (chainBonus === 0) {
     if (currentKey === "MUSCLE") {
       chainBonus = 0;
-    } else if (currentKey === "DEFENCER") {
-      chainBonus = 0;
+    } else if (currentKey === "GAMBLER") {
+      const bonus = Math.floor(Math.random() * 4);
+      chainBonus = bonus;
     } else {
       chainBonus = 2;
     }
@@ -4151,11 +4217,12 @@ function downChainAttack() {
   } else {
     if (currentKey === "MUSCLE") {
       chainBonus = 0;
-    } else if (currentKey === "DEFENCER") {
-      chainBonus = chainBonus;
+    } else if (currentKey === "GAMBLER") {
+      const bonus = Math.floor(Math.random() * 4);
+      chainBonus += bonus;
     } else {
       if (currentKey === "OPTIMIST") {
-        chainBonus = chainBonus + 2;
+        chainBonus = chainBonus + 3;
       } else {
         chainBonus++;
       }
@@ -4295,32 +4362,6 @@ function resetGame() {
   removeAuraEffectFromOverlay(opponentOverlayElement);
 
 }
-
-// マッチング成功UI表示
-// function showMatchingSuccess() {
-//   const overlay = document.createElement('div');
-//   overlay.style.cssText = `
-//     position: fixed;
-//     top: 50%;
-//     left: 50%;
-//     transform: translate(-50%, -50%);
-//     background-color: rgba(0, 0, 0, 0.8);
-//     color: white;
-//     border-radius: 10px;
-//     font-size: 6vh;
-//     z-index: 1000;
-//   `;
-//   overlay.textContent = 'マッチングに成功しました';
-//   document.body.appendChild(overlay);
-
-//   setTimeout(() => {
-//     document.body.removeChild(overlay);
-//     startCountdown();
-//   }, 500);
-//   setTimeout(() => {
-//     hideLoadingOverlay();
-//   }, 500);
-// }
 
 // カウントダウン表示
 function showCountdown(count, elementId) {
@@ -5261,9 +5302,19 @@ function initializeSocket() {
   socket.on('receiveAttack', (data) => {
     if (selectedCategory === "ENGLISH" && data.attackValue <= 8) {
       let receiveValueENG = data.attackValue + 2;
-      playerReceiveValueToOffset.push(receiveValueENG);
+      if (currentKey == "REFLECTOR") {
+        playerReceiveValueToOffset.push(receiveValueENG);
+        playerReceiveValueToOffset.push(receiveValueENG);
+      } else {
+        playerReceiveValueToOffset.push(receiveValueENG);
+      }
     } else {
-      playerReceiveValueToOffset.push(data.attackValue);
+      if (currentKey == "REFLECTOR") {
+        playerReceiveValueToOffset.push(data.attackValue);
+        playerReceiveValueToOffset.push(data.attackValue);
+      } else {
+        playerReceiveValueToOffset.push(data.attackValue);
+      }
     }
 
     // console.log("攻撃を受けました:" + playerReceiveValueToOffset);
@@ -5273,45 +5324,72 @@ function initializeSocket() {
     playerReceiveValueToDisplay.sort((a, b) => a - b);
     drawStatusField(ctxPlayerStatus, true);
 
-
     // console.log("playerAttackValueToDisplay:" + playerAttackValueToDisplay);
     // console.log("playerReceiveValueToDisplay:" + playerReceiveValueToDisplay);
 
   });
 
-  socket.on('syncAttackValue', (data) => {
-    const containerRect = opponentEffectOverlay.getBoundingClientRect();
-    const numberElement = document.createElement('span');
-    numberElement.textContent = data.number;
+  socket.on('receiveAttackValue', (data) => {
+
+    const number = data.number;
+
+    if (typeof number !== 'number') {
+      console.log('受け取った攻撃力の型がnumberではありません');
+      return;
+    }
+
     if (currentAttackSoundState === 'VALID') {
-      if (data.number <= 10) {
+      if (number <= 10) {
         soundManager.playSound('attackWeak', { volume: 0.3 });
-      } else if (data.number <= 15) {
+      } else if (number <= 15) {
         soundManager.playSound('attackNormal', { volume: 0.8 });
-      } else if (data.number <= 20) {
+      } else if (number <= 20) {
         soundManager.playSound('attackStrong', { volume: 0.6 });
       } else {
         soundManager.playSound('attackOP', { fadeOut: 0.5, volume: 0.6 });
       }
     }
+
+    const containerRect = opponentEffectOverlay.getBoundingClientRect();
+    const fontSize = (CELL_SIZE * 1.5) + number * 1.5;
+    const numberElement = document.createElement('span');
+    numberElement.textContent = number;
     numberElement.className = 'displayAttackValue';
-    numberElement.style.color = data.color;
+    numberElement.style.fontSize = `${fontSize}px`;
+
+    if (number < 10) {
+      numberElement.style.color = 'rgba(0, 0, 0, 0.9)';
+    } else if (number < 20) {
+      numberElement.style.color = 'rgba(255, 125, 0, 0.9)';
+    } else {
+      numberElement.style.color = 'rgba(255, 0, 0, 0.9)';
+    }
+
     const posX = containerRect.width * 0.75;
     const posY = containerRect.height * 0.25;
+
+    const randomAngle = 45 + Math.random() * (-90);
+
+    const randomTranslateX = Math.random() * 100 - 100; // -10px ～ 10px
+    const randomTranslateY = Math.random() * 100 - 100; // -10px ～ 10px
+
     numberElement.style.left = `${posX}px`;
     numberElement.style.top = `${posY}px`;
-    numberElement.style.fontSize = `${data.fontSize}px`;
-    numberElement.style.transform = data.transform;
+    numberElement.style.transform = `translate(-50%, -50%) rotate(${randomAngle}deg)`;
 
     opponentEffectOverlay.appendChild(numberElement);
 
-    // アニメーションと削除
+    // アニメーションの適用
     requestAnimationFrame(() => {
-      numberElement.classList.add('fade-out');
-      setTimeout(() => {
-        numberElement.remove();
-      }, 1500);
+      requestAnimationFrame(() => { // 2段階にすると確実
+        numberElement.style.transform += ` translate(${randomTranslateX}px, ${randomTranslateY}px) scale(1.2)`;
+        numberElement.classList.add('fade-out');
+      });
     });
+
+    setTimeout(() => {
+      numberElement.remove();
+    }, 1500);
   });
 
   // 攻撃を受けた時のイベントリスナー

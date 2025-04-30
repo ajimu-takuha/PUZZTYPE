@@ -1283,6 +1283,11 @@ canvas {}
   text-shadow: 0 0 10px rgba(0, 68, 255, 0.8);
 }
 
+/* .attack-reflect {
+  color: rgba(255, 200, 50, 1);
+  text-shadow: 0 0 10px rgb(110, 80, 0);
+} */
+
 /* アニメーションをリセットするためのクラス */
 .reset-animation {
   animation: none !important;

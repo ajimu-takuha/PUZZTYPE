@@ -41,14 +41,17 @@ cpuDialog.innerHTML = `
     </select>
     
     <div id="customSettings">
-      <label for="inputSpeed">INPUT &nbspRATE : <span id="inputSpeedValue">50</span></label> 
+      <label for="inputSpeed">INPUT &nbsp&nbspRATE : <span id="inputSpeedValue">50</span></label> 
       <input type="range" id="inputSpeed" min="0" max="20" value="5" step="0.1"><br>
       
-      <label for="missRate">MISS&nbsp&nbsp&nbspRATE : <span id="missRateValue">10</span></label> 
+      <label for="missRate">MISS&nbsp&nbsp&nbsp&nbspRATE : <span id="missRateValue">10</span></label> 
       <input type="range" id="missRate" min="0" max="30" value="5" step="0.1"><br>
 
-      <label for="missWaitTime">MISS&nbsp&nbsp&nbspWAIT : <span id="missWaitTimeValue">1</span></label>
+      <label for="missWaitTime">MISS&nbsp&nbsp&nbsp&nbspWAIT : <span id="missWaitTimeValue">1</span></label>
       <input type="range" id="missWaitTime" min="0" max="10" value="1" step="0.1"><br>
+      
+      <label for="selectWordTime">SELECT&nbspWAIT : <span id="selectWordTimeValue">1</span></label>
+      <input type="range" id="selectWordTime" min="0" max="10" value="1" step="0.1"><br>
     </div>
     
     <div class="dialog-buttons">
@@ -71,9 +74,11 @@ const customSettings = document.getElementById('customSettings');
 const inputSpeed = document.getElementById('inputSpeed');
 const missRate = document.getElementById('missRate');
 const missWaitTime = document.getElementById('missWaitTime');
+const selectWordTime = document.getElementById('selectWordTime');
 const inputSpeedValue = document.getElementById('inputSpeedValue');
 const missRateValue = document.getElementById('missRateValue');
 const missWaitTimeValue = document.getElementById('missWaitTimeValue');
+const selectWordTimeValue = document.getElementById('selectWordTimeValue');
 
 cpuLevelSelect.addEventListener('mouseenter', () => {
     if (currentButtonSoundState === 'VALID') {
@@ -102,16 +107,16 @@ rangeInputs.forEach(input => {
 });
 
 const predefinedLevels = [
-    { speed: 1, miss: 1, missWait: 3 },
-    { speed: 2, miss: 2, missWait: 3 },
-    { speed: 3, miss: 2, missWait: 3 },
-    { speed: 4, miss: 3, missWait: 3 },
-    { speed: 4, miss: 2, missWait: 2 },
-    { speed: 5, miss: 3, missWait: 3 },
-    { speed: 5.5, miss: 4, missWait: 2 },
-    { speed: 6, miss: 5, missWait: 1.5 },
-    { speed: 7, miss: 2, missWait: 3.5 },
-    { speed: 8, miss: 2, missWait: 2 }
+    { speed: 1.5, miss: 2, missWait: 2, selectWordTime: 1 },
+    { speed: 2, miss: 2, missWait: 2, selectWordTime: 1 },
+    { speed: 3, miss: 2, missWait: 3, selectWordTime: 1 },
+    { speed: 4, miss: 3, missWait: 2, selectWordTime: 0.5 },
+    { speed: 4, miss: 2, missWait: 2, selectWordTime: 0.5 },
+    { speed: 5, miss: 3, missWait: 2, selectWordTime: 0.5 },
+    { speed: 6, miss: 4, missWait: 1, selectWordTime: 0.5 },
+    { speed: 7, miss: 5, missWait: 0, selectWordTime: 1 },
+    { speed: 8, miss: 3, missWait: 1, selectWordTime: 0.5 },
+    { speed: 10, miss: 2, missWait: 1, selectWordTime: 1 }
 ];
 
 cpuLevelSelect.value = "1";
@@ -120,12 +125,13 @@ inputSpeed.value = predefinedLevels[0].speed;
 inputSpeedToCalc = predefinedLevels[0].speed;
 missRate.value = predefinedLevels[0].miss;
 missRateToCalc = predefinedLevels[0].miss;
-missWaitTime.value = predefinedLevels[0].missWait;
-missWaitTimeToCalc = predefinedLevels[0].missWait;
+selectWordTime.value = predefinedLevels[0].selectWordTime;
+selectWordTimeToCalc = predefinedLevels[0].selectWordTime;
 
 inputSpeedValue.textContent = predefinedLevels[0].speed.toFixed(1);
 missRateValue.textContent = predefinedLevels[0].miss.toFixed(1);
 missWaitTimeValue.textContent = predefinedLevels[0].missWait.toFixed(1);
+selectWordTimeValue.textContent = predefinedLevels[0].selectWordTime.toFixed(1);
 
 cpuLevelSelect.addEventListener('change', () => {
     if (cpuLevelSelect.value !== 'custom') {
@@ -140,9 +146,13 @@ cpuLevelSelect.addEventListener('change', () => {
         missWaitTime.value = predefinedLevels[level].missWait;
         missWaitTimeToCalc = predefinedLevels[level].missWait;
 
+        selectWordTime.value = predefinedLevels[level].selectWordTime;
+        selectWordTimeToCalc = predefinedLevels[level].selectWordTime;
+
         inputSpeedValue.textContent = predefinedLevels[level].speed.toFixed(1);
         missRateValue.textContent = predefinedLevels[level].miss.toFixed(1);
         missWaitTimeValue.textContent = predefinedLevels[level].missWait.toFixed(1);
+        selectWordTimeValue.textContent = predefinedLevels[level].selectWordTime.toFixed(1);
     }
     // }
 });
@@ -166,6 +176,12 @@ missWaitTime.addEventListener('input', () => {
     missWaitTimeToCalc = missWaitTime.value;
 });
 
+selectWordTime.addEventListener('input', () => {
+    cpuLevelSelect.value = 'custom';
+    selectWordTime.textContent = selectWordTime.value;
+    selectWordTimeToCalc = selectWordTime.value;
+});
+
 inputSpeed.addEventListener('input', function () {
     document.getElementById('inputSpeedValue').textContent = parseFloat(this.value).toFixed(1);
 });
@@ -176,6 +192,10 @@ missRate.addEventListener('input', function () {
 
 missWaitTime.addEventListener('input', function () {
     document.getElementById('missWaitTimeValue').textContent = parseFloat(this.value).toFixed(1);
+});
+
+selectWordTime.addEventListener('input', function () {
+    document.getElementById('selectWordTimeValue').textContent = parseFloat(this.value).toFixed(1);
 });
 
 const CPUdialogButton = document.querySelectorAll('.CPUdialogButton');
@@ -249,6 +269,7 @@ function CPUgameStep() {
         CPUgameStepTimeoutId = setTimeout(CPUgameStep, 10000);
 
     } else if (interval === "NOTHING (PRACTICE)") {
+        clearTimeout(CPUgameStepTimeoutId);
         return;
     }
 }
@@ -271,8 +292,9 @@ function CPUopponentGameStep() {
     } else if (interval === "PEACEFUL (10s)") {
         clearTimeout(CPUopponentGameStepTimeoutId);
         CPUopponentGameStepTimeoutId = setTimeout(CPUopponentGameStep, 10000);
-    
+
     } else if (interval === "NOTHING (PRACTICE)") {
+        clearTimeout(CPUopponentGameStepTimeoutId);
         return;
     }
 }
@@ -299,6 +321,8 @@ function getInputWord() {
                 clearTimeout(CPUopponentGameStepTimeoutId);
                 CPUopponentGameStepTimeoutId = setTimeout(CPUopponentGameStep, 10000);
                 CPUopponentUpdateFieldAfterReceiveOffset();
+            } else {
+                CPUopponentUpdateFieldAfterReceiveOffset();
             }
         }
     } else if (opponentFieldWords.length + opponentReceiveValueToDisplay.length < 13) {
@@ -315,7 +339,11 @@ function getInputWord() {
             clearTimeout(CPUopponentGameStepTimeoutId);
             CPUopponentGameStepTimeoutId = setTimeout(CPUopponentGameStep, 10000);
             CPUopponentUpdateFieldAfterReceiveOffset();
+        } else {
+            CPUopponentUpdateFieldAfterReceiveOffset();
         }
+    } else if(opponentFieldWords.filter(word => word !== attackWord).length === 0) {
+        CPUopponentUpdateFieldAfterReceiveOffset();
     }
 
     if (opponentFieldWords.length + opponentReceiveValueToDisplay.length > 16) {
@@ -390,7 +418,7 @@ function CPUstartInput() {
     if (inputSpeedToCalc == 0) return;
     let speed = 1000 / inputSpeedToCalc;
     function typeWord() {
-        function typeCharacter() {
+        async function typeCharacter() {
             if (gameState !== "CPUmatch") return;
             if (getBetterRandom() * 100 < missRateToCalc) {
                 if (CPUchainBonus === 3) {
@@ -409,11 +437,9 @@ function CPUstartInput() {
                 setTimeout(() => {
                     setTimeout(typeCharacter, speed);
                 }, missWaitTimeToCalc * 1000);
-                // console.log(missWaitTimeToCalc);
-                // console.log(missRateToCalc);
-                // console.log(inputSpeedToCalc);
             } else {
                 if (!isWordDecided) {
+                    await new Promise(resolve => setTimeout(resolve, selectWordTimeToCalc * 1000));
                     opponentWordToInput = getInputWord();
                     isWordDecided = true;
                     decidedWordLength = opponentWordToInput.length;
@@ -431,7 +457,6 @@ function CPUstartInput() {
                         isWordDecided = false;
                     }
                 }
-                // console.log(opponentWordToInput);
                 CPUdrawInputField(ctxOpponentInput, opponentInput, opponentInputField);
                 setTimeout(typeCharacter, speed);
             }
@@ -654,7 +679,7 @@ function CPUopponentUpdateFieldAfterReceiveOffset() {
     opponentAttackValueToOffset = 0;
     opponentReceiveValueToOffset = [];
     CPUopponentCalcReceiveOffsetToDisplay();
-    CPUdrawStatusField(ctxPlayerStatus, true);
+    CPUdrawStatusField(ctxOpponentStatus, false);
     opponentFieldWords.sort((a, b) => b.length - a.length);
     clearField(opponentField);
 
@@ -683,6 +708,7 @@ function CPUopponentUpdateFieldAfterReceiveOffset() {
         row--;
     }
     CPUopponentUpdateNextDisplay(opponentWordPool);
+    CPUupdateAllNextGradients(wordPool, false);
     CPUhighlightMatchingCells(opponentField);
 }
 
@@ -1000,6 +1026,8 @@ function CPUopponentcheckAndRemoveWord() {
             CPUopponentCalcAttackValue(matchedWord);
 
             CPUupdateField(opponentField, opponentFieldWords);
+
+            CPUdrawInputField(ctxOpponentInput, '', opponentInputField);
 
             CPUupdateAllNextGradients(wordPool, false);
 
@@ -1486,7 +1514,7 @@ function CPUopponentOnAttackShake(attackValue) {
 }
 
 function CPUdisplayAttackValue(element, number) {
-    if (isMiss) {
+    if (isMiss && element === playerEffectOverlay) {
         number = 0;
     };
 
@@ -1584,7 +1612,12 @@ function CPUopponentAttack(attackValue) {
                 if (opponentReceiveValueToOffset.length === 0) {
                     if (attackValue > 1) {
                         isAttackShake = true;
-                        playerReceiveValueToOffset.push(attackValue);
+                        if (currentKey == "REFLECTOR") {
+                            playerReceiveValueToOffset.push(attackValue);
+                            playerReceiveValueToOffset.push(attackValue);
+                        } else {
+                            playerReceiveValueToOffset.push(attackValue);
+                        }
                         playerReceiveValueToOffset.sort((a, b) => a - b);
                         playerReceiveValueToDisplay = [...playerReceiveValueToOffset];
                         // CPUdrawStatusField(ctxPlayerStatus, true);
@@ -1605,7 +1638,12 @@ function CPUopponentAttack(attackValue) {
             if (opponentReceiveValueToOffset.length === 0) {
                 if (attackValue > 1) {
                     isAttackShake = true;
-                    playerReceiveValueToOffset.push(attackValue);
+                    if (currentKey == "REFLECTOR") {
+                        playerReceiveValueToOffset.push(attackValue);
+                        playerReceiveValueToOffset.push(attackValue);
+                    } else {
+                        playerReceiveValueToOffset.push(attackValue);
+                    }
                     playerReceiveValueToOffset.sort((a, b) => a - b);
                     playerReceiveValueToDisplay = [...playerReceiveValueToOffset];
                     // CPUdrawStatusField(ctxPlayerStatus, true);
