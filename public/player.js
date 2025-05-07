@@ -2,8 +2,8 @@
 window.addEventListener("keydown", (e) => {
     if (gameState !== 'CPUmatch') return;
     const key = e.key;
-    if (key === "Escape") {
-        CPUtechnicianAttack();
+    // if (key === "Escape") {
+    //     CPUtechnicianAttack();
         // playerReceiveValueToOffset.push(Math.floor(Math.random() * 9) + 2);
         // playerReceiveValueToDisplay = [...playerReceiveValueToOffset];
         // playerReceiveValueToDisplay.sort((a, b) => a - b);
@@ -11,7 +11,7 @@ window.addEventListener("keydown", (e) => {
         // soundManager.playSound('receiveAttack', { volume: 0.5 });
         // CPUdrawStatusField(ctxOpponentStatus, false);
         // CPUdrawStatusField(ctxPlayerStatus, true);
-    }
+    // }
 
     if (
         !(key.length === 1 && key.match(/[a-z]/)) && // a〜z
@@ -435,7 +435,7 @@ function CPUcalcAttackValue(removeWord) {
     lastChar = normalizeHiragana(removeWord.charAt(removeWord.length - 1));
 }
 
-function CPUwordCainerAttack(total) {
+function CPUwordChainerAttack(total) {
     while (total > 0) {
         let attackValue;
         if (selectedCategory !== "ENGLISH") {
@@ -469,7 +469,7 @@ function CPUconnect() {
         isSameChar = false;
         chainBonus += 5;
         calculatedAttackVal = calculatedAttackVal + chainBonus;
-        CPUwordCainerAttack(20);
+        CPUwordChainerAttack(20);
         if (chainBonus > 10) {
             let toCalcChainBonusAttack = chainBonus;
             while (toCalcChainBonusAttack > 10) {
@@ -535,8 +535,10 @@ function CPUupChainAttack() {
             chainBonus = 0;
         } else {
             if (currentKey === "GAMBLER") {
-                const bonus = Math.floor(Math.random() * 4);
+                const bonus = Math.floor(Math.random() * 5);
                 chainBonus = bonus;
+            } else if (currentKey === "OPTIMIST") {
+                chainBonus = 3;
             } else {
                 chainBonus = 2;
             }
@@ -552,8 +554,10 @@ function CPUupChainAttack() {
         if (currentKey === "MUSCLE") {
             chainBonus = 0;
         } else if (currentKey === "GAMBLER") {
-            const bonus = Math.floor(Math.random() * 4);
+            const bonus = Math.floor(Math.random() * 5);
             chainBonus = bonus;
+        } else if (currentKey === "OPTIMIST") {
+            chainBonus = 3;
         } else {
             chainBonus = 2;
         }
@@ -563,7 +567,7 @@ function CPUupChainAttack() {
         if (currentKey === "MUSCLE") {
             chainBonus = 0;
         } else if (currentKey === "GAMBLER") {
-            const bonus = Math.floor(Math.random() * 4);
+            const bonus = Math.floor(Math.random() * 5);
             chainBonus += bonus;
         } else {
             if (currentKey === "OPTIMIST") {
@@ -591,6 +595,12 @@ function CPUupChainAttack() {
     if (chainBonus % 10 === 1) {
         calculatedAttackVal -= 1;
     }
+    if (chainBonus > 10) {
+        if (currentKey === "OPTIMIST") {
+            chainBonus = 0;
+            CPUupdateChainInfoDisplay();
+        }
+    }
     CPUonAttackShake(calculatedAttackVal);
     CPUdisplayAttackValue(playerEffectOverlay, calculatedAttackVal);
 }
@@ -609,8 +619,10 @@ function CPUdownChainAttack() {
         if (currentKey === "MUSCLE") {
             chainBonus = 0;
         } else if (currentKey === "GAMBLER") {
-            const bonus = Math.floor(Math.random() * 4);
+            const bonus = Math.floor(Math.random() * 5);
             chainBonus = bonus;
+        } else if (currentKey === "OPTIMIST") {
+            chainBonus = 3;
         } else {
             chainBonus = 2;
         }
@@ -625,8 +637,10 @@ function CPUdownChainAttack() {
         if (currentKey === "MUSCLE") {
             chainBonus = 0;
         } else if (currentKey === "GAMBLER") {
-            const bonus = Math.floor(Math.random() * 4);
+            const bonus = Math.floor(Math.random() * 5);
             chainBonus = bonus;
+        } else if (currentKey === "OPTIMIST") {
+            chainBonus = 3;
         } else {
             chainBonus = 2;
         }
@@ -636,7 +650,7 @@ function CPUdownChainAttack() {
         if (currentKey === "MUSCLE") {
             chainBonus = 0;
         } else if (currentKey === "GAMBLER") {
-            const bonus = Math.floor(Math.random() * 4);
+            const bonus = Math.floor(Math.random() * 5);
             chainBonus += bonus;
         } else {
             if (currentKey === "OPTIMIST") {
@@ -663,6 +677,12 @@ function CPUdownChainAttack() {
     calculatedAttackVal = calculatedAttackVal + chainBonus;
     if (chainBonus % 10 === 1) {
         calculatedAttackVal -= 1;
+    }
+    if (chainBonus > 10) {
+        if (currentKey === "OPTIMIST") {
+            chainBonus = 0;
+            CPUupdateChainInfoDisplay();
+        }
     }
     CPUonAttackShake(calculatedAttackVal);
     CPUdisplayAttackValue(playerEffectOverlay, calculatedAttackVal);
@@ -768,22 +788,18 @@ function CPUattack(attackValue, isRecursive = false) {
         CPUdrawStatusField(ctxPlayerStatus, true);
         return;
     }
-    if (currentKey === "OPTIMIST") {
-        // if (attackValue >= 6) {
-        //     let halfValue = attackValue / 2;
-        //     attackValue = (getBetterRandom() < 0.5) ? Math.floor(halfValue) : Math.ceil(halfValue);
-        // }
-        const random = getBetterRandom();
-        console.log(random);
-        if (random < 0.3) {
-            isMiss = true;
-            animateAttackInfo(playerAttackKind, 'MISS', 'attack-miss');
-            CPUupdateChainInfoDisplay();
-            CPUdrawStatusField(ctxOpponentStatus, false);
-            CPUdrawStatusField(ctxPlayerStatus, true);
-            return;
-        }
-    }
+    // if (currentKey === "OPTIMIST") {
+    //     const random = getBetterRandom();
+    //     console.log(random);
+    //     if (random < 0.3) {
+    //         isMiss = true;
+    //         animateAttackInfo(playerAttackKind, 'MISS', 'attack-miss');
+    //         CPUupdateChainInfoDisplay();
+    //         CPUdrawStatusField(ctxOpponentStatus, false);
+    //         CPUdrawStatusField(ctxPlayerStatus, true);
+    //         return;
+    //     }
+    // }
     if (currentKey === "GAMBLER") {
         if (!isRecursive) {
             const random = getBetterRandom();

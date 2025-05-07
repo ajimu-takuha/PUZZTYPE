@@ -116,7 +116,7 @@ const predefinedLevels = [
     { speed: 6, miss: 4, missWait: 1, selectWordTime: 0.5 },
     { speed: 7, miss: 5, missWait: 0, selectWordTime: 1 },
     { speed: 8, miss: 3, missWait: 1, selectWordTime: 0.5 },
-    { speed: 10, miss: 2, missWait: 1, selectWordTime: 1 }
+    { speed: 12, miss: 2, missWait: 1, selectWordTime: 1 }
 ];
 
 cpuLevelSelect.value = "1";
@@ -342,7 +342,7 @@ function getInputWord() {
         } else {
             CPUopponentUpdateFieldAfterReceiveOffset();
         }
-    } else if(opponentFieldWords.filter(word => word !== attackWord).length === 0) {
+    } else if (opponentFieldWords.filter(word => word !== attackWord).length === 0) {
         CPUopponentUpdateFieldAfterReceiveOffset();
     }
 
@@ -883,7 +883,12 @@ function CPUdrawField(ctx, field, receivedLastWordLength) {
 
                 ctx.fillStyle = gradient;
                 ctx.fillRect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
-                ctx.font = `${CELL_SIZE * 0.7}px "${currentfontState}", "せのびゴシック", serif`;
+                if (selectedCategory === "ENGLISH") {
+                    ctx.font = `${CELL_SIZE * 1}px "${currentfontState}", "スマートフォントUI", "せのびゴシック", serif`;
+                } else {
+                    ctx.font = `${CELL_SIZE * 0.75}px "${currentfontState}", "ヨハク", "せのびゴシック", serif`;
+                }
+                // ctx.font = `${CELL_SIZE * 0.7}px "${currentfontState}", "せのびゴシック", serif`;
                 ctx.textBaseline = 'middle';
                 ctx.textAlign = 'center';
                 ctx.lineWidth = 0.5;
@@ -1613,8 +1618,12 @@ function CPUopponentAttack(attackValue) {
                     if (attackValue > 1) {
                         isAttackShake = true;
                         if (currentKey == "REFLECTOR") {
-                            playerReceiveValueToOffset.push(attackValue);
-                            playerReceiveValueToOffset.push(attackValue);
+                            if (getBetterRandom() < 0.5) {
+                                playerReceiveValueToOffset.push(attackValue);
+                                playerReceiveValueToOffset.push(attackValue);
+                            } else {
+                                playerReceiveValueToOffset.push(attackValue);
+                            }
                         } else {
                             playerReceiveValueToOffset.push(attackValue);
                         }
@@ -1639,8 +1648,12 @@ function CPUopponentAttack(attackValue) {
                 if (attackValue > 1) {
                     isAttackShake = true;
                     if (currentKey == "REFLECTOR") {
-                        playerReceiveValueToOffset.push(attackValue);
-                        playerReceiveValueToOffset.push(attackValue);
+                        if (getBetterRandom() < 0.5) {
+                            playerReceiveValueToOffset.push(attackValue);
+                            playerReceiveValueToOffset.push(attackValue);
+                        } else {
+                            playerReceiveValueToOffset.push(attackValue);
+                        }
                     } else {
                         playerReceiveValueToOffset.push(attackValue);
                     }

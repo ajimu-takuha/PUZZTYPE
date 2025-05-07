@@ -1142,7 +1142,8 @@ canvas {}
 
 
 :root {
-  --chain-color: rgba(255, 200, 50, 1); /* 初期色 */
+  --chain-color: rgba(255, 200, 50, 1);
+  /* 初期色 */
 }
 
 .chainBonus {
@@ -1457,33 +1458,33 @@ canvas {}
 
 @keyframes auraAnime {
   0% {
-    transform: scale(.9);
-    opacity: .6;
+    transform: scale(1);
+    opacity: .8;
   }
 
-  90% {
-    opacity: .1;
+  50% {
+    opacity: .5;
   }
 
   to {
-    transform: scale(1.5);
-    opacity: 0;
+    transform: scale(1);
+    opacity: .8;
   }
 }
 
 @keyframes auraAnimeAfter {
   0% {
-    transform: scale(.9);
-    opacity: .6;
+    transform: scale(1.3);
+    opacity: .5;
   }
 
-  90% {
+  50% {
     opacity: .1;
   }
 
   to {
-    transform: scale(2);
-    opacity: 0;
+    transform: scale(1.3);
+    opacity: .5;
   }
 }
 
@@ -1516,32 +1517,37 @@ canvas {}
 @keyframes fieldAuraAnime {
   0% {
     transform: scale(.9);
-    opacity: .7;
+    opacity: .8;
   }
 
-  90% {
-    opacity: .1;
+  50% {
+    transform: scale(.9);
+    opacity: .5;
   }
 
   to {
-    transform: scale(1.5);
-    opacity: 0;
+    transform: scale(.9);
+    /* transform: scale(1.5); */
+    opacity: .8;
   }
 }
 
 @keyframes fieldAuraAnimeAfter {
   0% {
-    transform: scale(.9);
-    opacity: .7;
+    /* transform: scale(.9); */
+    transform: scale(1.2);
+    opacity: .3;
   }
 
-  90% {
+  50% {
+    transform: scale(1.2);
     opacity: .1;
   }
 
   to {
-    transform: scale(2);
-    opacity: 0;
+    /* transform: scale(2); */
+    transform: scale(1.2);
+    opacity: .3;
   }
 }
 
