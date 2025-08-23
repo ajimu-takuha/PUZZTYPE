@@ -116,7 +116,7 @@ const predefinedLevels = [
     { speed: 6, miss: 4, missWait: 1, selectWordTime: 0.5 },
     { speed: 7, miss: 5, missWait: 0, selectWordTime: 1 },
     { speed: 8, miss: 3, missWait: 1, selectWordTime: 0.5 },
-    { speed: 12, miss: 2, missWait: 1, selectWordTime: 1 }
+    { speed: 12, miss: 2, missWait: 1, selectWordTime: 0.7 }
 ];
 
 cpuLevelSelect.value = "1";

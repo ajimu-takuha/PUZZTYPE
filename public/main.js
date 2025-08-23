@@ -488,7 +488,7 @@ document.addEventListener('DOMContentLoaded', () => {
       `
     },
     {
-      title: '対戦の詳細仕様',
+      title: '対戦の詳細仕様 (読まなくても問題ナシ)',
       content: `
       <div style="font-size:1vw; line-height:2.9vh;">
         ・単語が追加される場所がフィールド、その下が入力フィールドで、プレイヤーは左側、対戦相手は右側です<br>
@@ -2477,10 +2477,10 @@ function drawField(ctx, field, receivedLastWordLength) {
 
         ctx.fillStyle = gradient;
         ctx.fillRect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
-        if (selectedCategory === "ENGLISH") { 
-          ctx.font = `${CELL_SIZE * 1.5}px "${currentfontState}", "スマートフォントUI", "せのびゴシック", serif`;
+        if (selectedCategory === "ENGLISH") {
+          ctx.font = `${CELL_SIZE * 1}px "${currentfontState}", "スマートフォントUI", "せのびゴシック", serif`;
         } else {
-          ctx.font = `${CELL_SIZE * 0.75}px "${currentfontState}", "ヨハク", "せのびゴシック", serif`;
+          ctx.font = `${CELL_SIZE * 0.75}px "${currentfontState}", "ヨハク", "スマートフォントUI", "せのびゴシック", serif`;
         }
         ctx.textBaseline = 'middle';
         ctx.textAlign = 'center';
@@ -3294,8 +3294,11 @@ function checkAndRemoveWord(field, fieldWords, input) {
       return 0; // 一致しない場合は 0 を返す
     }
   } else {
-    // 入力文字の先頭から続く日本語部分を抽出して、フィールド内の単語と一致しているか確認
+    // 入力モードが英語のとき
+    // 入力文字の先頭から続く部分を抽出して、フィールド内の単語と一致しているか確認
     const wordIndex = fieldWords.findIndex((word) => word === input);
+
+    console.log(input);
 
     if (wordIndex !== -1) {
       const matchedWord = fieldWords[wordIndex];
@@ -3317,8 +3320,8 @@ function checkAndRemoveWord(field, fieldWords, input) {
     }
     resetHighlight(field);
     if (playerInput.length !== 0) {
-      if (currentKey !== "OPTIMIST" && currentKey !== "WORDCHAINER") {
-        if (input === playerInput) {
+      if (input === playerInput) {
+        if (currentKey !== "OPTIMIST" && currentKey !== "WORDCHAINER") {
           if (chainBonus === 3) {
             chainBonus = 2
           } else if (chainBonus <= 2) {
@@ -3336,7 +3339,6 @@ function checkAndRemoveWord(field, fieldWords, input) {
       }
     }
     return 0;
-
   }
 }
 
