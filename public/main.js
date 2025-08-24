@@ -184,7 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ・単語をタイプすると相手に単語を送って
         <span style="color: rgb(255, 255, 255);">攻撃</span>
         <span style="font-size:1vw; color: rgb(255, 255, 255);"> -ATTACK </span><br>
-        ・タイプ中の文字は Backspace で1文字、 Delete で全て消去<br>
+        ・タイプ中の文字は Backspace で1文字、 Delete または Ctrl で全て消去<br>
         ・タイプする単語の文字数を1ずつ減らすか増やせば攻撃力に
         <span style="color: rgba(255, 200, 50, 0.9);">ボーナス</span>
         <span style="font-size:1vw; color: rgba(255, 200, 50, 0.9);"> -CHAINBONUS </span><br>
@@ -493,7 +493,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <div style="font-size:1vw; line-height:2.9vh;">
         ・単語が追加される場所がフィールド、その下が入力フィールドで、プレイヤーは左側、対戦相手は右側です<br>
         ・フィールドには1行に1つずつ2-10文字の単語が追加され、開始時10個の単語が追加されます<br>
-        ・タイプすると入力フィールドに文字が表示され、BacKSpaceキーで1文字、 Deleteキーで全ての文字がクリアされます<br>
+        ・タイプすると入力フィールドに文字が表示され、BacKSpaceキーで1文字、 Delete/Ctrlキーで全ての文字がクリアされます<br>
         ・フィールドの単語をタイプするとその単語が消え、消した文字と同じ文字数(攻撃力)の単語が相手フィールドに送られます (攻撃)<br>
         ・CHAINBONUS は DOUBLE ATTACK 以外では攻撃力に合算されず、個別の攻撃となります<br>
         ・DOUBLE ATTACK / CHAINBONUSが10以上なら10ずつ使って攻撃し、攻撃力が10未満になった際は値が2以上の場合は攻撃します<br>
@@ -2917,6 +2917,7 @@ window.addEventListener("keydown", (e) => {
     key !== '-' && // ハイフン
     key !== 'Backspace' && // バックスペース
     key !== 'Delete' && // デリート
+    key !== 'Control' && // コントロール
     key !== ' ' // スペース（空白）
   ) {
     return;
@@ -3092,7 +3093,7 @@ window.addEventListener("keydown", (e) => {
     // }
     // else if (key === "Enter") {
     // }
-    else if (key === "Delete") {
+    else if (key === "Delete" || key === "Control") {
       if (currentDeleteSoundState === 'VALID') {
         soundManager.playSound('deleteInput', { volume: 1 });
       }
@@ -3160,7 +3161,7 @@ window.addEventListener("keydown", (e) => {
         resetHighlight(playerField);
       }
     }
-    else if (key === "Delete") {
+    else if (key === "Delete" || key === "Control") {
       if (currentDeleteSoundState === 'VALID') {
         soundManager.playSound('deleteInput', { volume: 1 });
       }
@@ -3297,8 +3298,6 @@ function checkAndRemoveWord(field, fieldWords, input) {
     // 入力モードが英語のとき
     // 入力文字の先頭から続く部分を抽出して、フィールド内の単語と一致しているか確認
     const wordIndex = fieldWords.findIndex((word) => word === input);
-
-    console.log(input);
 
     if (wordIndex !== -1) {
       const matchedWord = fieldWords[wordIndex];

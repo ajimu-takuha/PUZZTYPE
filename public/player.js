@@ -18,6 +18,7 @@ window.addEventListener("keydown", (e) => {
         key !== '-' && // ハイフン
         key !== 'Backspace' && // バックスペース
         key !== 'Delete' && // デリート
+        key !== 'Control' && // Ctrl
         key !== ' ' // スペース（空白）
     ) {
         return;
@@ -121,7 +122,7 @@ window.addEventListener("keydown", (e) => {
             if (convertedInput === "") {
                 resetHighlight(playerField);
             }
-        } else if (key === "Delete") {
+        } else if (key === "Delete" || key === "Control") {
             if (currentDeleteSoundState === 'VALID') {
                 soundManager.playSound('deleteInput', { volume: 1 });
             }
@@ -216,7 +217,7 @@ window.addEventListener("keydown", (e) => {
                 resetHighlight(playerField);
             }
         }
-        else if (key === "Delete") {
+        else if (key === "Delete" || key === "Control") {
             if (currentDeleteSoundState === 'VALID') {
                 soundManager.playSound('deleteInput', { volume: 1 });
             }
