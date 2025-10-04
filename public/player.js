@@ -4,13 +4,13 @@ window.addEventListener("keydown", (e) => {
     const key = e.key;
     // if (key === "Escape") {
     //     CPUtechnicianAttack();
-        // playerReceiveValueToOffset.push(Math.floor(Math.random() * 9) + 2);
-        // playerReceiveValueToDisplay = [...playerReceiveValueToOffset];
-        // playerReceiveValueToDisplay.sort((a, b) => a - b);
-        // CPUdrawStatusField(ctxPlayerStatus, true);
-        // soundManager.playSound('receiveAttack', { volume: 0.5 });
-        // CPUdrawStatusField(ctxOpponentStatus, false);
-        // CPUdrawStatusField(ctxPlayerStatus, true);
+    // playerReceiveValueToOffset.push(Math.floor(Math.random() * 9) + 2);
+    // playerReceiveValueToDisplay = [...playerReceiveValueToOffset];
+    // playerReceiveValueToDisplay.sort((a, b) => a - b);
+    // CPUdrawStatusField(ctxPlayerStatus, true);
+    // soundManager.playSound('receiveAttack', { volume: 0.5 });
+    // CPUdrawStatusField(ctxOpponentStatus, false);
+    // CPUdrawStatusField(ctxPlayerStatus, true);
     // }
 
     if (
@@ -338,7 +338,9 @@ function CPUcheckAndRemoveWord() {
         resetHighlight(playerField);
         if (playerInput.length !== 0) {
             if (currentKey !== "OPTIMIST" && currentKey !== "WORDCHAINER") {
-                if (chainBonus === 3) {
+                if (currentKey === "MUSCLE") {
+                    chainBonus = 0;
+                } else if (chainBonus === 3) {
                     chainBonus = 2
                 } else if (chainBonus <= 2) {
                     chainBonus = 0;
@@ -358,7 +360,11 @@ function CPUcheckAndRemoveWord() {
 }
 
 function CPUnerfAttackValue() {
-    nerfValue = nerfValue + 1;
+    if (currentKey === "MUSCLE") {
+        nerfValue = 10;
+    } else {
+        nerfValue = nerfValue + 1;
+    }
     CPUupdateNerfInfoDisplay();
 }
 
@@ -691,24 +697,46 @@ function CPUdownChainAttack() {
 
 
 function CPUsameCharAttack() {
-    let calculatedAttackVal = playerAttackValue;
-    if (nerfValue !== 0) {
-        calculatedAttackVal = playerAttackValue - nerfValue;
-        if (calculatedAttackVal < 2) {
-            calculatedAttackVal = 0
-        }
-    }
+    let calculatedAttackVal
+
     if (currentKey === "MUSCLE") {
         chainBonus += 1;
-        calculatedAttackVal = calculatedAttackVal + playerAttackValue + playerAttackValue + chainBonus * 3;
+        calculatedAttackVal = playerAttackValue * 3 + chainBonus * 3;
+    } else {
+        calculatedAttackVal = playerAttackValue * 2 + chainBonus * 2;
+    }
+
+    if (nerfValue !== 0) {
+        if (nerfValue >= 10) {
+            nerfValue = 10;
+        }
+        calculatedAttackVal = calculatedAttackVal - nerfValue;
+        if ((calculatedAttackVal >= 10) && (calculatedAttackVal % 10 < 2)) {
+            calculatedAttackVal = calculatedAttackVal - (calculatedAttackVal % 10)
+        }
+        if (calculatedAttackVal < 2) {
+            calculatedAttackVal = 0;
+        }
+    }
+
+    // let calculatedAttackVal = playerAttackValue;
+    // if (nerfValue !== 0) {
+    //     calculatedAttackVal = playerAttackValue - nerfValue;
+    //     if (calculatedAttackVal < 2) {
+    //         calculatedAttackVal = 0
+    //     }
+    // }
+    if (currentKey === "MUSCLE") {
+        // chainBonus += 1;
+        // calculatedAttackVal = calculatedAttackVal + playerAttackValue + playerAttackValue + chainBonus * 3;
         playerAttackValue = playerAttackValue * 3 + chainBonus * 3
     } else {
-        calculatedAttackVal = calculatedAttackVal + playerAttackValue + chainBonus * 2;
+        // calculatedAttackVal = calculatedAttackVal + playerAttackValue + chainBonus * 2;
         playerAttackValue = playerAttackValue * 2 + chainBonus * 2
         chainBonus = 0;
         if (currentKey === "TECHNICIAN" && calculatedAttackVal >= 20) {
-            calculatedAttackVal = calculatedAttackVal - 20;
-            playerAttackValue = playerAttackValue - 20;
+            calculatedAttackVal = calculatedAttackVal - 10;
+            playerAttackValue = playerAttackValue - 10;
             CPUtechnicianAttack();
         }
     }
@@ -967,6 +995,7 @@ function CPUupdateChainInfoDisplay() {
     if (currentKey == "TECHNICIAN") {
         if (chainBonus >= 5) {
             chainBonus = chainBonus - 5;
+            CPUattack(5);
             CPUtechnicianAttack();
         }
     }

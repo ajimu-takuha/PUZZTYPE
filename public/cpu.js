@@ -446,12 +446,17 @@ function CPUstartInput() {
                 } else {
                     if (opponentWordToInput) {
                         opponentInput += opponentWordToInput[0];
+                        if ("あいうえおー".includes(opponentWordToInput[0])) {                  
+                            opponentKeyValueToKPM += 1;
+                        } else {                         
+                            opponentKeyValueToKPM += 2;
+                        }
                         opponentWordToInput = opponentWordToInput.slice(1);
                         if (opponentWordToInput.length === 0) {
                             isWordDecided = false;
                         }
                     }
-                    opponentKeyValueToKPM++;
+                    // opponentKeyValueToKPM++;
                     if (opponentInput.length > decidedWordLength) {
                         opponentInput = '';
                         isWordDecided = false;
@@ -822,12 +827,11 @@ function CPUdrawField(ctx, field, receivedLastWordLength) {
             const width = FIELD_WIDTH * CELL_SIZE;
             const height = CELL_SIZE;
 
-            const hasLongerWord = (receivedLastWordLength === 10 && rowWord.length === 9) ||
-                (receivedLastWordLength === 2 && rowWord.length === 3) ||
+            const hasLongerWord =
                 (rowWord.length === receivedLastWordLength + 1);
 
-            const hasShorterWord = receivedLastWordLength !== 2 &&
-                rowWord.length === receivedLastWordLength - 1;
+            const hasShorterWord =
+                (rowWord.length === receivedLastWordLength - 1);
 
             if (rowWord == attackWord) {
                 ctx.fillStyle = 'rgba(50, 50, 50)';

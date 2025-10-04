@@ -180,7 +180,7 @@ document.addEventListener('DOMContentLoaded', () => {
       title: 'ざっくり概要',
       content: `
       <div style="font-size:1.5vw; line-height:5vh;">
-        ・スペースキーか時間経過でフィールドに単語が追加<br>
+        ・SPACEキーもしくは時間経過でフィールドに単語が追加<br>
         ・単語をタイプすると相手に単語を送って
         <span style="color: rgb(255, 255, 255);">攻撃</span>
         <span style="font-size:1vw; color: rgb(255, 255, 255);"> -ATTACK </span><br>
@@ -214,7 +214,7 @@ document.addEventListener('DOMContentLoaded', () => {
     {
       title: 'スタイル  -その1',
       content: `
-      <div style="font-size:1.2vw; line-height:4.2vh;">
+      <div style="font-size:1.2vw; line-height:4vh;">
         　CONFIG画面でNORMAL STYLEを押すとプレイヤーのスタイルを変更でき、能力が変わります<br>
         　対戦時はフィールド横に現在のスタイルが表示されます<br>
         <span style="text-shadow:0px 0px 1px rgba(100, 255, 150, 1),1px 1px 0 rgba(100, 255, 150, 1),-1px 1px 0 rgba(100, 255, 150, 1),-1px -1px 0 rgba(100, 255, 150, 1),1px -1px 0 rgba(100, 255, 150, 1); color: rgb(0, 0, 0);">
@@ -237,6 +237,12 @@ document.addEventListener('DOMContentLoaded', () => {
         によって
         <span style="color: rgba(255, 200, 50, 0.9);">CHAINBONUS</span>
         を引き継げます<br>
+        　・1文字でもミスタイプすると
+        <span style="color:rgba(180, 200, 255, 0.8);">Nerf</span>
+        が10になり、
+        <span style="color: rgba(255, 200, 50, 0.9);">CHAINBONUS</span>
+        が0になります
+        <br>
         <span style="text-shadow:0px 0px 1px rgba(100, 255, 150, 1),1px 1px 0 rgba(100, 255, 150, 1),-1px 1px 0 rgba(100, 255, 150, 1),-1px -1px 0 rgba(100, 255, 150, 1),1px -1px 0 rgba(100, 255, 150, 1); color: rgb(0, 0, 0);">
         REFLECTOR</span><br>
         　・相殺時に同じ攻撃力を相殺した場合は1回の攻撃で2回まで相殺し、その攻撃力を2回相手に送ります<br>
@@ -244,8 +250,8 @@ document.addEventListener('DOMContentLoaded', () => {
         <span style="text-shadow:0px 0px 1px rgba(100, 255, 150, 1),1px 1px 0 rgba(100, 255, 150, 1),-1px 1px 0 rgba(100, 255, 150, 1),-1px -1px 0 rgba(100, 255, 150, 1),1px -1px 0 rgba(100, 255, 150, 1); color: rgb(0, 0, 0);">
         TECHNICIAN</span><br>
         　・<span style="color: rgba(255, 200, 50, 0.9);">CHAINBONUS</span>
-        が5たまると自動的に消費して相手フィールドに消せないラインが送られます<br>
-        　・攻撃力20以上の攻撃を行った場合も、攻撃力を20消費して相手フィールドに消せないラインが送られます<br>
+        が5以上たまると5消費して、5の攻撃と相手フィールドに消せないラインを送ります<br>
+        　・攻撃力20以上の攻撃を行った場合は、攻撃力を10減少させ相手フィールドに消せないラインを送ります<br>
       </div>
       `
     },
@@ -281,7 +287,7 @@ document.addEventListener('DOMContentLoaded', () => {
         上昇値が3になります<br>
         　・
         <span style="color: rgba(255, 200, 50, 0.9);">CHAINBONUS</span>
-        が10以上になると攻撃後0にリセットされます<br>
+        が10以上になると攻撃後0になります<br>
         <span style="text-shadow:0px 0px 1px rgba(100, 255, 150, 1),1px 1px 0 rgba(100, 255, 150, 1),-1px 1px 0 rgba(100, 255, 150, 1),-1px -1px 0 rgba(100, 255, 150, 1),1px -1px 0 rgba(100, 255, 150, 1); color: rgb(0, 0, 0);">
         WORDCHAINER</span><br>
         　・<span style="color: rgb(0, 255, 0);">CONNECT</span>
@@ -807,6 +813,7 @@ let currentWarningSoundState;
 let currentCountdownSoundState;
 let currentGameOverSoundState;
 let currentButtonSoundState;
+let currentAskVideoState;
 
 document.addEventListener('DOMContentLoaded', () => {
   selectedCategory = localStorage.getItem('modeState') || 'JAPANESE';
@@ -829,6 +836,7 @@ document.addEventListener('DOMContentLoaded', () => {
   currentCountdownSoundState = localStorage.getItem('CountdownSoundState') || 'VALID';
   currentGameOverSoundState = localStorage.getItem('GameOverSoundState') || 'VALID';
   currentButtonSoundState = localStorage.getItem('ButtonSoundState') || 'VALID';
+  currentAskVideoState = localStorage.getItem('askVideoState') || 'VALID';
 
   intervalRight.textContent = interval;
   intervalButton.addEventListener('click', toggleIntervalState);
@@ -874,7 +882,6 @@ document.addEventListener('DOMContentLoaded', () => {
   attackSERight.textContent = currentAttackSoundState;
   attackSEButton.addEventListener('click', toggleAttackSoundState);
 
-
   // warningSELeft.textContent = 'WARNING SOUND :'
   warningSERight.textContent = currentWarningSoundState;
   warningSEButton.addEventListener('click', toggleWarningSoundState);
@@ -891,6 +898,8 @@ document.addEventListener('DOMContentLoaded', () => {
   buttonSERight.textContent = currentButtonSoundState;
   buttonSEButton.addEventListener('click', toggleButtonSoundState);
 
+  askVideoRight.textContent = currentAskVideoState;
+  askVideoButton.addEventListener('click', toggleAskVideoState);
 
   const configWrapper = document.getElementById('configWrapper');
   const configBtn = document.querySelector('.game-button.config');
@@ -931,6 +940,10 @@ document.addEventListener('DOMContentLoaded', () => {
       configWrapper.classList.remove('closing');
     }, 600);
   });
+
+  if (window.MoviePlayer && typeof window.MoviePlayer.askOnGameStart === 'function') {
+    try { window.MoviePlayer.askOnGameStart(); } catch (_) { /* ignore */ }
+  }
 });
 
 const styleRight = document.getElementById('styleRight');
@@ -942,9 +955,9 @@ const opponentStyle = document.getElementById('opponentStyle');
 
 let styles = {
   'NORMAL STYLE': "CLASSIC ABILITY",
-  'MUSCLE': "DBL-ATK ×1.5 & BONUS +1 / ONLY DBL-ATK",
+  'MUSCLE': "DBL-ATK ONLY & ×3 / MISS PENALTY UP",
   'REFLECTOR': "OFFSET ×2 / REFLECT / DAMAGE 50% ×2",
-  'TECHNICIAN': "OBSTRUCT USING 5 BONUS / 20 ATK",
+  'TECHNICIAN': "OBSTRUCT USING BONUS OR ATK",
   'GAMBLER': "ATK 25% -> SELF-ATK / MISS / ×2 / ×3",
   'OPTIMIST': "BONUS UP & LIMITED / NO MISS PENALTY",
   'WORDCHAINER': "CONNECT ONLY ATK 20 & BONUS +5",
@@ -1272,6 +1285,20 @@ function toggleButtonSoundState() {
   localStorage.setItem('ButtonSoundState', currentButtonSoundState);
   buttonSERight.textContent = currentButtonSoundState;
   return currentButtonSoundState;
+}
+
+const askVideoRight = document.getElementById('askVideoRight');
+const askVideoButton = document.querySelector('.configButtons.askVideo');
+
+function toggleAskVideoState() {
+  if (currentAskVideoState === 'VALID') {
+    currentAskVideoState = 'INVALID'
+  } else {
+    currentAskVideoState = 'VALID'
+  }
+  localStorage.setItem('askVideoState', currentAskVideoState);
+  askVideoRight.textContent = currentAskVideoState;
+  return currentAskVideoState;
 }
 
 let CELL_SIZE = 30;
@@ -2415,12 +2442,14 @@ function drawField(ctx, field, receivedLastWordLength) {
       const width = FIELD_WIDTH * CELL_SIZE;
       const height = CELL_SIZE;
 
-      const hasLongerWord = (receivedLastWordLength === 10 && rowWord.length === 9) ||
-        (receivedLastWordLength === 2 && rowWord.length === 3) ||
+      const hasLongerWord =
+        // (receivedLastWordLength === 2 && rowWord.length === 3) ||
         (rowWord.length === receivedLastWordLength + 1);
 
-      const hasShorterWord = receivedLastWordLength !== 2 &&
-        rowWord.length === receivedLastWordLength - 1;
+      const hasShorterWord =
+        // (receivedLastWordLength === 10 && rowWord.length === 9) ||
+        // (receivedLastWordLength !== 2 &&
+        (rowWord.length === receivedLastWordLength - 1);
 
       if (rowWord == attackWord) {
         ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
@@ -3276,7 +3305,9 @@ function checkAndRemoveWord(field, fieldWords, input) {
       if (playerInput.length !== 0) {
         if (input === playerInput) {
           if (currentKey !== "OPTIMIST" && currentKey !== "WORDCHAINER") {
-            if (chainBonus === 3) {
+            if (currentKey === "MUSCLE") {
+              chainBonus = 0;
+            } else if (chainBonus === 3) {
               chainBonus = 2
             } else if (chainBonus <= 2) {
               chainBonus = 0;
@@ -3321,7 +3352,9 @@ function checkAndRemoveWord(field, fieldWords, input) {
     if (playerInput.length !== 0) {
       if (input === playerInput) {
         if (currentKey !== "OPTIMIST" && currentKey !== "WORDCHAINER") {
-          if (chainBonus === 3) {
+          if (currentKey === "MUSCLE") {
+            chainBonus = 0;
+          } else if (chainBonus === 3) {
             chainBonus = 2
           } else if (chainBonus <= 2) {
             chainBonus = 0;
@@ -3915,6 +3948,7 @@ function updateChainInfoDisplay() {
   if (currentKey == "TECHNICIAN") {
     if (chainBonus >= 5) {
       chainBonus = chainBonus - 5;
+      attack(5);
       technicianAttack();
     }
   }
@@ -4272,25 +4306,36 @@ function downChainAttack() {
 
 function sameCharAttack() {
 
-  let calculatedAttackVal = playerAttackValue;
+  let calculatedAttackVal
+
+  if (currentKey === "MUSCLE") {
+    chainBonus += 1;
+    calculatedAttackVal = playerAttackValue * 3 + chainBonus * 3;
+  } else {
+    calculatedAttackVal = playerAttackValue * 2 + chainBonus * 2;
+  }
+
   if (nerfValue !== 0) {
-    calculatedAttackVal = playerAttackValue - nerfValue;
+    if (nerfValue >= 10) {
+      nerfValue = 10;
+    }
+    calculatedAttackVal = calculatedAttackVal - nerfValue;
+    if ((calculatedAttackVal >= 10) && (calculatedAttackVal % 10 < 2)) {
+      calculatedAttackVal = calculatedAttackVal - (calculatedAttackVal % 10)
+    }
     if (calculatedAttackVal < 2) {
-      calculatedAttackVal = 0
+      calculatedAttackVal = 0;
     }
   }
 
   if (currentKey === "MUSCLE") {
-    chainBonus += 1;
-    calculatedAttackVal = calculatedAttackVal + playerAttackValue + playerAttackValue + chainBonus * 3;
     playerAttackValue = playerAttackValue * 3 + chainBonus * 3
   } else {
-    calculatedAttackVal = calculatedAttackVal + playerAttackValue + chainBonus * 2;
     playerAttackValue = playerAttackValue * 2 + chainBonus * 2
     chainBonus = 0;
     if (currentKey === "TECHNICIAN" && calculatedAttackVal >= 20) {
-      calculatedAttackVal = calculatedAttackVal - 20;
-      playerAttackValue = playerAttackValue - 20;
+      calculatedAttackVal = calculatedAttackVal - 10;
+      playerAttackValue = playerAttackValue - 10;
       technicianAttack();
     }
   }
@@ -4318,7 +4363,11 @@ function sameCharAttack() {
 }
 
 function nerfAttackValue() {
-  nerfValue = nerfValue + 1;
+  if (currentKey === "MUSCLE") {
+    nerfValue = 10;
+  } else {
+    nerfValue = nerfValue + 1;
+  }
   updateNerfInfoDisplay();
 }
 
