@@ -1,5 +1,5 @@
 
-const MOVIE_SRC = './movie/PUZZTYPE_movie.mp4';
+const MOVIE_SRC = './movie/PUZZTYPE_movie_30fps_compressed.mp4';
 
 function createOverlay() {
 	const overlay = document.createElement('div');
@@ -33,7 +33,8 @@ function createOverlay() {
 	closeBtn.style.position = 'absolute';
 	closeBtn.style.top = '1px';
 	closeBtn.style.right = '1px';
-	// closeBtn.style.padding = '8px 12px';
+	closeBtn.style.padding = '8px';
+	closeBtn.style.margin = '0px';
 	// closeBtn.style.fontSize = '14px';
 	// closeBtn.style.cursor = 'pointer';
 
