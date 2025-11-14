@@ -1050,7 +1050,7 @@ function CPUhandleGameOver() {
                 opponentWins = 0;
                 playerIsLoser = false;
                 CPUshowRetryDialog();
-            }, 5000);
+            }, 6000);
         }, 1500);
     } else {
         drawGameOverUI('Lose');
@@ -1058,7 +1058,7 @@ function CPUhandleGameOver() {
             resetGameAnimation();
             setTimeout(() => {
                 CPUstartCountdown();
-            }, 4000);
+            }, 5000);
         }, 1500);
     }
 }

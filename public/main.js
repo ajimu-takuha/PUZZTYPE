@@ -164,6 +164,10 @@ window.document.onkeydown = function (evt) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  setTimeout(() => {
+    runDropAnimation();
+  }, 3200);
+
   const welcomeOverlay = document.querySelector(".welcomeOverlay");
 
   const handleAnimationEnd = (event) => {
@@ -494,7 +498,7 @@ document.addEventListener('DOMContentLoaded', () => {
       `
     },
     {
-      title: '対戦の詳細仕様 (読まなくても問題ナシ)',
+      title: '対戦の詳細仕様 (暇なら読んでください)',
       content: `
       <div style="font-size:1vw; line-height:2.9vh;">
         ・単語が追加される場所がフィールド、その下が入力フィールドで、プレイヤーは左側、対戦相手は右側です<br>
@@ -524,7 +528,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <div style="font-size:1vw; line-height:3.1vh;">
         なぜこのゲームを作ったかというと、まず
         <a href="https://ja.wikipedia.org/wiki/QWERTY%E9%85%8D%E5%88%97" target="_blank">QWERTY配列</a>
-        をやめて自作配列のタイピング練習をしていたら<br>
+        をやめて大西配列のタイピング練習をしていたら<br>
         「タイピングは音ゲー並みの入力量なのに、それを生かしたスピーディなタイピングゲームというのがないのでは」と考え<br>
         自分の中でスピーディなゲームという印象が強い「
         <a href="https://tetr.io/" target="_blank">TETR.IO</a>
@@ -534,23 +538,23 @@ document.addEventListener('DOMContentLoaded', () => {
         を探すというのをこのゲームの本質にしようと思いました<br>
         モチーフがパズルゲームなのもありますが、パズル的思考が重要だと思ったためゲーム名を PUZZTYPE としました<br>
         当初考えていなかったのですが、その思考をより主軸とするため CONNECT システムを作りました<br>
-        ( しりとりは英語で「WORD CHAIN」ともいわれるらしいから、名前はそれでも良かったかも )<br>
+        ( しりとりは英語で「WORD CHAIN」ともいわれるらしい )<br>
         思い描いていたゲームスピードから離れるとは思いましたが、対戦ゲームとしてはあるほうがよかったと思います<br>
         ただ、フィールドサイズや出現する単語の文字数、追加時間、追加方法、相殺システム、何が最適なのかは謎<br>
-        配色に関しても、同じ文字に同じ色のエフェクトをつけたらえらくカラフルになってしまいました<br>
+        配色に関しても、同じ文字に同じ色のエフェクトをつけた結果、えらくカラフルになってしまいました<br>
         音声も、
         <a href="https://freesound.org" target="_blank">freesound</a>
-        のサンプルを数千は聞きましたが、イメージと異なるSEがいくつかあります<br>
+        のサンプルを数千は聞きましたが、ピッタリの SE とはなりませんでした<br>
         システムに関しては、先にCPUを作って対戦の調整をすべきだったのを後悔してます...<br>
-        出題単語は8割趣味で一般性を欠きますが、「タイピングはプロパガンダにピッタリ」という
-        <a href="https://taisoku.com" target="_blank">某タイピングゲーム</a>
-        の例文にあったように、<br>
+        出題単語は8割趣味で一般性を欠きますが、「タイピングの例文はプロパガンダにピッタリ!」という
+        <a href="https://o24.works/atc/" target="_blank">某タイピングゲーム</a>
+        の例文にあるように、<br>
         聞いたことない単語を、ふとどこかで目にしたときの反応を期待してマニアックにしています<br>
         自分は
         <a href="https://sushida.net/play.html" target="_blank">寿司打</a>
         2万円/ 
         <a href="https://mikatype.github.io/MIKATYPE_JAVASCRIPT/index2.html" target="_blank">MIKATYPE</a>
-        300文字がやっとのタイパーなので、上手い人はどこまで勝てるのか気になります<br>
+        300文字がやっとのタイパーなので、上手い人はCPUにどこまで勝てるのか気になります<br>
         <br>
       </div>
       `
@@ -563,14 +567,12 @@ document.addEventListener('DOMContentLoaded', () => {
         <a href="https://chatgpt.com" target="_blank">ChatGPT</a>
         と
         <a href="https://claude.ai/new" target="_blank">Claude</a>
-        と少し
-        <a href="https://www.deepseek.com" target="_blank">deepseek</a>
-        が作ってます(コード効率は知らない)<br>
+        とかが作っています<br>
         サーバは
         <a href="https://render.com" target="_blank">Render</a>
         の無料枠を使っていますが、P2Pならサーバ借りずに作れる？らしいので作り方間違えたかも<br>
         <br>
-        テトリスを多く参考にし、最も参考にした
+        最も参考にした
         <a href="https://tetr.io" target="_blank">TETR.IO</a>
         は無料で遊べますが、実は未プレイです...<br><br>
         フォントについて、日本語の丸みは幾何学的、パズル的でないので合うフォントが少なかったです<br>
@@ -644,6 +646,7 @@ document.addEventListener('DOMContentLoaded', () => {
       　　　　<a href="https://freesound.org/people/David819/sounds/668436/" target="_blank">win.mp3 by David819 -- https://freesound.org/s/668436/ -- License: Creative Commons 0</a><br>
       　　　　<a href="https://freesound.org/people/kreha/sounds/773604/" target="_blank">SmallClick by kreha -- https://freesound.org/s/773604/ -- License: Creative Commons 0</a><br>
       　　　　<a href="https://soundeffect-lab.info/sound/button/" target="_blank">効果音ラボ: カーソル移動2 / ビープ音4</a><br>
+      　　　　<a href="https://commons.nicovideo.jp/works/nc312679" target="_blank">EMERGENCY 4 風biimシステム 16:9（1920x1080）</a><br>
       </div>      
       `
     },
@@ -844,8 +847,9 @@ document.addEventListener('DOMContentLoaded', () => {
   modeRight.textContent = selectedCategory;
   modeButton.addEventListener('click', toggleModeState);
 
-  styleRight.textContent = `${styles[styleKeys[currentIndexState]]}`;
-  styleLeft.textContent = `${styleKeys[currentIndexState]}`;
+  // styleRight.textContent = `${styles[styleKeys[currentIndexState]]}`;
+  // styleLeft.textContent = `${styleKeys[currentIndexState]}`;
+  styleRight.textContent = `${styleKeys[currentIndexState]}`;
   playerStyle.textContent = `${currentKey}`;
   styleButton.addEventListener('click', toggleStyleState);
 
@@ -947,7 +951,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 const styleRight = document.getElementById('styleRight');
-const styleLeft = document.getElementById('styleLeft');
+// const styleLeft = document.getElementById('styleLeft');
 const styleButton = document.querySelector('.configButtons.style');
 
 const playerStyle = document.getElementById('playerStyle');
@@ -972,8 +976,9 @@ function toggleStyleState() {
 
   localStorage.setItem('styleState', currentKey);
 
-  styleRight.textContent = `${styles[currentKey]}`;
-  styleLeft.textContent = `${currentKey}`;
+  // styleRight.textContent = `${styles[currentKey]}`;
+  // styleLeft.textContent = `${currentKey}`;
+  styleRight.textContent = `${currentKey}`;
   playerStyle.textContent = `${currentKey}`;
 }
 
@@ -991,9 +996,9 @@ function toggleIntervalState() {
       interval = 'PEACEFUL (10s)';
       break;
     case 'PEACEFUL (10s)':
-      interval = 'NOTHING (PRACTICE)';
+      interval = 'NOTHING';
       break;
-    case 'NOTHING (PRACTICE)':
+    case 'NOTHING':
       interval = 'NORMAL';
       break;
   }
@@ -1801,8 +1806,6 @@ function handleGameOver(isLoser) {
   }
 
 
-
-
   // drawGameOverUI(isLoser ? 'Lose' : 'Win');
 
   // 勝利数の確認
@@ -1816,7 +1819,7 @@ function handleGameOver(isLoser) {
         opponentWins = 0;
         playerIsLoser = false;
         showRetryDialog();
-      }, 5000);
+      }, 6000);
     }, 1500);
   } else {
     // 通常のゲーム終了処理
@@ -1825,7 +1828,7 @@ function handleGameOver(isLoser) {
       resetGameAnimation();
       setTimeout(() => {
         startCountdown();
-      }, 4000);
+      }, 5000);
     }, 1500);
   }
   // 少し待ってからリトライダイアログを表示
@@ -1834,6 +1837,23 @@ function handleGameOver(isLoser) {
   //   resetGameAnimation();
   // }, 2000);
 }
+
+function runDropAnimation() {
+  const el = document.getElementById("allGameArea");
+
+  // ① アニメーションを完全にリセット
+  el.style.animation = "none";
+
+  // ② 開始位置へ戻す
+  el.style.top = "-100vh";
+
+  // ③ レイアウト確定（ブラウザに状態を確実に認識させる）
+  void el.offsetWidth;
+
+  // ④ アニメーション設定を付け直す（＝アニメーションが最初から動く）
+  el.style.animation = "drop 1s cubic-bezier(0.25, 1, 0.5, 1) forwards";
+}
+
 
 // リトライレスポンス処理
 function handleRetryResponse(response) {
@@ -2062,6 +2082,11 @@ async function resetGameAnimation() {
   margin-top: 40%; color: white; text-align: center; font-family:'zouver'; font-size: 12vh; line-height: 100%; margin-right: 25%; margin-top: 40%;">Lose</div>`;
   }
 
+  const el = document.getElementById("allGameArea");
+  el.style.animation = "none";
+  el.style.top = "-100vh";
+  void el.offsetWidth;
+
   // 2秒待ってから扉を開く
   setTimeout(async () => {
     await openDoors();
@@ -2069,7 +2094,9 @@ async function resetGameAnimation() {
     doorRight.innerHTML = '';
     doorLeft.style.background = '';
     doorRight.style.background = '';
+    runDropAnimation();
   }, 2500);
+
 }
 
 function drawGameOverUI(text) {
@@ -3121,6 +3148,16 @@ window.addEventListener("keydown", (e) => {
     //   showRetryDialog();
     // }
     // else if (key === "Enter") {
+    //   console.log('エフェクト発射!');
+    //   const player = document.getElementById('playerEffectOverlay');
+    //   const opponent = document.getElementById('opponentEffectOverlay');
+
+    //   arcEffect.launch(player, opponent, {
+    //     color: '#3ec5ff',
+    //     size: 14,
+    //     duration: 650,
+    //     curvature: 0.35,
+    //   });
     // }
     else if (key === "Delete" || key === "Control") {
       if (currentDeleteSoundState === 'VALID') {

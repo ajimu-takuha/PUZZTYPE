@@ -446,9 +446,9 @@ function CPUstartInput() {
                 } else {
                     if (opponentWordToInput) {
                         opponentInput += opponentWordToInput[0];
-                        if ("あいうえおー".includes(opponentWordToInput[0])) {                  
+                        if ("あいうえおー".includes(opponentWordToInput[0])) {
                             opponentKeyValueToKPM += 1;
-                        } else {                         
+                        } else {
                             opponentKeyValueToKPM += 2;
                         }
                         opponentWordToInput = opponentWordToInput.slice(1);
@@ -1803,7 +1803,7 @@ function CPUopponentHandleGameOver() {
                 opponentWins = 0;
                 playerIsLoser = false;
                 CPUshowRetryDialog();
-            }, 5000);
+            }, 6000);
         }, 1500);
     } else {
         drawGameOverUI('Win');
@@ -1811,7 +1811,7 @@ function CPUopponentHandleGameOver() {
             resetGameAnimation();
             setTimeout(() => {
                 CPUstartCountdown();
-            }, 4000);
+            }, 5000);
         }, 1500);
     }
 }

@@ -33,7 +33,7 @@ function createOverlay() {
 	closeBtn.style.position = 'absolute';
 	closeBtn.style.top = '1px';
 	closeBtn.style.right = '1px';
-	closeBtn.style.padding = '8px';
+	closeBtn.style.padding = 'auto';
 	closeBtn.style.margin = '0px';
 	// closeBtn.style.fontSize = '14px';
 	// closeBtn.style.cursor = 'pointer';

@@ -53,30 +53,34 @@
   <div id="configWrapper">
     <button class="configButtons mode toUseSE">
       <p id="modeLeft">MODE
+        <span style="font-size:1.5vh;"> [クリックで変更] </span>
         :
       </p>
       <p id="modeRight"></p>
     </button>
     <button class="configButtons style toUseSE">
       <p id="styleLeft">STYLE
+        <span style="font-size:1.5vh;"> [クリックで変更] </span>
         :
       </p>
       <p id="styleRight"></p>
     </button>
     <button class="configButtons interval toUseSE">
-      <p id="intervalLeft">INTERVAL (VS CPU ONLY)
+      <p id="intervalLeft">INTERVAL
+        <span style="font-size:1.5vh;"> [CPU戦での単語追加時間] </span>
         :
       </p>
       <p id="intervalRight"></p>
     </button>
     <button class="configButtons font toUseSE">
       <p id="fontLeft">FONT
+        <span style="font-size:1.5vh;"> [クリックで変更] </span>
         :
       </p>
       <p id="fontRight"></p>
     </button>
     <button class="configButtons gridHorizon toUseSE">
-      <p id="gridHorizonLeft">GRID HORIZON 
+      <p id="gridHorizonLeft">GRID HORIZON
         <span style="font-size:1.5vh;"> [フィールド横線] </span>
         :
       </p>
@@ -91,56 +95,84 @@
     </button>
     <button class="configButtons BGM toUseSE">
       <p id="BGMLeft">BGM
-        <span style="font-size:1.5vh;">[ spaceキーで試聴 ]</span>
+        <span style="font-size:1.5vh;">[ クリックで変更 / spaceキーで試聴 ]</span>
         :
       </p>
       <p id="BGMRight"></p>
     </button>
     <button class="configButtons typeSE toUseSE">
       <p id="typeSELeft">TYPE SOUND
-        <span style="font-size:1.5vh;">[ 任意のキーを押して試聴 ]</span>
+        <span style="font-size:1.5vh;">[ クリックで変更 / 任意のキーを押して試聴 ]</span>
         :
       </p>
       <p id="typeSERight"></p>
     </button>
     <button class="configButtons misstypeSE toUseSE">
-      <p id="misstypeSELeft">MISSTYPE SOUND :</p>
+      <p id="misstypeSELeft">MISSTYPE SOUND
+        <span style="font-size:1.5vh;"> [ミスタイプ音] </span>
+        :
+      </p>
       <p id="misstypeSERight"></p>
     </button>
     <button class="configButtons deleteSE toUseSE">
-      <p id="deleteSELeft">ERASE SOUND :</p>
+      <p id="deleteSELeft">ERASE SOUND
+        <span style="font-size:1.5vh;"> [消去音] </span>
+        :
+      </p>
       <p id="deleteSERight"></p>
     </button>
     <button class="configButtons addWordSE toUseSE">
-      <p id="addWordSELeft">ADDWORD SOUND :</p>
+      <p id="addWordSELeft">ADDWORD SOUND
+        <span style="font-size:1.5vh;"> [単語追加音] </span>
+        :
+      </p>
       <p id="addWordSERight"></p>
     </button>
     <button class="configButtons attackSE toUseSE">
-      <p id="attackSELeft">ATTACK SOUND :</p>
+      <p id="attackSELeft">ATTACK SOUND
+        <span style="font-size:1.5vh;"> [攻撃音] </span>
+        :
+      </p>
       <p id="attackSERight"></p>
     </button>
     <button class="configButtons warningSE toUseSE">
-      <p id="warningSELeft">WARNING SOUND :</p>
+      <p id="warningSELeft">WARNING SOUND
+        <span style="font-size:1.5vh;"> [危険時音] </span>
+        :
+      </p>
       <p id="warningSERight"></p>
     </button>
     <button class="configButtons countdownSE toUseSE">
-      <p id="countdownSELeft">COUNTDOWN SOUND :</p>
+      <p id="countdownSELeft">COUNTDOWN SOUND
+        <span style="font-size:1.5vh;"> [カウントダウン音] </span>
+        :
+      </p>
       <p id="countdownSERight"></p>
     </button>
     <button class="configButtons gameOverSE toUseSE">
-      <p id="gameOverSELeft">GAMEOVER SOUND :</p>
+      <p id="gameOverSELeft">GAMEOVER SOUND
+        <span style="font-size:1.5vh;"> [ゲームオーバー音] </span>
+        :
+      </p>
       <p id="gameOverSERight"></p>
     </button>
     <button class="configButtons buttonSE toUseSE">
-      <p id="buttonSELeft">BUTTON SOUND :</p>
+      <p id="buttonSELeft">BUTTON SOUND
+        <span style="font-size:1.5vh;"> [ボタン音] </span>
+        :
+      </p>
       <p id="buttonSERight"></p>
     </button>
     <button class="configButtons askVideo toUseSE">
-      <p id="askVideoLeft">ASK WATCHING VIDEO :</p>
+      <p id="askVideoLeft">ASK WATCHING VIDEO :
+        <span style="font-size:1.5vh;"> [起動時の動画視聴確認] </span>
+      </p>
       <p id="askVideoRight"></p>
     </button>
-    <button id = "watchVideo" class="configButtons toUseSE">
-      <p id="watchVideoText">ゆっくり解説動画を視聴する！( ※音が出ます )</p>
+    <button id="watchVideo" class="configButtons toUseSE">
+      <p id="watchVideoText">解説動画を視聴 
+        <span style="font-size:1.5vh;">[ ※音が出ます ]</span>
+      </p>
     </button>
     <button class="configButtons closeConfig toUseSE">CLOSE CONFIG</button>
   </div>
@@ -263,6 +295,7 @@
     <div class="overlay"></div>
   </div>
   <script src="./globals.js"></script>
+  <!-- <script src="./arcEffect.js"></script> -->
   <script src="./movie.js"></script>
   <script src="./main.js"></script>
   <script src="./cpu.js"></script>
