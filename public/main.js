@@ -181,18 +181,26 @@ document.addEventListener('DOMContentLoaded', () => {
   const howToPlayContent = document.getElementById('howToPlay');
   const pages = [
     {
-      title: 'ざっくり概要',
+      title: 'これだけ知ってて',
       content: `
       <div style="font-size:1.5vw; line-height:5vh;">
-        ・SPACEキーもしくは時間経過でフィールドに単語が追加<br>
-        ・単語をタイプすると相手に単語を送って
+        ・
+        <span style="color:rgb(255, 255, 255);">SPACEキー</span>
+        もしくは
+        <span style="color:rgb(255, 255, 255);">時間経過</span>
+        でフィールドに単語が追加<br>
+        ・
+        <span style="color: rgb(255, 255, 255);">単語をタイプ</span>
+        すると相手に単語を送って
         <span style="color: rgb(255, 255, 255);">攻撃</span>
         <span style="font-size:1vw; color: rgb(255, 255, 255);"> -ATTACK </span><br>
         ・タイプ中の文字は Backspace で1文字、 Delete または Ctrl で全て消去<br>
-        ・タイプする単語の文字数を1ずつ減らすか増やせば攻撃力に
+        ・タイプする単語の文字数を1ずつ変更すると攻撃力に
         <span style="color: rgba(255, 200, 50, 0.9);">ボーナス</span>
         <span style="font-size:1vw; color: rgba(255, 200, 50, 0.9);"> -CHAINBONUS </span><br>
-        ・ボーナスは文字数を
+        ・
+        <span style="color: rgba(255, 200, 50, 0.9);">ボーナス</span>
+        は文字数を
         <span style="color: rgb(0, 255, 255);">減らす</span>
         <span style="font-size:1vw; color: rgb(0, 255, 255);"> -UPCHAIN </span>
         と
@@ -205,13 +213,15 @@ document.addEventListener('DOMContentLoaded', () => {
         <span style="color: rgba(255, 200, 50, 0.9);">ボーナス</span>
         を保持したまま方向リセット
         <span style="font-size:1vw; color: rgb(0, 255, 0);"> -CONNECT </span><br>
-        ・同じ文字数の単語を連続タイプでボーナスは消えるけど
+        ・
+        <span style="color: rgb(255, 255, 255);">同じ文字数</span>
+        の単語を連続タイプでボーナスは消えるけど
         <span style="color: rgb(255, 255, 255);">攻撃力2倍</span>
         <span style="font-size:1vw; color: rgb(255, 255, 255);"> -DOUBLE ATTACK </span><br>
         ・単語がフィールドからあふれたら負け<br>
         ・スタイルを変更して違ったプレイを楽しもう!<br>
         <span style="font-size:1vw; color: rgb(255, 255, 255);">
-        　※オンラインは作者以外にプレイヤーがいないので、とりあえずCPUと対戦してみてね!</span>
+        　※オンラインは人がいなくて暇なとき作者が常駐してるだけです。とりあえずCPUと対戦してみてね!</span>
       </div>
       `
     },
@@ -219,7 +229,7 @@ document.addEventListener('DOMContentLoaded', () => {
       title: 'スタイル  -その1',
       content: `
       <div style="font-size:1.2vw; line-height:4vh;">
-        　CONFIG画面でNORMAL STYLEを押すとプレイヤーのスタイルを変更でき、能力が変わります<br>
+        　CONFIG画面でSTYLEをクリックするとスタイルを変更でき、能力が変わります<br>
         　対戦時はフィールド横に現在のスタイルが表示されます<br>
         <span style="text-shadow:0px 0px 1px rgba(100, 255, 150, 1),1px 1px 0 rgba(100, 255, 150, 1),-1px 1px 0 rgba(100, 255, 150, 1),-1px -1px 0 rgba(100, 255, 150, 1),1px -1px 0 rgba(100, 255, 150, 1); color: rgb(0, 0, 0);">
         MUSCLE</span><br>
@@ -249,12 +259,12 @@ document.addEventListener('DOMContentLoaded', () => {
         <br>
         <span style="text-shadow:0px 0px 1px rgba(100, 255, 150, 1),1px 1px 0 rgba(100, 255, 150, 1),-1px 1px 0 rgba(100, 255, 150, 1),-1px -1px 0 rgba(100, 255, 150, 1),1px -1px 0 rgba(100, 255, 150, 1); color: rgb(0, 0, 0);">
         REFLECTOR</span><br>
-        　・相殺時に同じ攻撃力を相殺した場合は1回の攻撃で2回まで相殺し、その攻撃力を2回相手に送ります<br>
-        　・相手から送られた攻撃は、50%の確率で2回送られます<br>
+        　・相殺時に同じ攻撃力を相殺した場合は1回の攻撃で2回まで相殺し、その攻撃力で2回相手に反撃します<br>
+        　・相手から送られる攻撃が、50%の確率で2回送られます<br>
         <span style="text-shadow:0px 0px 1px rgba(100, 255, 150, 1),1px 1px 0 rgba(100, 255, 150, 1),-1px 1px 0 rgba(100, 255, 150, 1),-1px -1px 0 rgba(100, 255, 150, 1),1px -1px 0 rgba(100, 255, 150, 1); color: rgb(0, 0, 0);">
         TECHNICIAN</span><br>
         　・<span style="color: rgba(255, 200, 50, 0.9);">CHAINBONUS</span>
-        が5以上たまると5消費して、5の攻撃と相手フィールドに消せないラインを送ります<br>
+        が5以上たまると5消費して攻撃し、加えて相手フィールドに消せないラインを送ります<br>
         　・攻撃力20以上の攻撃を行った場合は、攻撃力を10減少させ相手フィールドに消せないラインを送ります<br>
       </div>
       `
@@ -323,7 +333,7 @@ document.addEventListener('DOMContentLoaded', () => {
     {
       title: 'CPU対戦',
       content: `
-      <div style="font-size:1.5vw; line-height:6vh;">
+      <div style="font-size:1.5vw; line-height:5.2vh;">
         　・CPU MATCH ボタンからCPUと対戦ができます<br>
         　・対戦中に QUIT MATCH を押すとCPU対戦を中止します<br>
         　・各レベルで以下のCPUステータスが変わり、スライダーで自由に変更できます<br>
@@ -331,7 +341,8 @@ document.addEventListener('DOMContentLoaded', () => {
         　　--- MISS&nbsp&nbsp&nbsp&nbsp&nbsp&nbspRATE &nbsp-&nbsp CPUの入力時におけるミス率 ( % )<br>
         　　--- MISS&nbsp&nbsp&nbsp&nbsp&nbsp&nbspWAIT &nbsp-&nbsp CPUのミス時の待機時間 ( 秒 )<br>
         　　--- SELECT&nbspWAIT &nbsp-&nbsp CPUが新たに入力する単語を選択するまでの時間 ( 秒 )<br>
-        　CONFIG画面からINTERVALを変更すると、時間経過による単語の追加の秒数を変更できます<br>
+        　CONFIG画面からINTERVALを変更すると<br>
+        　時間経過による単語追加の秒数を「1秒」「10秒」「なし」に変更できます<br>
 
       </div>
       `
@@ -390,7 +401,7 @@ document.addEventListener('DOMContentLoaded', () => {
         　・同じ文字数の単語を連続でタイプすると、攻撃力が2倍になります<br>
         　・
         <span style="color: rgba(255, 200, 50, 0.9);">CHAINBONUS</span>
-        がある場合は1度だけ2倍の数値として攻撃力と合算され、その後
+        がある場合は2倍の数値として攻撃力に合算され、その後
         <span style="color: rgba(255, 200, 50, 0.9);">CHAINBONUS</span>
         が0になります<br>
         　・画面上で背景色が
@@ -467,13 +478,13 @@ document.addEventListener('DOMContentLoaded', () => {
         ・しかし「tたいぺ」/「たいpf」/「たいpぱ」のように入力した場合は
         <span style="color:rgba(180, 200, 255, 0.8);">Nerf</span>
         されません<br>
-        ・「たいぱぱ」と入力したあと、BackSpaceキーを入力して「たいぱ」となった場合も
+        ・「たいぱぱ」と入力したあと、BackSpace を入力して「たいぱ」となった場合も
         <span style="color:rgba(180, 200, 255, 0.8);">Nerf</span>
         されます<br>
         ・
         <span style="color: rgba(255, 200, 50, 0.9);">CHAINBONUS</span>
-        も減ってしまうので、2文字以上タイプミスした場合は文字をクリアするのがいいかもしれません<br>
-        ・スペースキーや時間制限によってフィールドに文字が追加された際にもその時点の入力に対して
+        も減ってしまうので、2文字以上タイプミスした場合は文字をクリアするのも手です<br>
+        ・スペースキーや時間経過によってフィールドに文字が追加された際にもその時点の入力に対して
         <span style="color:rgba(180, 200, 255, 0.8);">Nerf</span>
         判定が行われます<br>
       </div>
@@ -490,7 +501,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ・英語モードでは、相手のモードにかかわらず、受ける攻撃力に+2されます<br>
         ・英語モードでは、相手のモードにかかわらず、与える攻撃力が-2されます<br>
         ・つまり、英語モード同士の対戦では通常の攻撃になり、日本語モード相手では難しくなります<br>
-        ・これは英語の方が入力量が少なく済み、かつCONNECTしやすいためこのような仕様にしています<br>
+        ・これは日本語に対する入力量の差と、CONNECTしやすさのためです<br>
         ・スタイル「WORDCHAINER」は英語モードでの使用を前提としています<br>
         ・CPUは自分の入力モードと同じモードになります<br>
         ・ほかの仕様は日本語モードと同じです<br>
@@ -503,22 +514,22 @@ document.addEventListener('DOMContentLoaded', () => {
       <div style="font-size:1vw; line-height:2.9vh;">
         ・単語が追加される場所がフィールド、その下が入力フィールドで、プレイヤーは左側、対戦相手は右側です<br>
         ・フィールドには1行に1つずつ2-10文字の単語が追加され、開始時10個の単語が追加されます<br>
-        ・タイプすると入力フィールドに文字が表示され、BacKSpaceキーで1文字、 Delete/Ctrlキーで全ての文字がクリアされます<br>
+        ・タイプすると入力フィールドに文字が表示され、BacKSpace で1文字、 Delete/Ctrl で全ての文字がクリアされます<br>
         ・フィールドの単語をタイプするとその単語が消え、消した文字と同じ文字数(攻撃力)の単語が相手フィールドに送られます (攻撃)<br>
         ・CHAINBONUS は DOUBLE ATTACK 以外では攻撃力に合算されず、個別の攻撃となります<br>
         ・DOUBLE ATTACK / CHAINBONUSが10以上なら10ずつ使って攻撃し、攻撃力が10未満になった際は値が2以上の場合は攻撃します<br>
         ・DOUBLE ATTACK で10以上の超過攻撃後、残った攻撃力が10の場合は、ランダムな2回の攻撃に分けられます（ex.30->10+10+4+6）<br>
         ・攻撃すると相手フィールド左に、攻撃されると自分のフィールド左に送られた攻撃力が文字数とともに赤で表示されます<br>
         ・攻撃が送られた状態で自分が攻撃するとその攻撃力だけ送られた攻撃力を減らします(相殺)<br>
-        ・相殺は同じ攻撃力があればそれを、なければ攻撃力が高い順に相殺し、相殺後1以下になるとその攻撃を無効化します<br>
+        ・相殺は同じ攻撃力があればそれを、なければ攻撃力が高い順に相殺し、相殺後2未満になるとその攻撃を無効化します<br>
         ・相殺後にこちらの攻撃力が2以上残っていれば攻撃しますが、そうでなければ相殺によって相手に攻撃は送られません<br>
         ・スペースキー押下時、もしくはフィールド下のプログレスバーで示す時間経過でフィールドに単語が追加されます<br>
         ・単語の追加は、攻撃を受けている場合はそれがすべて追加され、そうでない場合は、フィールド左のNEXTから単語が追加されます<br>
         ・時間経過の場合ゲーム開始後10秒で単語が追加され、5秒経過ごとに0.15秒ずつ加速し、最終的に2秒ごとに追加されます<br>
         ・スペースキー押下で単語を追加すると追加時間がリセットされます<br>
         ・NEXTに表示される単語は18回追加されるごとに2-10文字の9種類の長さのランダムな単語が各2回ずつ出現します<br>
-        ・攻撃時にはNerf込みの攻撃力がフィールドに表示され、相手の攻撃で単語がフィールドに21以上追加される場合フィールドが赤く点滅します<br>
-        ・単語がフィールドに21以上追加されたら負けとなり、同時に2人が負けると上手く処理できず回線で勝敗が決まったりします...<br>
+        ・攻撃時にはNerf後の攻撃力がフィールドに表示され、相手の攻撃で単語がフィールドに21以上追加される場合フィールドが赤く点滅します<br>
+        ・単語がフィールドに21以上追加されたら負けとなり、同時に2人が負けると上手く処理できず回線で勝敗が決まったりします<br>
       </div>
       `
     },
@@ -528,9 +539,11 @@ document.addEventListener('DOMContentLoaded', () => {
       <div style="font-size:1vw; line-height:3.1vh;">
         なぜこのゲームを作ったかというと、まず
         <a href="https://ja.wikipedia.org/wiki/QWERTY%E9%85%8D%E5%88%97" target="_blank">QWERTY配列</a>
-        をやめて大西配列のタイピング練習をしていたら<br>
-        「タイピングは音ゲー並みの入力量なのに、それを生かしたスピーディなタイピングゲームというのがないのでは」と考え<br>
-        自分の中でスピーディなゲームという印象が強い「
+        をやめて
+        <a href="https://o24.works/layout" target="_blank">大西配列</a>
+        のタイピング練習をしていたら<br>
+        「タイピングは音ゲー並みの入力量なのに、それを生かしたゲームスピードのタイピングゲームはないのでは」と考え<br>
+        自分の中で早いゲームという印象が強い「
         <a href="https://tetr.io/" target="_blank">TETR.IO</a>
         」をモチーフにゲームが作れそうだと思ったからです<br>
         初めは高速で攻撃を送りあうゲームを考えていたのですが、途中からタイピングのためのタイピングゲームではなく<br>
@@ -538,14 +551,14 @@ document.addEventListener('DOMContentLoaded', () => {
         を探すというのをこのゲームの本質にしようと思いました<br>
         モチーフがパズルゲームなのもありますが、パズル的思考が重要だと思ったためゲーム名を PUZZTYPE としました<br>
         当初考えていなかったのですが、その思考をより主軸とするため CONNECT システムを作りました<br>
-        ( しりとりは英語で「WORD CHAIN」ともいわれるらしい )<br>
-        思い描いていたゲームスピードから離れるとは思いましたが、対戦ゲームとしてはあるほうがよかったと思います<br>
+        ゲームスピードは遅くなると思いましたが、対戦ゲームとしてはあるほうがいいと思います<br>
         ただ、フィールドサイズや出現する単語の文字数、追加時間、追加方法、相殺システム、何が最適なのかは謎<br>
-        配色に関しても、同じ文字に同じ色のエフェクトをつけた結果、えらくカラフルになってしまいました<br>
+        できればテトリスでミノを置けば次のミノが出るように、リソースの追加を完全自動にしたかったがアイデア不足...<br>
+        デザインに関しても、同じ文字に同じ色のエフェクトをつけた結果、背景もカラフルにしないと浮いて見えてしまいました<br>
         音声も、
         <a href="https://freesound.org" target="_blank">freesound</a>
-        のサンプルを数千は聞きましたが、ピッタリの SE とはなりませんでした<br>
-        システムに関しては、先にCPUを作って対戦の調整をすべきだったのを後悔してます...<br>
+        のサンプルを数千は聞きましたが、既成のものでピッタリの SE はありませんでした<br>
+        システムに関しては、対人ありきで作ってたので、先にCPUを作って対戦の調整をすべきでした<br>
         出題単語は8割趣味で一般性を欠きますが、「タイピングの例文はプロパガンダにピッタリ!」という
         <a href="https://o24.works/atc/" target="_blank">某タイピングゲーム</a>
         の例文にあるように、<br>
@@ -554,7 +567,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <a href="https://sushida.net/play.html" target="_blank">寿司打</a>
         2万円/ 
         <a href="https://mikatype.github.io/MIKATYPE_JAVASCRIPT/index2.html" target="_blank">MIKATYPE</a>
-        300文字がやっとのタイパーなので、上手い人はCPUにどこまで勝てるのか気になります<br>
+        300文字がやっとなので、上手い人はCPUにどこまで勝てるのか気になります<br>
         <br>
       </div>
       `
@@ -584,7 +597,7 @@ document.addEventListener('DOMContentLoaded', () => {
         、みんなもプレイしよう! ( Steamでも販売中! )<br>
         自分は以前
         <a href="https://plicy.net/GamePlay/175820" target="_blank">10パズル</a>
-        というゲームを作っているので、計算が好きなら遊んでみてください<br><br>
+        というゲームを作っており、計算が好きなら遊んでみてください<br><br>
         このゲームの機能等について要望があればコメントください<br><br>
         <div style="font-size:0.8vw; line-height:2vh;">
         P.S.　 デバッグのために対戦してくれた merishiaru ありがとう!<br>
@@ -5109,12 +5122,12 @@ function showLoadingOverlay(message) {
   const cancelButton = overlay.querySelector('.cancelButton');
   cancelButton.addEventListener('mouseenter', () => {
     if (currentButtonSoundState === 'VALID') {
-      soundManager.playSound('buttonHover', { volume: 1 });
+      soundManager.playSound('buttonHover', { volume: 1.2 });
     }
   });
   cancelButton.addEventListener('click', () => {
     if (currentButtonSoundState === 'VALID') {
-      soundManager.playSound('buttonClick', { volume: 0.3 });
+      soundManager.playSound('buttonClick', { volume: 0.5 });
     }
     if (gameState === "randomMatch") {
       cancelRandomMatch();

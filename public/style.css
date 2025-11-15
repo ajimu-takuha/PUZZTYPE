@@ -1740,6 +1740,23 @@ canvas {}
   opacity: 0.5;
 }
 
+.CPUdialogButton {
+  text-align: center;
+  width: 4vw;
+  height: 2.5vh;
+  margin-top: 0.5vh;
+  border-radius: 2px;
+  cursor: pointer;
+  font-size: 1vh;
+  font-family: '851Gkktt';
+  background: none;
+}
+
+.CPUdialogButton:hover {
+  transform: translateY(2px);
+  opacity: 0.5;
+}
+
 #connectButton {
   /* background: rgba(0, 255, 0, 0.8); */
   /* background: rgba(204, 204, 204, 0.5); */

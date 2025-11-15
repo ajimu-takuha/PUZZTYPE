@@ -55,8 +55,8 @@ cpuDialog.innerHTML = `
     </div>
     
     <div class="dialog-buttons">
-      <button id="startCpuButton" class="dialogButton CPUdialogButton">START</button>
-      <button id="cancelCpuButton" class="dialogButton CPUdialogButton">CANCEL</button>
+      <button id="startCpuButton" class="CPUdialogButton">START</button>
+      <button id="cancelCpuButton" class="CPUdialogButton">CANCEL</button>
     </div>
   </div>
 `;

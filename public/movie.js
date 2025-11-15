@@ -1,3 +1,24 @@
+// ------- 動画の metadata プリロード --------
+let preloadedVideoReady = false;
+
+function preloadMovieMetadata() {
+	const v = document.createElement('video');
+	v.preload = 'metadata';
+	v.src = MOVIE_SRC;
+
+	// metadata 読み込み完了
+	v.addEventListener('loadedmetadata', () => {
+		preloadedVideoReady = true;
+		console.log("Video metadata preloaded");
+	});
+
+	v.addEventListener('error', (e) => {
+		console.warn("Video metadata preload failed", e);
+	});
+}
+
+// DOM 準備後にプリロード開始
+window.addEventListener('DOMContentLoaded', preloadMovieMetadata);
 
 const MOVIE_SRC = './movie/PUZZTYPE_movie_30fps_compressed.mp4';
 
@@ -18,14 +39,31 @@ function createOverlay() {
 	container.style.aspectRatio = '16 / 9';
 	container.style.position = 'relative';
 
+	// const video = document.createElement('video');
+	// video.src = MOVIE_SRC;
+	// video.controls = true;
+	// // video.autoplay = true;
+	// video.playsInline = true;
+	// video.style.width = '100%';
+	// video.style.height = '100%';
+	// video.style.backgroundColor = 'black';
+
+	// ------- プリロード対応版 video 作成 -------
 	const video = document.createElement('video');
-	video.src = MOVIE_SRC;
 	video.controls = true;
-	// video.autoplay = true;
 	video.playsInline = true;
+
+	// metadata が事前に取れていれば auto にして高速ロード
+	// まだなら metadata のままロードする
+	video.preload = preloadedVideoReady ? 'auto' : 'metadata';
+
+	// src を最後に設定（ブラウザ挙動が安定する）
+	video.src = MOVIE_SRC;
+
 	video.style.width = '100%';
 	video.style.height = '100%';
 	video.style.backgroundColor = 'black';
+
 
 	const closeBtn = document.createElement('button');
 	closeBtn.textContent = 'CLOSE';
@@ -88,11 +126,10 @@ function showPlayVideoDialog() {
 	dialog.className = 'askPlayVideoDialog';
 	dialog.innerHTML = `
     <div id="askVideoDialogContent">
-      <h2 style="font-size:2.5vh;">ゲームのシステムをゆっくり解説する動画を作りました</h2>
+      <h2 style="font-size:2.5vh;">ゲームのシステム解説動画を作りました</h2>
       <h2 style="font-size:2.5vh;">視聴しますか？</h2>
-      <h2 style="font-size:1.5vh;">ダイアログを閉じてもConfigから試聴が可能です</h2>
-      <h2 style="font-size:1.5vh;">Configから「ASK WATCHING VIDEO」を変更するとこの文は出なくなります</h2>
-      <h2 style="font-size:1.5vh;">※このゲーム内で再生され、音が出ます</h2>
+      <h2 style="font-size:1.5vh;">ゲーム内で動画が再生され、Configから 試聴 / ダイアログ停止 も可能です</h2>
+      <h2 style="font-size:1.5vh;">※再生できない場合はページの再読み込み / キャッシュ削除をしてみてください</h2>
       <div class="dialog-buttons">
         <button id="playVideoButton" class="dialogButton connectButton">WATCH</button>
         <button id="rejectVideoButton" class="dialogButton cancelButton">REJECT</button>
