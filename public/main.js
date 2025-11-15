@@ -181,7 +181,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const howToPlayContent = document.getElementById('howToPlay');
   const pages = [
     {
-      title: 'これだけ知ってて',
+      title: 'プレイではこれだけ知ってて',
       content: `
       <div style="font-size:1.5vw; line-height:5vh;">
         ・
@@ -221,7 +221,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ・単語がフィールドからあふれたら負け<br>
         ・スタイルを変更して違ったプレイを楽しもう!<br>
         <span style="font-size:1vw; color: rgb(255, 255, 255);">
-        　※オンラインは人がいなくて暇なとき作者が常駐してるだけです。とりあえずCPUと対戦してみてね!</span>
+        　※オンラインは人がおらず暇なとき作者が常駐してるだけです。とりあえずCPUと対戦してみてください!</span>
       </div>
       `
     },

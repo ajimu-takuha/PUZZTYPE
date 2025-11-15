@@ -92,9 +92,9 @@ function createOverlay() {
 		overlay.remove();
 	});
 
-	video.addEventListener('ended', () => {
-		overlay.remove();
-	});
+	// video.addEventListener('ended', () => {
+	// 	overlay.remove();
+	// });
 
 	container.appendChild(video);
 	container.appendChild(closeBtn);
